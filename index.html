@@ -15,7 +15,7 @@ nav button{background:white;color:#1769e0;box-shadow:0 2px 8px #0001}
 nav button.active,button.primary{background:#1769e0;color:white}
 button.secondary{background:#e5e7eb;color:#374151}
 button.danger{background:#ef4444;color:white}
-button.blue{background:#1769e0;color:white}
+button.whatsapp{background:#25d366;color:white}
 .card{background:white;border-radius:16px;padding:20px;box-shadow:0 3px 15px #00000012;margin-bottom:18px}
 h2,h3{margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
@@ -34,12 +34,7 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 .role-tabs button{flex:1;background:#eef2f7}.role-tabs button.active{background:#1769e0;color:white}
 .userbar{font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .logout{background:#ffffff22;color:white;padding:7px 10px}
-.record-block{margin-top:18px;padding-top:18px;border-top:1px solid #eee}
-.chat-box{background:#f3f4f6;border-radius:12px;padding:16px;margin:12px 0;min-height:120px}
-.chat-msg{background:#e5e7eb;border-radius:12px;padding:12px;margin:8px 0;max-width:85%}
-.chat-msg.from-admin{background:#dbeafe;margin-left:0}
-.chat-input-area{display:flex;gap:8px;margin-top:10px}
-.chat-input-area input{flex:1}
+.whatsapp-msg{background:#dcfce7;border-radius:12px;padding:14px;margin:12px 0;border-left:4px solid #25d366}
 .forgot-link{color:#1769e0;cursor:pointer;font-size:14px;display:inline-block;margin:8px 0}
 .forgot-link:hover{text-decoration:underline}
 .success{color:#16a34a;font-size:14px;margin:8px 0}
@@ -145,6 +140,7 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <div><label>Nome completo</label><input id="rName" required></div>
 <div><label>Bloco</label><select id="rBlock"><option>A — Ouro Preto</option><option>B — Sabará</option></select></div>
 <div><label>Apartamento</label><input id="rApt" required></div>
+<div><label>Telefone (WhatsApp)</label><input id="rPhone" placeholder="(31) 9xxxx-xxxx" required></div>
 <div><label>Usuário de acesso</label><input id="rUser" required></div>
 <div class="input-group">
   <label>Senha inicial</label>
@@ -169,11 +165,12 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <div><label>Nome do morador</label><input id="name" required></div>
 <div><label>Bloco</label><select id="block"><option>A — Ouro Preto</option><option>B — Sabará</option></select></div>
 <div><label>Apartamento</label><input id="apt" required></div>
+<div><label>Telefone WhatsApp</label><input id="phone" placeholder="(31) 9xxxx-xxxx"></div>
 <div><label>Loja / Transportadora</label><input id="store" required></div>
 <div><label>Código de rastreio</label><input id="tracking"></div>
 </div>
 <br>
-<button class="primary" type="submit">✅ Registrar encomenda</button>
+<button class="whatsapp" type="submit">✅ Registrar e avisar no WhatsApp 🟢</button>
 </form>
 </div>
 </section>
@@ -190,6 +187,7 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <div class="card">
 <h2>⚙️ Meu Perfil</h2>
 <p><strong>Nome:</strong> <span id="pName"></span></p>
+<p><strong>Telefone WhatsApp:</strong> <span id="pPhone"></span></p>
 <p><strong>Usuário:</strong> <span id="pUser"></span></p>
 <p class="adminOnly"><strong>Função:</strong> Portaria (Administrador)</p>
 <p class="residentOnly hidden"><strong>Bloco/Apto:</strong> <span id="pLocal"></span></p>
@@ -248,9 +246,9 @@ let selectedPackageId = null;
 
 if(!residents.length) {
   residents = [
-    {user:'admin',pass:'1234',name:'Portaria',role:'admin'},
-    {user:'joao204',pass:'1234',name:'João',apt:'204',block:'B — Sabará'},
-    {user:'maria102',pass:'1234',name:'Maria',apt:'102',block:'A — Ouro Preto'}
+    {user:'admin',pass:'1234',name:'Portaria',role:'admin',phone:'—'},
+    {user:'joao204',pass:'1234',name:'João',apt:'204',block:'B — Sabará',phone:'(31) 98888-1234'},
+    {user:'maria102',pass:'1234',name:'Maria',apt:'102',block:'A — Ouro Preto',phone:'(31) 97777-5678'}
   ];
   localStorage.setItem('residents', JSON.stringify(residents));
 }
@@ -335,6 +333,7 @@ function applyAccess() {
 function fillProfile() {
   document.getElementById('pName').textContent = currentUser.name;
   document.getElementById('pUser').textContent = currentUser.user;
+  document.getElementById('pPhone').textContent = currentUser.phone;
   if(currentUser.role !== 'admin') {
     document.getElementById('pLocal').textContent = `${currentUser.block} • Apto ${currentUser.apt}`;
   }
@@ -420,34 +419,17 @@ function openRecord(id) {
   renderPackages();
 }
 
-function sendMessage() {
-  if(!selectedPackageId) return;
-  const input = document.getElementById('chatMsgInput');
-  const text = input.value.trim();
-  if(!text) return;
-  
-  const pkg = packages.find(p => p.id === selectedPackageId);
-  if(!pkg) return;
-  
-  if(!pkg.chat) pkg.chat = [];
-  pkg.chat.push({
-    from: currentUser.role === 'admin' ? 'Portaria' : 'Morador',
-    text: text,
-    time: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})
-  });
-  
-  localStorage.setItem('packages', JSON.stringify(packages));
-  input.value = '';
-  renderPackages();
+function sendWhatsAppNotice(pkg) {
+  alert(`🟢 WHATSAPP enviado para ${pkg.phone}:\n\n"Olá ${pkg.name}! Sua encomenda chegou! 📦\nRetire na portaria quando puder.\n— CondoExpress"`);
 }
 
 function renderPackages() {
   let q = (document.getElementById('searchInput')?.value || '').toLowerCase();
-  if(currentUser.role !== 'admin') {
+  if(currentUser && currentUser.role !== 'admin') {
     q = (currentUser.name + ' ' + currentUser.apt).toLowerCase() + ' ' + q;
   }
   let list = packages.filter(p => Object.values(p).join(' ').toLowerCase().includes(q));
-  if(currentUser.role !== 'admin') {
+  if(currentUser && currentUser.role !== 'admin') {
     list = list.filter(p => p.name === currentUser.name && p.apt === currentUser.apt);
   }
   
@@ -458,44 +440,34 @@ function renderPackages() {
       <div>
         <b>${p.name}</b> — Apto ${p.apt} • ${p.block}<br>
         📦 ${p.store}<br>
+        📱 WhatsApp: ${p.phone || 'Não cadastrado'}<br>
         <span class="small">Recebida: ${p.date}</span>
       </div>
       <span class="status">${p.status}</span>
       <div class="actions">
-        ${!isSelected ? `<button class="blue" onclick="openRecord(${p.id})">📄 Abrir registro</button>` : ''}
-        ${currentUser.role==='admin' && p.status!=='Entregue' ? `<button class="secondary" onclick="deliver(${p.id})">Marcar retirada</button>` : ''}
+        ${!isSelected ? `<button class="blue" onclick="openRecord(${p.id})">📄 Ver detalhes</button>` : ''}
+        ${currentUser && currentUser.role==='admin' && p.status!=='Entregue' ? `<button class="whatsapp" onclick="sendWhatsAppNotice(${JSON.stringify(p).replace(/"/g,'&quot;')})">🟢 Avisar no WhatsApp</button>` : ''}
+        ${currentUser && currentUser.role==='admin' && p.status!=='Entregue' ? `<button class="secondary" onclick="deliver(${p.id})">Marcar retirada</button>` : ''}
       </div>
       
       ${isSelected ? `
-      <div class="record-block">
-        <h3>📄 Registro da encomenda</h3>
+      <div class="whatsapp-msg">
+        <h3>📄 Detalhes da Encomenda</h3>
         <p><strong>Morador:</strong> ${p.name} • Apto ${p.apt} • ${p.block}<br>
-        <strong>Loja:</strong> ${p.store} • NF: - • Pedido: - • Rastreio: ${p.tracking || '-'}<br>
-        <strong>Recebida:</strong> ${p.date} • <strong>Status:</strong> ${p.status}</p>
+        <strong>Telefone:</strong> 📱 ${p.phone || 'Não informado'}<br>
+        <strong>Loja:</strong> ${p.store} • Rastreio: ${p.tracking || '-'}</p>
         
-        <h3>💬 Conversa desta encomenda</h3>
-        <p class="small">A conversa desta encomenda é diretamente com a portaria.</p>
-        
-        <div class="chat-box">
-          ${!p.chat ? `
-          <div class="chat-msg from-admin">
-            <strong>📦 Portaria</strong><br>
-            Conversa desta encomenda iniciada.<br>
-            Envie uma mensagem abaixo.
-          </div>
-          ` : p.chat.map(m => `
-          <div class="chat-msg ${m.from==='Portaria' ? 'from-admin' : ''}">
-            <strong>${m.from==='Portaria' ? '📦 Portaria' : '👤 Morador'}</strong><br>
-            ${m.text}<br>
-            <span class="small">${m.time}</span>
-          </div>
-          `).join('')}
-        </div>
-        
-        <div class="chat-input-area">
-          <input type="text" id="chatMsgInput" placeholder="Digite uma mensagem...">
-          <button class="primary" onclick="sendMessage()">Enviar</button>
-        </div>
+        ${currentUser && currentUser.role === 'admin' ? `
+        <p><strong>🟢 Mensagem enviada no WhatsApp:</strong><br>
+        "Olá ${p.name}! Tudo bem?<br>
+        Chegou sua encomenda da ${p.store}! 📦<br>
+        Pode retirar na portaria quando quiser.<br>
+        — CondoExpress ✅"</p>
+        ` : `
+        <p><strong>🟢 Você foi avisado!</strong><br>
+        A portaria registrou sua encomenda e mandou mensagem no seu WhatsApp.<br>
+        Pode retirar quando quiser! 📦</p>
+        `}
       </div>
       ` : ''}
     </div>
@@ -508,6 +480,7 @@ function renderResidents() {
       <div>
         <b>${r.name}</b><br>
         🏢 ${r.block} • Apto ${r.apt}<br>
+        📱 ${r.phone}<br>
         <span class="small">Usuário: ${r.user}</span>
       </div>
       <button class="secondary" onclick="document.getElementById('resetUser').value='${r.user}';show('profile')">🔑 Redefinir senha</button>
@@ -517,11 +490,13 @@ function renderResidents() {
 
 document.getElementById('packageForm').onsubmit = function(e) {
   e.preventDefault();
+  const phoneVal = document.getElementById('phone').value || 'Não informado';
   const p = {
     id: Date.now(),
     name: document.getElementById('name').value,
     block: document.getElementById('block').value,
     apt: document.getElementById('apt').value,
+    phone: phoneVal,
     store: document.getElementById('store').value,
     tracking: document.getElementById('tracking').value,
     status: 'Aguardando retirada',
@@ -529,7 +504,7 @@ document.getElementById('packageForm').onsubmit = function(e) {
   };
   packages.unshift(p);
   localStorage.setItem('packages', JSON.stringify(packages));
-  alert('✅ Encomenda registrada!');
+  alert(`✅ Encomenda registrada!\n🟢 Mensagem enviada no WhatsApp: ${phoneVal}`);
   this.reset();
   selectedPackageId = p.id;
   show('search', null);
@@ -541,6 +516,7 @@ document.getElementById('residentForm').onsubmit = function(e) {
     name: document.getElementById('rName').value,
     block: document.getElementById('rBlock').value,
     apt: document.getElementById('rApt').value,
+    phone: document.getElementById('rPhone').value,
     user: document.getElementById('rUser').value,
     pass: document.getElementById('rPass').value
   });
