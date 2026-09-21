@@ -14,11 +14,14 @@ button{border:0;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:poi
 nav button{background:white;color:#1769e0;box-shadow:0 2px 8px #0001}
 nav button.active,button.primary{background:#1769e0;color:white}
 button.secondary{background:#e5e7eb;color:#374151}
+button.danger{background:#ef4444;color:white}
 button.blue{background:#1769e0;color:white}
 .card{background:white;border-radius:16px;padding:20px;box-shadow:0 3px 15px #00000012;margin-bottom:18px}
 h2,h3{margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
-input,select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:9px;font-size:15px}
+.input-group{position:relative;margin-bottom:12px}
+.input-group input{width:100%;padding:12px 44px 12px 12px;border:1px solid #d7dce2;border-radius:9px;font-size:15px}
+.eye-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:20px;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
 .hidden{display:none}.search{margin-bottom:15px;width:260px;max-width:100%}
 .package{border:1px solid #e2e6eb;border-radius:12px;padding:15px;margin:10px 0}
 .status{display:inline-block;padding:6px 12px;border-radius:20px;background:#fff3cd;color:#8a6500;font-size:14px;font-weight:bold;margin:8px 0}
@@ -29,7 +32,7 @@ input,select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:9px;
 .login-card{background:white;width:min(420px,100%);padding:28px;border-radius:18px;box-shadow:0 8px 30px #0002}
 .login-card h2{margin-top:0}.role-tabs{display:flex;gap:8px;margin-bottom:18px}
 .role-tabs button{flex:1;background:#eef2f7}.role-tabs button.active{background:#1769e0;color:white}
-.userbar{font-size:13px;display:flex;align-items:center;gap:8px}
+.userbar{font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .logout{background:#ffffff22;color:white;padding:7px 10px}
 .record-block{margin-top:18px;padding-top:18px;border-top:1px solid #eee}
 .chat-box{background:#f3f4f6;border-radius:12px;padding:16px;margin:12px 0;min-height:120px}
@@ -37,37 +40,87 @@ input,select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:9px;
 .chat-msg.from-admin{background:#dbeafe;margin-left:0}
 .chat-input-area{display:flex;gap:8px;margin-top:10px}
 .chat-input-area input{flex:1}
+.forgot-link{color:#1769e0;cursor:pointer;font-size:14px;display:inline-block;margin:8px 0}
+.forgot-link:hover{text-decoration:underline}
+.success{color:#16a34a;font-size:14px;margin:8px 0}
+.error{color:#dc2626;font-size:14px;margin:8px 0}
+.resident-item{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:12px;border-bottom:1px solid #eee}
 </style>
 </head>
 <body>
 <div class="login-overlay" id="loginOverlay">
   <div class="login-card">
     <h2>📦 CondoExpress</h2>
-    <p>Entre para acessar o sistema.</p>
-    <div class="role-tabs">
-      <button id="adminTab" class="active" onclick="setLoginRole('admin')">Portaria</button>
-      <button id="residentTab" onclick="setLoginRole('resident')">Morador</button>
+    <p id="loginSubtitle">Entre para acessar o sistema.</p>
+    
+    <div id="loginFormView">
+      <div class="role-tabs">
+        <button id="adminTab" class="active" onclick="setLoginRole('admin')">Portaria</button>
+        <button id="residentTab" onclick="setLoginRole('resident')">Morador</button>
+      </div>
+      
+      <div id="adminLogin">
+        <div class="input-group">
+          <label>Usuário</label>
+          <input id="loginUser" autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label>Senha</label>
+          <input id="loginPass" type="password" autocomplete="new-password">
+          <button type="button" class="eye-btn" onclick="togglePass('loginPass')">👁️</button>
+        </div>
+      </div>
+      
+      <div id="residentLogin" class="hidden">
+        <div class="input-group">
+          <label>Usuário do morador</label>
+          <input id="residentUser" autocomplete="off">
+        </div>
+        <div class="input-group">
+          <label>Senha</label>
+          <input id="residentPass" type="password" autocomplete="new-password">
+          <button type="button" class="eye-btn" onclick="togglePass('residentPass')">👁️</button>
+        </div>
+        <span class="forgot-link" onclick="showForgot()">Esqueci minha senha</span>
+      </div>
+      
+      <br><button class="primary" style="width:100%" onclick="doLogin()">Entrar</button>
+      <p id="loginError" class="error"></p>
     </div>
-    <div id="adminLogin">
-      <label>Usuário</label><input id="loginUser" autocomplete="off">
-      <br><br><label>Senha</label><input id="loginPass" type="password" autocomplete="new-password">
+    
+    <div id="forgotView" class="hidden">
+      <h3>🔑 Recuperar Senha</h3>
+      <p>Digite seu usuário para redefinir a senha:</p>
+      <div class="input-group">
+        <label>Seu usuário</label>
+        <input id="forgotUser" autocomplete="off">
+      </div>
+      <br>
+      <button class="primary" style="width:100%" onclick="sendReset()">Enviar instruções</button>
+      <button class="secondary" style="width:100%;margin-top:8px" onclick="backToLogin()">Voltar</button>
+      <p id="forgotMsg"></p>
     </div>
-    <div id="residentLogin" class="hidden">
-      <label>Usuário do morador</label><input id="residentUser" autocomplete="off">
-      <br><br><label>Senha</label><input id="residentPass" type="password" autocomplete="new-password">
-    </div>
-    <br><button class="primary" style="width:100%" onclick="doLogin()">Entrar</button>
-    <p id="loginError" style="color:#c62828;font-size:13px"></p>
   </div>
 </div>
-<header><h1>📦 CondoExpress</h1><div class="userbar"><span id="loggedUser">Portaria</span><button class="logout" onclick="logout()">Sair</button></div></header>
+
+<header>
+  <h1>📦 CondoExpress</h1>
+  <div class="userbar">
+    <span id="loggedUser">Portaria</span>
+    <button class="logout" onclick="show('profile')">⚙️ Perfil</button>
+    <button class="logout" onclick="logout()">Sair</button>
+  </div>
+</header>
+
 <div class="container">
 <nav>
 <button class="active" onclick="show('home',this)">🏠 Início</button>
 <button class="adminOnly" onclick="show('residents',this)">👥 Moradores</button>
 <button class="adminOnly" onclick="show('register',this)">📦 Registrar Encomenda</button>
 <button onclick="show('search',this)">🔎 Procurar Encomenda</button>
+<button onclick="show('profile',this)">⚙️ Perfil</button>
 </nav>
+
 <section id="home">
 <div class="hero">
 <div class="stat">Encomendas hoje<b id="todayCount">0</b></div>
@@ -83,6 +136,7 @@ input,select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:9px;
 </div>
 </div>
 </section>
+
 <section id="residents" class="hidden">
 <div class="card">
 <h2>👥 Cadastro de Moradores</h2>
@@ -92,7 +146,11 @@ input,select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:9px;
 <div><label>Bloco</label><select id="rBlock"><option>A — Ouro Preto</option><option>B — Sabará</option></select></div>
 <div><label>Apartamento</label><input id="rApt" required></div>
 <div><label>Usuário de acesso</label><input id="rUser" required></div>
-<div><label>Senha</label><input id="rPass" type="password" required></div>
+<div class="input-group">
+  <label>Senha inicial</label>
+  <input id="rPass" type="password" required>
+  <button type="button" class="eye-btn" onclick="togglePass('rPass')">👁️</button>
+</div>
 </div><br>
 <button class="primary" type="submit">➕ Cadastrar morador</button>
 </form>
@@ -102,6 +160,7 @@ input,select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:9px;
 <div id="residentList"></div>
 </div>
 </section>
+
 <section id="register" class="hidden">
 <div class="card">
 <h2>📦 Registrar Encomenda</h2>
@@ -118,6 +177,7 @@ input,select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:9px;
 </form>
 </div>
 </section>
+
 <section id="search" class="hidden">
 <div class="card">
 <h2>🔎 Procurar Encomenda</h2>
@@ -125,11 +185,65 @@ input,select{width:100%;padding:12px;border:1px solid #d7dce2;border-radius:9px;
 <div id="packageList"></div>
 </div>
 </section>
+
+<section id="profile" class="hidden">
+<div class="card">
+<h2>⚙️ Meu Perfil</h2>
+<p><strong>Nome:</strong> <span id="pName"></span></p>
+<p><strong>Usuário:</strong> <span id="pUser"></span></p>
+<p class="adminOnly"><strong>Função:</strong> Portaria (Administrador)</p>
+<p class="residentOnly hidden"><strong>Bloco/Apto:</strong> <span id="pLocal"></span></p>
+
+<hr style="margin:20px 0;border:none;border-top:1px solid #eee">
+<h3>🔑 Alterar Minha Senha</h3>
+<p class="small">Preencha para trocar sua senha de acesso.</p>
+
+<div class="input-group residentOnly hidden">
+  <label>Senha atual</label>
+  <input id="curPass" type="password">
+  <button type="button" class="eye-btn" onclick="togglePass('curPass')">👁️</button>
 </div>
+
+<div class="input-group">
+  <label>Nova senha</label>
+  <input id="newPass" type="password">
+  <button type="button" class="eye-btn" onclick="togglePass('newPass')">👁️</button>
+</div>
+
+<div class="input-group">
+  <label>Repetir nova senha</label>
+  <input id="confPass" type="password">
+  <button type="button" class="eye-btn" onclick="togglePass('confPass')">👁️</button>
+</div>
+
+<button class="primary" onclick="changePass()">Salvar nova senha</button>
+<p id="passMsg"></p>
+</div>
+
+<div class="card adminOnly">
+<h3>🔑 Redefinir Senha de Morador</h3>
+<p class="small">Portaria pode redefinir a senha de qualquer morador.</p>
+<div class="grid">
+<div>
+  <label>Usuário do morador</label>
+  <input id="resetUser" placeholder="ex: maria102">
+</div>
+<div class="input-group">
+  <label>Nova senha</label>
+  <input id="resetNewPass" type="password">
+  <button type="button" class="eye-btn" onclick="togglePass('resetNewPass')">👁️</button>
+</div>
+</div>
+<button class="secondary" onclick="resetUserPass()">Redefinir senha</button>
+<p id="resetMsg"></p>
+</div>
+</section>
+</div>
+
 <script>
 let packages = JSON.parse(localStorage.getItem('packages') || '[]');
 let residents = JSON.parse(localStorage.getItem('residents') || '[]');
-let currentRole = null;
+let currentUser = null;
 let selectedPackageId = null;
 
 if(!residents.length) {
@@ -141,36 +255,149 @@ if(!residents.length) {
   localStorage.setItem('residents', JSON.stringify(residents));
 }
 
+function togglePass(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
 function setLoginRole(role) {
   document.getElementById('adminTab').classList.toggle('active', role==='admin');
   document.getElementById('residentTab').classList.toggle('active', role==='resident');
   document.getElementById('adminLogin').classList.toggle('hidden', role!=='admin');
   document.getElementById('residentLogin').classList.toggle('hidden', role!=='resident');
+  document.getElementById('loginError').textContent = '';
+}
+
+function showForgot() {
+  document.getElementById('loginFormView').classList.add('hidden');
+  document.getElementById('forgotView').classList.remove('hidden');
+  document.getElementById('forgotMsg').textContent = '';
+}
+
+function backToLogin() {
+  document.getElementById('loginFormView').classList.remove('hidden');
+  document.getElementById('forgotView').classList.add('hidden');
+  document.getElementById('forgotUser').value = '';
+}
+
+function sendReset() {
+  const user = document.getElementById('forgotUser').value.trim();
+  if(!user) return alert('Digite seu usuário');
+  const found = residents.find(r => r.user === user && r.role !== 'admin');
+  if(!found) {
+    document.getElementById('forgotMsg').innerHTML = '<span class="error">Usuário não encontrado.</span>';
+    return;
+  }
+  const tempPass = '1234';
+  found.pass = tempPass;
+  localStorage.setItem('residents', JSON.stringify(residents));
+  document.getElementById('forgotMsg').innerHTML = `<span class="success">Senha redefinida! Use: ${tempPass} — depois troque no seu Perfil.</span>`;
 }
 
 function doLogin() {
-  let user = document.getElementById('loginUser').value;
-  let pass = document.getElementById('loginPass').value;
-  let found = residents.find(r => r.user === user && r.pass === pass);
+  let user, pass;
+  if(document.getElementById('adminTab').classList.contains('active')) {
+    user = document.getElementById('loginUser').value.trim();
+    pass = document.getElementById('loginPass').value;
+  } else {
+    user = document.getElementById('residentUser').value.trim();
+    pass = document.getElementById('residentPass').value;
+  }
+  
+  const found = residents.find(r => r.user === user && r.pass === pass);
   if(found) {
-    currentRole = found.role === 'admin' ? 'admin' : 'resident';
+    currentUser = found;
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('loggedUser').textContent = found.name;
     applyAccess();
     show('home', document.querySelector('nav button'));
   } else {
-    document.getElementById('loginError').textContent = 'Usuário ou senha incorretos.';
+    document.getElementById('loginError').innerHTML = '<span class="error">Usuário ou senha incorretos.</span>';
   }
 }
 
 function logout() {
-  currentRole = null;
+  currentUser = null;
   document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('residentUser').value = '';
+  document.getElementById('residentPass').value = '';
 }
 
 function applyAccess() {
-  document.querySelectorAll('.adminOnly').forEach(x => x.style.display = currentRole==='admin' ? 'block' : 'none');
-  updateStats(); renderPackages(); renderResidents();
+  const isAdmin = currentUser.role === 'admin';
+  document.querySelectorAll('.adminOnly').forEach(x => x.style.display = isAdmin ? 'block' : 'none');
+  document.querySelectorAll('.residentOnly').forEach(x => x.classList.toggle('hidden', isAdmin));
+  updateStats(); renderPackages(); renderResidents(); fillProfile();
+}
+
+function fillProfile() {
+  document.getElementById('pName').textContent = currentUser.name;
+  document.getElementById('pUser').textContent = currentUser.user;
+  if(currentUser.role !== 'admin') {
+    document.getElementById('pLocal').textContent = `${currentUser.block} • Apto ${currentUser.apt}`;
+  }
+}
+
+function changePass() {
+  const isAdmin = currentUser.role === 'admin';
+  const curPass = document.getElementById('curPass').value;
+  const newPass = document.getElementById('newPass').value.trim();
+  const confPass = document.getElementById('confPass').value.trim();
+  const msgEl = document.getElementById('passMsg');
+  
+  if(!newPass || !confPass) {
+    msgEl.innerHTML = '<span class="error">Preencha os campos de nova senha.</span>';
+    return;
+  }
+  if(newPass !== confPass) {
+    msgEl.innerHTML = '<span class="error">Nova senha não confere.</span>';
+    return;
+  }
+  if(newPass.length < 4) {
+    msgEl.innerHTML = '<span class="error">Use pelo menos 4 caracteres.</span>';
+    return;
+  }
+  if(!isAdmin && curPass !== currentUser.pass) {
+    msgEl.innerHTML = '<span class="error">Senha atual incorreta.</span>';
+    return;
+  }
+  
+  const idx = residents.findIndex(r => r.user === currentUser.user);
+  residents[idx].pass = newPass;
+  localStorage.setItem('residents', JSON.stringify(residents));
+  
+  document.getElementById('newPass').value = '';
+  document.getElementById('confPass').value = '';
+  document.getElementById('curPass').value = '';
+  msgEl.innerHTML = '<span class="success">✅ Senha alterada com sucesso!</span>';
+}
+
+function resetUserPass() {
+  const u = document.getElementById('resetUser').value.trim();
+  const newPass = document.getElementById('resetNewPass').value.trim();
+  const msgEl = document.getElementById('resetMsg');
+  
+  if(!u || !newPass) {
+    msgEl.innerHTML = '<span class="error">Preencha o usuário e a nova senha.</span>';
+    return;
+  }
+  if(newPass.length < 4) {
+    msgEl.innerHTML = '<span class="error">Use pelo menos 4 caracteres.</span>';
+    return;
+  }
+  
+  const idx = residents.findIndex(r => r.user === u && r.role !== 'admin');
+  if(idx === -1) {
+    msgEl.innerHTML = '<span class="error">Usuário não encontrado.</span>';
+    return;
+  }
+  
+  residents[idx].pass = newPass;
+  localStorage.setItem('residents', JSON.stringify(residents));
+  document.getElementById('resetNewPass').value = '';
+  msgEl.innerHTML = '<span class="success">✅ Senha redefinida!</span>';
 }
 
 function show(id, btn) {
@@ -178,10 +405,11 @@ function show(id, btn) {
   document.getElementById(id).classList.remove('hidden');
   document.querySelectorAll('nav button').forEach(x => x.classList.remove('active'));
   if(btn) btn.classList.add('active');
+  if(id === 'profile') fillProfile();
 }
 
 function updateStats() {
-  let today = new Date().toLocaleDateString('pt-BR');
+  const today = new Date().toLocaleDateString('pt-BR');
   document.getElementById('todayCount').textContent = packages.filter(p => p.date.startsWith(today)).length;
   document.getElementById('pendingCount').textContent = packages.filter(p => p.status !== 'Entregue').length;
   document.getElementById('deliveredCount').textContent = packages.filter(p => p.status === 'Entregue').length;
@@ -194,16 +422,16 @@ function openRecord(id) {
 
 function sendMessage() {
   if(!selectedPackageId) return;
-  let input = document.getElementById('chatMsgInput');
-  let text = input.value.trim();
+  const input = document.getElementById('chatMsgInput');
+  const text = input.value.trim();
   if(!text) return;
   
-  let pkg = packages.find(p => p.id === selectedPackageId);
+  const pkg = packages.find(p => p.id === selectedPackageId);
   if(!pkg) return;
   
   if(!pkg.chat) pkg.chat = [];
   pkg.chat.push({
-    from: currentRole === 'admin' ? 'Portaria' : 'Morador',
+    from: currentUser.role === 'admin' ? 'Portaria' : 'Morador',
     text: text,
     time: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})
   });
@@ -215,9 +443,16 @@ function sendMessage() {
 
 function renderPackages() {
   let q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  if(currentUser.role !== 'admin') {
+    q = (currentUser.name + ' ' + currentUser.apt).toLowerCase() + ' ' + q;
+  }
   let list = packages.filter(p => Object.values(p).join(' ').toLowerCase().includes(q));
+  if(currentUser.role !== 'admin') {
+    list = list.filter(p => p.name === currentUser.name && p.apt === currentUser.apt);
+  }
+  
   document.getElementById('packageList').innerHTML = list.length ? list.map(p => {
-    let isSelected = selectedPackageId === p.id;
+    const isSelected = selectedPackageId === p.id;
     return `
     <div class="package">
       <div>
@@ -228,7 +463,7 @@ function renderPackages() {
       <span class="status">${p.status}</span>
       <div class="actions">
         ${!isSelected ? `<button class="blue" onclick="openRecord(${p.id})">📄 Abrir registro</button>` : ''}
-        ${currentRole==='admin' && p.status!=='Entregue' ? `<button class="secondary" onclick="deliver(${p.id})">Marcar retirada</button>` : ''}
+        ${currentUser.role==='admin' && p.status!=='Entregue' ? `<button class="secondary" onclick="deliver(${p.id})">Marcar retirada</button>` : ''}
       </div>
       
       ${isSelected ? `
@@ -258,7 +493,7 @@ function renderPackages() {
         </div>
         
         <div class="chat-input-area">
-          <input type="text" id="chatMsgInput" placeholder="Digite uma mensagem para o morador...">
+          <input type="text" id="chatMsgInput" placeholder="Digite uma mensagem...">
           <button class="primary" onclick="sendMessage()">Enviar</button>
         </div>
       </div>
@@ -269,19 +504,20 @@ function renderPackages() {
 
 function renderResidents() {
   document.getElementById('residentList').innerHTML = residents.filter(r => r.role !== 'admin').map(r => `
-    <div class="package">
+    <div class="resident-item">
       <div>
         <b>${r.name}</b><br>
         🏢 ${r.block} • Apto ${r.apt}<br>
         <span class="small">Usuário: ${r.user}</span>
       </div>
+      <button class="secondary" onclick="document.getElementById('resetUser').value='${r.user}';show('profile')">🔑 Redefinir senha</button>
     </div>
   `).join('');
 }
 
 document.getElementById('packageForm').onsubmit = function(e) {
   e.preventDefault();
-  let p = {
+  const p = {
     id: Date.now(),
     name: document.getElementById('name').value,
     block: document.getElementById('block').value,
@@ -293,7 +529,7 @@ document.getElementById('packageForm').onsubmit = function(e) {
   };
   packages.unshift(p);
   localStorage.setItem('packages', JSON.stringify(packages));
-  alert('Encomenda registrada!');
+  alert('✅ Encomenda registrada!');
   this.reset();
   selectedPackageId = p.id;
   show('search', null);
@@ -309,13 +545,13 @@ document.getElementById('residentForm').onsubmit = function(e) {
     pass: document.getElementById('rPass').value
   });
   localStorage.setItem('residents', JSON.stringify(residents));
-  alert('Morador cadastrado!');
+  alert('✅ Morador cadastrado!');
   this.reset();
   renderResidents();
 };
 
 function deliver(id) {
-  let p = packages.find(x => x.id == id);
+  const p = packages.find(x => x.id == id);
   if(!p) return;
   p.status = 'Entregue';
   p.withdrawnBy = prompt('Nome de quem retirou:');
