@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CondoExpress</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h1>CondoExpress</h1>
+  <p>Sistema de notificações ativo!</p>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(function(registro) {
+          console.log('Service Worker registrado com sucesso!', registro);
+        })
+        .catch(function(erro) {
+          console.log('Erro ao registrar:', erro);
+        });
+    }
+  </script>
+</body>
+</html>
