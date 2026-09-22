@@ -44,6 +44,11 @@ nav button.active{background:#1769e0;color:white}
 .dados-morador{background:#f0fdf4;padding:12px;border-radius:8px;margin:10px 0;border-left:4px solid #16a34a}
 .sem-email{background:#fffbeb;border-left-color:#f59e0b;color:#92400e}
 .texto-fixo{color:#16a34a;font-size:12px;margin-left:8px}
+.foto-preview{max-width:100%;max-height:200px;border-radius:8px;margin-top:10px;border:2px solid #ddd}
+.botoes-foto{display:flex;gap:10px;margin-top:8px}
+.botoes-foto button{flex:1}
+.camera{background:#f97316;color:white}
+.arquivo{background:#6366f1;color:white}
 </style>
 </head>
 <body>
@@ -128,6 +133,16 @@ nav button.active{background:#1769e0;color:white}
         <input type="text" id="inpRastreio" placeholder="Código">
       </div>
     </div>
+
+    <!-- 📷 FOTO — CÂMERA E ARQUIVO — SÓ ISSO ADICIONEI -->
+    <label>📷 Foto da Encomenda</label>
+    <div class="botoes-foto">
+      <button type="button" class="camera" onclick="document.getElementById('fotoArquivo').click()">📁 Galeria</button>
+      <button type="button" class="arquivo" onclick="document.getElementById('fotoCamera').click()">📷 Câmera</button>
+    </div>
+    <input type="file" id="fotoArquivo" accept="image/*" style="display:none" onchange="mostrarFoto(this)">
+    <input type="file" id="fotoCamera" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this)">
+    <img id="previewFoto" class="foto-preview hidden" alt="Foto da encomenda">
     
     <p id="avisoSemEmail" class="aviso hidden">⚠️ Sem e-mail — a encomenda fica registrada! Cadastre o e-mail depois na lista de moradores.</p>
     <button class="enviar" id="btnEnviar" onclick="enviarEncomenda()">✅ REGISTRAR ENCOMENDA</button>
@@ -260,6 +275,7 @@ let moradores = [
 let admin = {usuario:"admin",senha:"condo2026",nome:"Portaria — Administrador"};
 let usuarioLogado = null, ehAdmin = false;
 let indiceSelecionado = null;
+let fotoBase64 = null;
 
 function carregarListaApartamentos(){
   const sel = document.getElementById('selApto');
@@ -312,6 +328,20 @@ function preencherDadosMorador(){
   divInfo.classList.remove('hidden');
 }
 
+// 📷 MOSTRAR FOTO — só isso adicionei
+function mostrarFoto(input){
+  if(input.files && input.files[0]){
+    const leitor = new FileReader();
+    leitor.onload = function(e){
+      fotoBase64 = e.target.result;
+      const img = document.getElementById('previewFoto');
+      img.src = fotoBase64;
+      img.classList.remove('hidden');
+    };
+    leitor.readAsDataURL(input.files[0]);
+  }
+}
+
 function entrar(){
   const u = document.getElementById('inpUsuario').value.trim();
   const s = document.getElementById('inpSenha').value.trim();
@@ -322,7 +352,7 @@ function entrar(){
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo! Nome sempre FIXO — só altere e-mail quando precisar!";
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Nome sempre FIXO — só altere e-mail e tire foto quando precisar!";
     carregarListaApartamentos();
     carregaListaMoradores();
     carregaTodasEncomendas();
@@ -346,7 +376,8 @@ function entrar(){
 }
 
 function sair(){
-  usuarioLogado = null; ehAdmin = false; indiceSelecionado = null;
+  usuarioLogado = null; ehAdmin = false; indiceSelecionado = null; fotoBase64 = null;
+  document.getElementById('previewFoto').classList.add('hidden');
   document.getElementById('sistema').classList.add('hidden');
   document.getElementById('telaLogin').classList.remove('hidden');
   document.getElementById('inpUsuario').value = '';
@@ -402,7 +433,8 @@ async function enviarEncomenda(){
     email: email,
     empresa: empresa || 'Não informada',
     nota: nota || 'Não informada',
-    rastreio: rastreio || 'Não informada'
+    rastreio: rastreio || 'Não informada',
+    foto: fotoBase64 || null
   };
   
   m.encomendas.push(novaEncomenda);
@@ -417,25 +449,26 @@ async function enviarEncomenda(){
         data: novaEncomenda.data
       });
       statusEl.className = 'status-envio enviado';
-      statusEl.innerHTML = `✅ REGISTRADO + E-MAIL ENVIADO!<br>${m.nome} — Apto ${m.apto}<br><small>Nome FIXO ✅</small>`;
+      statusEl.innerHTML = `✅ REGISTRADO + E-MAIL ENVIADO!<br>${m.nome} — Apto ${m.apto}<br><small>Nome FIXO ✅ Foto salva ✅</small>`;
     }catch{
       statusEl.className = 'status-envio falha';
-      statusEl.innerHTML = `⚠️ Registrado, e-mail não enviado.<br>Nome FIXO ✅`;
+      statusEl.innerHTML = `⚠️ Registrado, e-mail não enviado.<br>Nome FIXO ✅ Foto salva ✅`;
     }
   }else{
     statusEl.className = 'status-envio enviado';
-    statusEl.innerHTML = `✅ REGISTRADO!<br>Sem e-mail.<br>Nome FIXO ✅`;
+    statusEl.innerHTML = `✅ REGISTRADO!<br>Sem e-mail.<br>Nome FIXO ✅ Foto salva ✅`;
   }
   
   setTimeout(() => statusEl.classList.add('hidden'), 6000);
   btn.disabled = false;
   btn.textContent = "✅ REGISTRAR ENCOMENDA";
   
-  // Limpa só os campos — Nome continua fixo
-  indiceSelecionado = null;
+  // Limpa tudo — Nome continua fixo
+  indiceSelecionado = null; fotoBase64 = null;
   document.getElementById('selApto').value = '';
   document.getElementById('dadosMoradorSelecionado').classList.add('hidden');
   document.getElementById('avisoSemEmail').classList.add('hidden');
+  document.getElementById('previewFoto').classList.add('hidden');
   document.getElementById('inpNome').value = '';
   document.getElementById('inpApto').value = '';
   document.getElementById('inpEmail').value = '';
@@ -463,6 +496,7 @@ function carregaTodasEncomendas(){
       🏠 Apto: ${e.apto}<br>
       📅 Data: ${e.data}<br>
       ${e.empresa!=='Não informada'?`🏬 Empresa: ${e.empresa}<br>`:''}
+      ${e.foto?`<img src="${e.foto}" style="max-width:100%;max-height:150px;border-radius:6px;margin:8px 0">`:'📷 Sem foto'}<br>
       <button class="excluir" onclick="marcarRetirada(${i})">🗑️ Marcar Retirada</button>
     </div>
   `).join('');
@@ -497,6 +531,7 @@ function carregaMinhasEncomendas(){
       📅 ${e.data}<br>
       🏠 Apartamento: ${e.apto}<br>
       ${e.empresa!=='Não informada'?`🏬 Empresa: ${e.empresa}<br>`:''}
+      ${e.foto?`<img src="${e.foto}" style="max-width:100%;max-height:150px;border-radius:6px;margin:8px 0">`:'📷 Sem foto'}<br>
       <em>Retire na portaria!</em>
     </div>
   `).reverse().join('');
