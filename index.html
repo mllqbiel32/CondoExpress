@@ -16,17 +16,19 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .header h1 { font-size: 28px; color: #1e40af; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .status { display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; margin: 10px 0; }
 .usuario { color: #4b5563; font-size: 16px; margin-bottom: 15px; }
+.aviso-morador { background: #e0f2fe; color: #0369a1; padding: 10px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
 
 /* Botões */
-.btn { border: none; border-radius: 12px; padding: 14px 20px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin: 6px 0; transition: all .2s; }
+.btn { border: none; border-radius: 12px; padding: 16px 20px; font-size: 17px; font-weight: 600; cursor: pointer; width: 100%; margin: 8px 0; transition: all .2s; }
 .btn:hover { transform: translateY(-1px); }
 .btn-sair { background: #e5e7eb; color: #374151; max-width: 250px; display: block; margin: 0 auto 20px; }
 .btn-nav { background: white; color: #1e40af; box-shadow: 0 1px 3px rgba(0,0,0,.1); text-align: left; padding-left: 20px; }
 .btn-nav.ativo { background: #1e40af; color: white; }
-.btn-bloco { background: white; color: #16a34a; border: 2px solid #16a34a; font-size: 18px; margin: 10px 0; }
-.btn-bloco-a { background: #1e40af; color: white; border: none; }
-.btn-voltar { background: #e5e7eb; color: #374151; margin-bottom: 15px; }
+.btn-bloco-a { background: #1e40af; color: white; }
+.btn-bloco-b { background: #16a34a; color: white; }
+.btn-portaria { background: #f59e0b; color: white; }
 .btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
+.btn-desativado { background: #d1d5db; color: #6b7280; cursor: not-allowed; }
 
 /* Cards e Formulário */
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
@@ -51,147 +53,171 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .tela.ativa { display: block; }
 .aba { display: none; }
 .aba.ativa { display: block; }
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
 
 <div class="container">
 
-<!-- TELA INICIAL — ESCOLHA DE BLOCO -->
-<div id="tela-escolha" class="tela ativa">
+<!-- TELA INICIAL — ESCOLHA -->
+<div id="tela-inicio" class="tela ativa">
   <div class="header">
     <h1>📦 CondoExpress</h1>
   </div>
   <div class="card">
-    <p style="text-align:center; font-size:17px; color:#4b5563; margin-bottom:20px">Escolha o bloco:</p>
-    <button class="btn btn-bloco btn-bloco-a" onclick="abrirBlocoA()">
-      🏆 BLOCO A — Ouro Preto
+    <p style="text-align:center; font-size:17px; color:#4b5563; margin-bottom:20px">Escolha uma opção:</p>
+    
+    <button class="btn btn-bloco-a" onclick="abrirMorador('a')">
+      🏆 BLOCO A — Ouro Preto (Moradores)
     </button>
-    <button class="btn btn-bloco" onclick="abrirBlocoB()">
-      🏆 BLOCO B — Sabará
+    
+    <button class="btn btn-bloco-b" onclick="abrirMorador('b')">
+      🏆 BLOCO B — Sabará (Moradores)
+    </button>
+    
+    <button class="btn btn-portaria" onclick="abrirPortaria()">
+      🔑 PORTARIA — Cadastrar Encomendas
     </button>
   </div>
 </div>
 
-<!-- TELA BLOCO A -->
-<div id="tela-bloco-a" class="tela">
+<!-- TELA BLOCO A — MORADOR (SÓ VÊ) -->
+<div id="tela-morador-a" class="tela">
   <div class="header">
     <h1>📦 CondoExpress</h1>
-    <div class="status">✅ Sincronizado</div>
-    <p class="usuario">👤 Portaria — Administrador</p>
+    <div class="status">✅ Visualização — Morador</div>
   </div>
 
-  <button class="btn btn-sair" onclick="voltarEscolha()">Sair</button>
+  <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
+  
+  <div class="aviso-morador">
+    👤 Você está vendo como morador<br>
+    Apenas a Portaria pode registrar encomendas
+  </div>
 
   <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaA('moradores-a')">👥 Moradores</button>
-    <button class="btn btn-nav" onclick="mostrarAbaA('registrar-a')">📦 Registrar Encomenda</button>
-    <button class="btn btn-nav" onclick="mostrarAbaA('encomendas-a')">📋 Lista de Encomendas</button>
+    <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorA('moradores-a')">👥 Moradores</button>
+    <button class="btn btn-nav" onclick="mostrarAbaMoradorA('encomendas-a')">📦 Minhas Encomendas</button>
   </nav>
 
-  <!-- ABA MORADORES A -->
   <div id="moradores-a" class="aba ativa">
     <div class="card">
-      <h2>👥 Moradores — Bloco A Ouro Preto <span class="tag-bloco tag-a">A</span></h2>
+      <h2>👥 Bloco A — Ouro Preto <span class="tag-bloco tag-a">A</span></h2>
       <div id="lista-moradores-a"></div>
     </div>
   </div>
 
-  <!-- ABA REGISTRAR ENCOMENDA A -->
-  <div id="registrar-a" class="aba">
-    <div class="card">
-      <h2>📦 Registrar Encomenda — Bloco A</h2>
-      
-      <label>Apartamento do Morador</label>
-      <select id="sel-apto-a" onchange="preencherMorador('a')">
-        <option value="">-- Selecione o apartamento --</option>
-      </select>
-
-      <label>Nome do Morador</label>
-      <input type="text" id="nome-morador-a" readonly>
-
-      <label>Empresa / Loja</label>
-      <input type="text" id="empresa-a" placeholder="Ex: Shopee, Mercado Livre...">
-
-      <label>Número da Nota Fiscal</label>
-      <input type="text" id="nota-a" placeholder="Digite o número">
-
-      <label>Código de Rastreio</label>
-      <input type="text" id="rastreio-a" placeholder="Código de rastreamento">
-
-      <button class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>
-      <div id="msg-sucesso-a" class="sucesso hidden">✅ Encomenda registrada com sucesso!</div>
-    </div>
-  </div>
-
-  <!-- ABA LISTA ENCOMENDAS A -->
   <div id="encomendas-a" class="aba">
     <div class="card">
-      <h2>📋 Encomendas Registradas — Bloco A</h2>
+      <h2>📦 Encomendas — Bloco A</h2>
       <div id="lista-encomendas-a">
-        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>
+        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- TELA BLOCO B -->
-<div id="tela-bloco-b" class="tela">
+<!-- TELA BLOCO B — MORADOR (SÓ VÊ) -->
+<div id="tela-morador-b" class="tela">
   <div class="header">
     <h1>📦 CondoExpress</h1>
-    <div class="status">✅ Sincronizado</div>
-    <p class="usuario">👤 Portaria — Administrador</p>
+    <div class="status">✅ Visualização — Morador</div>
   </div>
 
-  <button class="btn btn-sair" onclick="voltarEscolha()">Sair</button>
+  <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
+  
+  <div class="aviso-morador">
+    👤 Você está vendo como morador<br>
+    Apenas a Portaria pode registrar encomendas
+  </div>
 
   <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaB('moradores-b')">👥 Moradores</button>
-    <button class="btn btn-nav" onclick="mostrarAbaB('registrar-b')">📦 Registrar Encomenda</button>
-    <button class="btn btn-nav" onclick="mostrarAbaB('encomendas-b')">📋 Lista de Encomendas</button>
+    <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorB('moradores-b')">👥 Moradores</button>
+    <button class="btn btn-nav" onclick="mostrarAbaMoradorB('encomendas-b')">📦 Minhas Encomendas</button>
   </nav>
 
-  <!-- ABA MORADORES B -->
   <div id="moradores-b" class="aba ativa">
     <div class="card">
-      <h2>👥 Moradores — Bloco B Sabará <span class="tag-bloco tag-b">B</span></h2>
+      <h2>👥 Bloco B — Sabará <span class="tag-bloco tag-b">B</span></h2>
       <div id="lista-moradores-b"></div>
     </div>
   </div>
 
-  <!-- ABA REGISTRAR ENCOMENDA B -->
-  <div id="registrar-b" class="aba">
+  <div id="encomendas-b" class="aba">
     <div class="card">
-      <h2>📦 Registrar Encomenda — Bloco B</h2>
-      
-      <label>Apartamento do Morador</label>
-      <select id="sel-apto-b" onchange="preencherMorador('b')">
-        <option value="">-- Selecione o apartamento --</option>
+      <h2>📦 Encomendas — Bloco B</h2>
+      <div id="lista-encomendas-b">
+        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TELA PORTARIA — PODE CADASTRAR TUDO -->
+<div id="tela-portaria" class="tela">
+  <div class="header">
+    <h1>📦 CondoExpress</h1>
+    <div class="status">🔑 Acesso — Portaria</div>
+    <p class="usuario">Portaria — Cadastro de Encomendas</p>
+  </div>
+
+  <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
+
+  <nav>
+    <button class="btn btn-nav ativo" onclick="mostrarAbaPortaria('registrar-a')">📦 Bloco A — Registrar</button>
+    <button class="btn btn-nav" onclick="mostrarAbaPortaria('registrar-b')">📦 Bloco B — Registrar</button>
+    <button class="btn btn-nav" onclick="mostrarAbaPortaria('todas-encomendas')">📋 Todas Encomendas</button>
+  </nav>
+
+  <!-- REGISTRAR BLOCO A -->
+  <div id="registrar-a" class="aba ativa">
+    <div class="card">
+      <h2>📦 Registrar — Bloco A Ouro Preto</h2>
+      <label>Apartamento</label>
+      <select id="sel-apto-a" onchange="preencherMorador('a')">
+        <option value="">-- Selecione --</option>
       </select>
-
       <label>Nome do Morador</label>
-      <input type="text" id="nome-morador-b" readonly>
-
+      <input type="text" id="nome-morador-a" readonly>
       <label>Empresa / Loja</label>
-      <input type="text" id="empresa-b" placeholder="Ex: Shopee, Mercado Livre...">
-
-      <label>Número da Nota Fiscal</label>
-      <input type="text" id="nota-b" placeholder="Digite o número">
-
+      <input type="text" id="empresa-a" placeholder="Ex: Shopee, Correios...">
+      <label>Nota Fiscal</label>
+      <input type="text" id="nota-a" placeholder="Número">
       <label>Código de Rastreio</label>
-      <input type="text" id="rastreio-b" placeholder="Código de rastreamento">
-
-      <button class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>
-      <div id="msg-sucesso-b" class="sucesso hidden">✅ Encomenda registrada com sucesso!</div>
+      <input type="text" id="rastreio-a" placeholder="Código">
+      <button class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>
+      <div id="msg-sucesso-a" class="sucesso hidden">✅ Registrada!</div>
     </div>
   </div>
 
-  <!-- ABA LISTA ENCOMENDAS B -->
-  <div id="encomendas-b" class="aba">
+  <!-- REGISTRAR BLOCO B -->
+  <div id="registrar-b" class="aba">
     <div class="card">
-      <h2>📋 Encomendas Registradas — Bloco B</h2>
-      <div id="lista-encomendas-b">
-        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>
+      <h2>📦 Registrar — Bloco B Sabará</h2>
+      <label>Apartamento</label>
+      <select id="sel-apto-b" onchange="preencherMorador('b')">
+        <option value="">-- Selecione --</option>
+      </select>
+      <label>Nome do Morador</label>
+      <input type="text" id="nome-morador-b" readonly>
+      <label>Empresa / Loja</label>
+      <input type="text" id="empresa-b" placeholder="Ex: Shopee, Correios...">
+      <label>Nota Fiscal</label>
+      <input type="text" id="nota-b" placeholder="Número">
+      <label>Código de Rastreio</label>
+      <input type="text" id="rastreio-b" placeholder="Código">
+      <button class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>
+      <div id="msg-sucesso-b" class="sucesso hidden">✅ Registrada!</div>
+    </div>
+  </div>
+
+  <!-- TODAS ENCOMENDAS -->
+  <div id="todas-encomendas" class="aba">
+    <div class="card">
+      <h2>📋 Todas Encomendas Registradas</h2>
+      <div id="lista-todas">
+        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda ainda</p>
       </div>
     </div>
   </div>
@@ -201,7 +227,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
 <script>
 // ==========================================
-// DADOS DOS MORADORES
+// DADOS
 // ==========================================
 const BlocoA = [
   {apto:"012OP",nome:"Claudete Conceição Rozas"},
@@ -356,36 +382,32 @@ const BlocoB = [
   {apto:"194SAB",nome:"Vago"}
 ];
 
-// ARMAZENAR ENCOMENDAS
 let encomendasA = [];
 let encomendasB = [];
 
 // ==========================================
 // FUNÇÕES
 // ==========================================
+function voltarInicio() {
+  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+  document.getElementById('tela-inicio').classList.add('ativa');
+}
 
-// Tela de escolha
-function abrirBlocoA() {
-  document.getElementById('tela-escolha').classList.remove('ativa');
-  document.getElementById('tela-bloco-a').classList.add('ativa');
-  carregarListaMoradores('a');
+function abrirMorador(sigla) {
+  document.getElementById('tela-inicio').classList.remove('ativa');
+  document.getElementById(`tela-morador-${sigla}`).classList.add('ativa');
+  carregarListaMoradores(sigla);
+  carregarListaEncomendas(sigla);
+}
+
+function abrirPortaria() {
+  document.getElementById('tela-inicio').classList.remove('ativa');
+  document.getElementById('tela-portaria').classList.add('ativa');
   carregarSelectAptos('a');
-  carregarListaEncomendas('a');
-}
-function abrirBlocoB() {
-  document.getElementById('tela-escolha').classList.remove('ativa');
-  document.getElementById('tela-bloco-b').classList.add('ativa');
-  carregarListaMoradores('b');
   carregarSelectAptos('b');
-  carregarListaEncomendas('b');
-}
-function voltarEscolha() {
-  document.getElementById('tela-bloco-a').classList.remove('ativa');
-  document.getElementById('tela-bloco-b').classList.remove('ativa');
-  document.getElementById('tela-escolha').classList.add('ativa');
+  carregarTodasEncomendas();
 }
 
-// Carregar lista de moradores
 function carregarListaMoradores(sigla) {
   const lista = sigla === 'a' ? BlocoA : BlocoB;
   const el = document.getElementById(`lista-moradores-${sigla}`);
@@ -396,7 +418,6 @@ function carregarListaMoradores(sigla) {
   });
 }
 
-// Preencher lista de apartamentos no select
 function carregarSelectAptos(sigla) {
   const lista = sigla === 'a' ? BlocoA : BlocoB;
   const el = document.getElementById(`sel-apto-${sigla}`);
@@ -406,19 +427,12 @@ function carregarSelectAptos(sigla) {
   });
 }
 
-// Preencher nome do morador ao selecionar
 function preencherMorador(sigla) {
   const lista = sigla === 'a' ? BlocoA : BlocoB;
   const sel = document.getElementById(`sel-apto-${sigla}`).value;
-  if(sel === '') {
-    document.getElementById(`nome-morador-${sigla}`).value = '';
-    return;
-  }
-  const morador = lista[parseInt(sel)];
-  document.getElementById(`nome-morador-${sigla}`).value = morador.nome || 'Vago';
+  document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');
 }
 
-// Salvar encomenda
 function salvarEncomenda(sigla) {
   const selIdx = document.getElementById(`sel-apto-${sigla}`).value;
   if(selIdx === '') { alert('Selecione o apartamento!'); return; }
@@ -426,76 +440,92 @@ function salvarEncomenda(sigla) {
   const lista = sigla === 'a' ? BlocoA : BlocoB;
   const morador = lista[parseInt(selIdx)];
   const empresa = document.getElementById(`empresa-${sigla}`).value.trim();
-  const nota = document.getElementById(`nota-${sigla}`).value.trim();
-  const rastreio = document.getElementById(`rastreio-${sigla}`).value.trim();
-
   if(!empresa) { alert('Digite a empresa/loja!'); return; }
 
-  const encomenda = {
+  const enc = {
+    bloco: sigla.toUpperCase(),
     apto: morador.apto,
     nome: morador.nome || 'Vago',
     empresa: empresa,
-    nota: nota || 'Não informada',
-    rastreio: rastreio || 'Não informado',
+    nota: document.getElementById(`nota-${sigla}`).value.trim() || 'Não informada',
+    rastreio: document.getElementById(`rastreio-${sigla}`).value.trim() || 'Não informado',
     data: new Date().toLocaleString('pt-BR')
   };
 
-  if(sigla === 'a') encomendasA.unshift(encomenda);
-  else encomendasB.unshift(encomenda);
+  if(sigla === 'a') encomendasA.unshift(enc);
+  else encomendasB.unshift(enc);
 
-  // Limpar formulário
+  // Limpar
   document.getElementById(`sel-apto-${sigla}`).value = '';
   document.getElementById(`nome-morador-${sigla}`).value = '';
   document.getElementById(`empresa-${sigla}`).value = '';
   document.getElementById(`nota-${sigla}`).value = '';
   document.getElementById(`rastreio-${sigla}`).value = '';
 
-  // Mostrar mensagem e atualizar lista
+  // Mensagem
   const msg = document.getElementById(`msg-sucesso-${sigla}`);
   msg.classList.remove('hidden');
   setTimeout(() => msg.classList.add('hidden'), 3000);
-  
+
   carregarListaEncomendas(sigla);
-  mostrarAba(sigla === 'a' ? 'encomendas-a' : 'encomendas-b', sigla);
+  carregarTodasEncomendas();
 }
 
-// Carregar lista de encomendas
 function carregarListaEncomendas(sigla) {
   const lista = sigla === 'a' ? encomendasA : encomendasB;
   const el = document.getElementById(`lista-encomendas-${sigla}`);
-  
   if(lista.length === 0) {
-    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';
+    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada</p>';
     return;
   }
-
   el.innerHTML = '';
   lista.forEach(e => {
     el.innerHTML += `<div class="encomenda-item">
       <strong>📦 ${e.empresa}</strong><br>
-      <span>${e.apto} — ${e.nome}</span><br>
+      ${e.apto} — ${e.nome}<br>
       Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
       <span class="encomenda-data">${e.data}</span>
     </div>`;
   });
 }
 
-// Navegação entre abas
-function mostrarAbaA(nomeAba) {
-  document.querySelectorAll('#tela-bloco-a .aba').forEach(el => el.classList.remove('ativa'));
-  document.querySelectorAll('#tela-bloco-a .btn-nav').forEach(el => el.classList.remove('ativo'));
-  document.getElementById(nomeAba).classList.add('ativa');
+function carregarTodasEncomendas() {
+  const todas = [...encomendasA, ...encomendasB].sort((a,b) => new Date(b.data) - new Date(a.data));
+  const el = document.getElementById('lista-todas');
+  if(todas.length === 0) {
+    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';
+    return;
+  }
+  el.innerHTML = '';
+  todas.forEach(e => {
+    el.innerHTML += `<div class="encomenda-item">
+      <strong>📦 ${e.empresa}</strong>
+      <span class="tag-bloco tag-${e.bloco.toLowerCase()}" style="float:right">Bloco ${e.bloco}</span><br>
+      ${e.apto} — ${e.nome}<br>
+      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
+      <span class="encomenda-data">${e.data}</span>
+    </div>`;
+  });
+}
+
+// Navegação Abas
+function mostrarAbaMoradorA(nome) {
+  document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
+  document.getElementById(nome).classList.add('ativa');
   event.target.classList.add('ativo');
 }
-function mostrarAbaB(nomeAba) {
-  document.querySelectorAll('#tela-bloco-b .aba').forEach(el => el.classList.remove('ativa'));
-  document.querySelectorAll('#tela-bloco-b .btn-nav').forEach(el => el.classList.remove('ativo'));
-  document.getElementById(nomeAba).classList.add('ativa');
+function mostrarAbaMoradorB(nome) {
+  document.querySelectorAll('#tela-morador-b .aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('#tela-morador-b .btn-nav').forEach(b => b.classList.remove('ativo'));
+  document.getElementById(nome).classList.add('ativa');
   event.target.classList.add('ativo');
 }
-function mostrarAba(nomeAba, sigla) {
-  if(sigla === 'a') mostrarAbaA(nomeAba);
-  else mostrarAbaB(nomeAba);
+function mostrarAbaPortaria(nome) {
+  document.querySelectorAll('#tela-portaria .aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('#tela-portaria .btn-nav').forEach(b => b.classList.remove('ativo'));
+  document.getElementById(nome).classList.add('ativa');
+  event.target.classList.add('ativo');
 }
 </script>
 
