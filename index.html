@@ -17,7 +17,7 @@ body{background:#f4f6f8;color:#1f2937;line-height:1.5;padding:16px}
 h2{font-size:18px;margin-bottom:20px;text-align:center;color:#1769e0}
 label{font-size:14px;font-weight:bold;display:block;margin:12px 0 4px}
 input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px}
-input[readonly]{background:#eef2ff;cursor:not-allowed;border-color:#c7d2fe}
+input[readonly]{background:#eef2ff;cursor:not-allowed;border-color:#c7d2fe;color:#374151}
 button{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer;font-size:15px;width:100%}
 .enviar{background:#16a34a;color:white;margin-top:16px}
 .primary{background:#1769e0;color:white;margin-top:16px}
@@ -43,7 +43,7 @@ nav button.active{background:#1769e0;color:white}
 .sem-dados{color:#888;text-align:center;padding:20px}
 .dados-morador{background:#f0fdf4;padding:12px;border-radius:8px;margin:10px 0;border-left:4px solid #16a34a}
 .sem-email{background:#fffbeb;border-left-color:#f59e0b;color:#92400e}
-.fixo{background:#eef2ff;color:#1e40af}
+.texto-fixo{color:#16a34a;font-size:12px;margin-left:8px}
 </style>
 </head>
 <body>
@@ -93,27 +93,27 @@ nav button.active{background:#1769e0;color:white}
     <div id="dadosMoradorSelecionado" class="dados-morador hidden">
       <strong>✅ Morador Selecionado:</strong><br>
       🏠 Apartamento: <span id="infoApto"></span><br>
-      👤 Nome: <span id="infoNome"></span> ✅ <em style="color:#16a34a;font-size:12px">FIXO</em><br>
+      👤 Nome: <span id="infoNome"></span> <span class="texto-fixo">✅ FIXO — não alterar</span><br>
       📧 E-mail: <span id="infoEmail"></span>
     </div>
     
     <p style="margin:16px 0 8px;color:#1769e0;font-weight:bold">📝 Passo 2 — Confirme / preencha:</p>
     <div class="grid">
       <div>
-        <label>Nome do Morador ✅ FIXO</label>
-        <input type="text" id="inpNome" class="fixo" readonly placeholder="Automático — não muda">
+        <label>Nome do Morador <span class="texto-fixo">✅ FIXO</span></label>
+        <input type="text" id="inpNome" readonly placeholder="Automático — não muda">
       </div>
       <div>
-        <label>Apartamento ✅ FIXO</label>
+        <label>Apartamento <span class="texto-fixo">✅ FIXO</span></label>
         <input type="text" id="inpApto" readonly>
       </div>
       <div>
-        <label>Bloco ✅ FIXO</label>
+        <label>Bloco <span class="texto-fixo">✅ FIXO</span></label>
         <input type="text" value="A — Ouro Preto" readonly>
       </div>
       <div>
-        <label>E-mail do Morador ✏️ EDITÁVEL</label>
-        <input type="email" id="inpEmail" placeholder="Preencha depois se não tiver">
+        <label>E-mail do Morador <span style="color:#1769e0">✏️ EDITÁVEL</span></label>
+        <input type="email" id="inpEmail" placeholder="Preencha quando quiser">
       </div>
       <div>
         <label>Empresa / Loja</label>
@@ -149,15 +149,20 @@ nav button.active{background:#1769e0;color:white}
     <div id="formEditarMorador" class="form-editar hidden">
       <h3>✏️ Editar: <span id="editarAptoTitulo"></span></h3>
       <input type="hidden" id="indiceEditar">
-      <label>Nome Completo ✅ FIXO</label>
-      <input type="text" id="editarNome" readonly style="background:#eef2ff">
-      <label>E-mail ✏️ Pode alterar</label>
+      
+      <label>Nome Completo <span class="texto-fixo">✅ FIXO — NÃO ALTERAR</span></label>
+      <input type="text" id="editarNome" readonly>
+      
+      <label>E-mail <span style="color:#1769e0">✏️ Pode alterar</span></label>
       <input type="email" id="editarEmail">
+      
       <label>Usuário</label>
       <input type="text" id="editarUsuario">
+      
       <label>Senha</label>
       <input type="text" id="editarSenha">
-      <button class="salvar" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÃO DE E-MAIL</button>
+      
+      <button class="salvar" onclick="salvarEdicao()">💾 SALVAR</button>
       <button class="cancelar" onclick="cancelarEdicao()">❌ Cancelar</button>
     </div>
     <div id="listaMoradores"></div>
@@ -289,7 +294,7 @@ function preencherDadosMorador(){
   document.getElementById('inpNome').value = m.nome || '';
   document.getElementById('inpApto').value = m.apto;
   
-  // ✅ E-MAIL = preenche mas pode editar sem afetar o nome
+  // ✅ E-MAIL = editável livre
   document.getElementById('inpEmail').value = m.email || '';
   
   document.getElementById('infoApto').textContent = m.apto;
@@ -317,7 +322,7 @@ function entrar(){
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo! Escolha o apartamento — Nome fica FIXO, só altere o e-mail se precisar!";
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Nome sempre FIXO — só altere e-mail quando precisar!";
     carregarListaApartamentos();
     carregaListaMoradores();
     carregaTodasEncomendas();
@@ -378,7 +383,7 @@ async function enviarEncomenda(){
   const nota = document.getElementById('inpNota').value.trim();
   const rastreio = document.getElementById('inpRastreio').value.trim();
   
-  // ✅ Atualiza SOMENTE o e-mail — Nome NÃO é tocado
+  // ✅ SÓ atualiza e-mail — NOME NÃO MUDA
   if(email) m.email = email;
   
   const btn = document.getElementById('btnEnviar');
@@ -412,21 +417,21 @@ async function enviarEncomenda(){
         data: novaEncomenda.data
       });
       statusEl.className = 'status-envio enviado';
-      statusEl.innerHTML = `✅ REGISTRADO + E-MAIL ENVIADO!<br>${m.nome} — Apto ${m.apto}<br><small>Nome mantido FIXO ✅</small>`;
+      statusEl.innerHTML = `✅ REGISTRADO + E-MAIL ENVIADO!<br>${m.nome} — Apto ${m.apto}<br><small>Nome FIXO ✅</small>`;
     }catch{
       statusEl.className = 'status-envio falha';
-      statusEl.innerHTML = `⚠️ Registrado, mas e-mail não enviado.<br>Nome mantido FIXO ✅`;
+      statusEl.innerHTML = `⚠️ Registrado, e-mail não enviado.<br>Nome FIXO ✅`;
     }
   }else{
     statusEl.className = 'status-envio enviado';
-    statusEl.innerHTML = `✅ REGISTRADO!<br>Sem e-mail cadastrado.<br>Nome mantido FIXO ✅`;
+    statusEl.innerHTML = `✅ REGISTRADO!<br>Sem e-mail.<br>Nome FIXO ✅`;
   }
   
   setTimeout(() => statusEl.classList.add('hidden'), 6000);
   btn.disabled = false;
   btn.textContent = "✅ REGISTRAR ENCOMENDA";
   
-  // Limpa só e-mail e dados da encomenda — Nome continua fixo
+  // Limpa só os campos — Nome continua fixo
   indiceSelecionado = null;
   document.getElementById('selApto').value = '';
   document.getElementById('dadosMoradorSelecionado').classList.add('hidden');
@@ -514,7 +519,9 @@ function abrirEdicao(indice){
   const m = moradores[indice];
   document.getElementById('indiceEditar').value = indice;
   document.getElementById('editarAptoTitulo').textContent = m.apto;
+  // ✅ Nome = fixo, não muda
   document.getElementById('editarNome').value = m.nome;
+  // ✅ E-mail = editável
   document.getElementById('editarEmail').value = m.email;
   document.getElementById('editarUsuario').value = m.usuario;
   document.getElementById('editarSenha').value = m.senha;
@@ -523,7 +530,7 @@ function abrirEdicao(indice){
 
 function salvarEdicao(){
   const i = parseInt(document.getElementById('indiceEditar').value);
-  // ✅ SÓ ALTERA E-MAIL, USUÁRIO E SENHA — NOME NÃO MUDA
+  // ✅ SÓ ALTERA e-mail, usuário e senha — NOME NÃO É TOCADO
   moradores[i].email = document.getElementById('editarEmail').value.trim();
   moradores[i].usuario = document.getElementById('editarUsuario').value.trim();
   moradores[i].senha = document.getElementById('editarSenha').value.trim();
