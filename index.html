@@ -19,6 +19,7 @@ body{background:#f4f6f8;color:#1f2937;line-height:1.5;padding:16px}
 h2{font-size:18px;margin-bottom:20px;text-align:center;color:#1769e0}
 label{font-size:14px;font-weight:bold;display:block;margin:12px 0 4px}
 input,select,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px}
+input[readonly]{background:#f9fafb;cursor:not-allowed}
 button{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer;font-size:15px;width:100%}
 .btn-cam{background:#1769e0;color:white;margin:6px 0}
 .btn-galeria{background:#6b7280;color:white;margin:6px 0}
@@ -45,11 +46,12 @@ nav button.active{background:#1769e0;color:white}
 .enviando{background:#fef3c7;color:#92400e}
 .enviado{background:#dcfce7;color:#166534}
 .falha{background:#fee2e2;color:#b91c1c}
-.aviso{background:#eff6ff;padding:12px;border-radius:8px;color:#1e40af;margin:12px 0}
+.aviso{background:#fffbeb;padding:12px;border-radius:8px;color:#92400e;margin:12px 0;border-left:4px solid #f59e0b}
 .nova-encomenda{background:#fffbeb;border-left:4px solid #f59e0b;padding:12px;border-radius:6px;margin:8px 0}
 .excluir{background:#ef4444;color:white;padding:6px 10px;font-size:13px;width:auto;margin-top:8px}
 .sem-dados{color:#888;text-align:center;padding:20px}
 .dados-morador{background:#f0fdf4;padding:12px;border-radius:8px;margin:10px 0;border-left:4px solid #16a34a}
+.sem-email{background:#fffbeb;border-left-color:#f59e0b;color:#92400e}
 </style>
 </head>
 <body>
@@ -98,7 +100,7 @@ nav button.active{background:#1769e0;color:white}
     <img id="imgPreview" class="preview-img hidden" alt="Foto carregada">
     <button type="button" class="secondary hidden" id="btnLimparFoto" onclick="limparFoto()">❌ Remover Foto</button>
 
-    <p style="margin:16px 0 8px;color:#1769e0;font-weight:bold">📝 Escolha o apartamento:</p>
+    <p style="margin:16px 0 8px;color:#1769e0;font-weight:bold">📝 Passo 1 — Escolha o apartamento:</p>
     
     <label>Apartamento do Morador</label>
     <select id="selApto" onchange="preencherDadosMorador()">
@@ -107,26 +109,29 @@ nav button.active{background:#1769e0;color:white}
 
     <div id="dadosMoradorSelecionado" class="dados-morador hidden">
       <strong>✅ Morador Selecionado:</strong><br>
-      <span id="nomeMoradorSel"></span><br>
-      📧 <span id="emailMoradorSel"></span>
+      🏠 Apartamento: <span id="infoApto"></span><br>
+      👤 Nome: <span id="infoNome"></span><br>
+      📧 E-mail: <span id="infoEmail"></span>
     </div>
     
-    <div class="grid" style="margin-top:16px">
+    <p style="margin:16px 0 8px;color:#1769e0;font-weight:bold">📝 Passo 2 — Confirme os dados:</p>
+    
+    <div class="grid">
       <div>
         <label>Nome do Morador</label>
-        <input type="text" id="inpNome" name="name" placeholder="Preenchido automaticamente" required>
+        <input type="text" id="inpNome" name="name" placeholder="Preenchido automaticamente">
       </div>
       <div>
         <label>Apartamento</label>
-        <input type="text" id="inpApto" name="apartamento" readonly style="background:#f9fafb" placeholder="Automático">
+        <input type="text" id="inpApto" name="apartamento" readonly placeholder="Automático">
       </div>
       <div>
         <label>Bloco</label>
-        <input type="text" value="A — Ouro Preto" readonly style="background:#f9fafb">
+        <input type="text" value="A — Ouro Preto" readonly>
       </div>
       <div>
         <label>E-mail do Morador</label>
-        <input type="email" id="inpEmail" name="email" placeholder="email@exemplo.com" required>
+        <input type="email" id="inpEmail" name="email" placeholder="Se não tiver, preencha depois">
       </div>
       <div>
         <label>Empresa / Loja</label>
@@ -142,9 +147,9 @@ nav button.active{background:#1769e0;color:white}
       </div>
     </div>
     
-    <p class="aviso">💅 Escolheu o apartamento → os dados preenchem sozinhos! É só apertar Enviar!</p>
+    <p id="avisoSemEmail" class="aviso hidden">⚠️ E-mail não cadastrado — a encomenda será registrada, mas o aviso por e-mail só será enviado após cadastrar o e-mail.</p>
     
-    <button class="enviar" id="btnEnviar" onclick="enviarEncomenda()">✅ REGISTRAR E ENVIAR</button>
+    <button class="enviar" id="btnEnviar" onclick="enviarEncomenda()">✅ REGISTRAR ENCOMENDA</button>
     
     <div id="statusEnvio" class="status-envio hidden"></div>
   </section>
@@ -283,7 +288,7 @@ let moradores = [
 let admin = {usuario:"admin",senha:"condo2026",nome:"Portaria — Administrador"};
 let usuarioLogado = null, ehAdmin = false;
 
-// Preenche a lista de apartamentos quando carrega
+// Preenche lista de apartamentos
 function carregarListaApartamentos(){
   const sel = document.getElementById('selApto');
   sel.innerHTML = '<option value="">-- Selecione o Apartamento --</option>';
@@ -297,13 +302,15 @@ function carregarListaApartamentos(){
   });
 }
 
-// Preenche os dados quando escolhe o apartamento
+// Preenche TODOS os dados automaticamente ao escolher
 function preencherDadosMorador(){
   const indice = document.getElementById('selApto').value;
   const divInfo = document.getElementById('dadosMoradorSelecionado');
+  const avisoEmail = document.getElementById('avisoSemEmail');
   
   if(!indice){
     divInfo.classList.add('hidden');
+    avisoEmail.classList.add('hidden');
     document.getElementById('inpNome').value = '';
     document.getElementById('inpApto').value = '';
     document.getElementById('inpEmail').value = '';
@@ -312,12 +319,26 @@ function preencherDadosMorador(){
   
   const m = moradores[indice];
   
-  document.getElementById('inpNome').value = m.nome;
+  // Preenche automaticamente
+  document.getElementById('inpNome').value = m.nome || '';
   document.getElementById('inpApto').value = m.apto;
-  document.getElementById('inpEmail').value = m.email;
+  document.getElementById('inpEmail').value = m.email || '';
   
-  document.getElementById('nomeMoradorSel').textContent = m.nome || 'Sem nome cadastrado';
-  document.getElementById('emailMoradorSel').textContent = m.email || 'Sem e-mail cadastrado';
+  // Mostra resumo
+  document.getElementById('infoApto').textContent = m.apto;
+  document.getElementById('infoNome').textContent = m.nome || 'Sem nome';
+  
+  // Mostra e-mail ou avisa que está vazio
+  if(m.email){
+    document.getElementById('infoEmail').textContent = m.email;
+    divInfo.classList.remove('sem-email');
+    avisoEmail.classList.add('hidden');
+  }else{
+    document.getElementById('infoEmail').textContent = '⚠️ NÃO CADASTRADO';
+    divInfo.classList.add('sem-email');
+    avisoEmail.classList.remove('hidden');
+  }
+  
   divInfo.classList.remove('hidden');
 }
 
@@ -331,7 +352,7 @@ function entrar(){
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
     document.getElementById('areaAdminConfig').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo! Cadastre e veja todas as encomendas na aba '📋 Encomendas'!";
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Escolha o apartamento e cadastre encomendas!";
     carregarListaApartamentos();
     carregaListaMoradores();
     carregaTodasEncomendas();
@@ -403,7 +424,7 @@ async function enviarEncomenda(){
   
   const indiceSel = document.getElementById('selApto').value;
   if(!indiceSel){
-    alert("⚠️ Escolha o apartamento na lista acima!");
+    alert("⚠️ Escolha o apartamento na lista!");
     return;
   }
   
@@ -415,23 +436,22 @@ async function enviarEncomenda(){
   const nota = document.getElementById('inpNota').value.trim();
   const rastreio = document.getElementById('inpRastreio').value.trim();
   
-  if(!nome || !apto || !email){
-    alert("⚠️ Verifique se Nome, Apartamento e E-mail estão preenchidos!");
+  if(!nome || !apto){
+    alert("⚠️ Nome e Apartamento são obrigatórios!");
     return;
   }
+  
+  // Atualiza dados do morador (inclusive e-mail se foi preenchido)
+  m.nome = nome;
+  if(email) m.email = email;
   
   const btn = document.getElementById('btnEnviar');
   const statusEl = document.getElementById('statusEnvio');
   
   btn.disabled = true;
-  btn.textContent = "⏳ Enviando...";
+  btn.textContent = "⏳ Salvando...";
   statusEl.classList.remove('hidden','enviado','falha');
   statusEl.className = 'status-envio enviando';
-  statusEl.textContent = "Preparando mensagem...";
-  
-  // Atualiza dados do morador se mudou
-  if(nome) m.nome = nome;
-  if(email) m.email = email;
   
   const novaEncomenda = {
     id: Date.now(),
@@ -446,42 +466,55 @@ async function enviarEncomenda(){
   
   m.encomendas.push(novaEncomenda);
   
-  emailjs.send('service_t2de096', 'template_axu51ce', {
-    name: nome,
-    email: email,
-    apartamento: apto,
-    empresa: empresa || 'Não informada',
-    notafiscal: nota || 'Não informada',
-    rastreio: rastreio || 'Não informada',
-    data: novaEncomenda.data
-  })
-  .then(function(){
+  // Só envia e-mail se tiver endereço
+  if(email){
+    statusEl.textContent = "Enviando e-mail...";
+    emailjs.send('service_t2de096', 'template_axu51ce', {
+      name: nome,
+      email: email,
+      apartamento: apto,
+      empresa: empresa || 'Não informada',
+      notafiscal: nota || 'Não informada',
+      rastreio: rastreio || 'Não informada',
+      data: novaEncomenda.data
+    })
+    .then(function(){
+      statusEl.className = 'status-envio enviado';
+      statusEl.innerHTML = `✅ <strong>REGISTRADO + E-MAIL ENVIADO!</strong><br>${nome} — Apto ${apto}`;
+    })
+    .catch(function(){
+      statusEl.className = 'status-envio falha';
+      statusEl.innerHTML = `⚠️ Registrado, mas e-mail não enviado. Verifique o endereço.`;
+    })
+    .finally(function(){
+      limparFormulario();
+      carregaTodasEncomendas();
+      setTimeout(() => statusEl.classList.add('hidden'), 6000);
+    });
+  }else{
+    // Sem e-mail → registra apenas
     statusEl.className = 'status-envio enviado';
-    statusEl.innerHTML = `✅ <strong>REGISTRADO!</strong><br>Encomenda salva para ${m.nome} — Apto ${m.apto}!`;
-    
-    // Limpa formulário
-    document.getElementById('selApto').value = '';
-    document.getElementById('dadosMoradorSelecionado').classList.add('hidden');
-    document.getElementById('inpNome').value = '';
-    document.getElementById('inpApto').value = '';
-    document.getElementById('inpEmail').value = '';
-    document.getElementById('inpEmpresa').value = '';
-    document.getElementById('inpNota').value = '';
-    document.getElementById('inpRastreio').value = '';
-    limparFoto();
-    
+    statusEl.innerHTML = `✅ <strong>REGISTRADO!</strong><br>Sem e-mail cadastrado — aviso não enviado.`;
+    limparFormulario();
     carregaTodasEncomendas();
-  })
-  .catch(function(erro){
-    statusEl.className = 'status-envio falha';
-    statusEl.innerHTML = `❌ Erro ao enviar! Verifique o e-mail.`;
-    console.log('Erro:', erro);
-  })
-  .finally(function(){
-    btn.disabled = false;
-    btn.textContent = "✅ REGISTRAR E ENVIAR";
     setTimeout(() => statusEl.classList.add('hidden'), 6000);
-  });
+  }
+  
+  btn.disabled = false;
+  btn.textContent = "✅ REGISTRAR ENCOMENDA";
+}
+
+function limparFormulario(){
+  document.getElementById('selApto').value = '';
+  document.getElementById('dadosMoradorSelecionado').classList.add('hidden');
+  document.getElementById('avisoSemEmail').classList.add('hidden');
+  document.getElementById('inpNome').value = '';
+  document.getElementById('inpApto').value = '';
+  document.getElementById('inpEmail').value = '';
+  document.getElementById('inpEmpresa').value = '';
+  document.getElementById('inpNota').value = '';
+  document.getElementById('inpRastreio').value = '';
+  limparFoto();
 }
 
 function carregaTodasEncomendas(){
@@ -554,7 +587,7 @@ function carregaListaMoradores(){
     <div class="item-morador">
       <div>
         <strong>${m.apto}</strong> — ${m.nome || '⚠️ SEM NOME'}<br>
-        <small>📧 ${m.email || 'Sem e-mail'} | Encomendas: ${m.encomendas.length}</small>
+        <small>📧 ${m.email || '⚠️ Sem e-mail'} | Encomendas: ${m.encomendas.length}</small>
       </div>
       <button class="editar" onclick="abrirEdicao(${i})">✏️ EDITAR</button>
     </div>
@@ -582,7 +615,7 @@ function salvarEdicao(){
   alert("✅ Salvo!");
   document.getElementById('formEditarMorador').classList.add('hidden');
   carregaListaMoradores();
-  carregarListaApartamentos(); // Atualiza a lista de seleção
+  carregarListaApartamentos();
 }
 
 function cancelarEdicao(){
@@ -594,30 +627,4 @@ function alterarSenha(){
   const n1 = document.getElementById('senhaNova').value.trim();
   const n2 = document.getElementById('senhaNova2').value.trim();
   if(!at || !n1 || !n2){alert("Preencha tudo!");return}
-  if(n1 !== n2){alert("Senhas não batem!");return}
-  if(n1.length < 4){alert("Mínimo 4 caracteres!");return}
-  if(ehAdmin){
-    if(at !== admin.senha){alert("Senha atual errada!");return}
-    admin.senha = n1;
-  }else{
-    const m = usuarioLogado.dados;
-    if(at !== m.senha){alert("Senha atual errada!");return}
-    m.senha = n1;
-  }
-  alert("✅ Senha alterada!");
-  document.getElementById('senhaAtual').value = '';
-  document.getElementById('senhaNova').value = '';
-  document.getElementById('senhaNova2').value = '';
-}
-
-function alterarDadosAdmin(){
-  admin.nome = document.getElementById('nomeAdminAtual').value.trim();
-  admin.usuario = document.getElementById('usuarioAdminNovo').value.trim();
-  if(!admin.nome || !admin.usuario){alert("Preencha tudo!");return}
-  document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
-  alert("✅ Salvo!");
-}
-</script>
-
-</body>
-</html>
+  if(n1 !== n2){alert("Senhas não batem!
