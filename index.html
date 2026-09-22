@@ -47,6 +47,8 @@ nav button.active{background:#1769e0;color:white}
 .falha{background:#fee2e2;color:#b91c1c}
 .aviso{background:#eff6ff;padding:12px;border-radius:8px;color:#1e40af;margin:12px 0}
 .nova-encomenda{background:#fffbeb;border-left:4px solid #f59e0b;padding:12px;border-radius:6px;margin:8px 0}
+.excluir{background:#ef4444;color:white;padding:6px 10px;font-size:13px;width:auto;margin-top:8px}
+.sem-dados{color:#888;text-align:center;padding:20px}
 </style>
 </head>
 <body>
@@ -70,6 +72,7 @@ nav button.active{background:#1769e0;color:white}
     <button class="active" onclick="mostrarAba('inicio')">🏠 Início</button>
     <button onclick="mostrarAba('registrar')">📦 Registrar Encomenda</button>
     <button onclick="mostrarAba('lista')">👥 Moradores</button>
+    <button onclick="mostrarAba('encomendas')">📋 Encomendas</button>
     <button onclick="mostrarAba('config')">⚙️ Configurações</button>
   </nav>
 
@@ -106,11 +109,16 @@ nav button.active{background:#1769e0;color:white}
       <div><label>Código de Rastreio</label><input type="text" id="inpRastreio" name="rastreio" placeholder="Digite o código"></div>
     </div>
     
-    <p class="aviso">💅 Tudo preenchido → aperte Enviar → mensagem vai direto pro e-mail do morador! Tudo aqui mesmo!</p>
+    <p class="aviso">💅 Tudo preenchido → aperte Enviar → mensagem vai direto pro e-mail do morador!</p>
     
     <button class="enviar" id="btnEnviar" onclick="enviarEncomenda()">✅ REGISTRAR E ENVIAR</button>
     
     <div id="statusEnvio" class="status-envio hidden"></div>
+  </section>
+
+  <section id="aba-encomendas" class="aba hidden card card-largo">
+    <h2>📋 Todas as Encomendas Registradas</h2>
+    <div id="listaTodasEncomendas" class="sem-dados">Nenhuma encomenda registrada ainda.</div>
   </section>
 
   <section id="aba-minhas" class="aba hidden card card-largo">
@@ -252,8 +260,10 @@ function entrar(){
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
     document.getElementById('areaAdminConfig').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo! Preencha tudo, envie direto daqui, não sai da tela!";
-    carregaListaMoradores(); return;
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Cadastre e veja todas as encomendas na aba '📋 Encomendas'!";
+    carregaListaMoradores();
+    carregaTodasEncomendas();
+    return;
   }
   const m = moradores.find(x => x.usuario === u && x.senha === s);
   if(m){
@@ -262,7 +272,7 @@ function entrar(){
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${m.nome} — Apto ${m.apto}`;
     document.getElementById('menuMorador').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo(a)! Veja suas encomendas abaixo.";
+    document.getElementById('textoInicio').textContent = "Bem-vindo(a)! Veja suas encomendas em '📦 Minhas Encomendas'.";
     return;
   }
   const e = document.getElementById('msgErroLogin');
@@ -290,6 +300,7 @@ function mostrarAba(nome){
     document.querySelectorAll('#menuAdmin button').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
     if(nome === 'lista') carregaListaMoradores();
+    if(nome === 'encomendas') carregaTodasEncomendas();
   }else{
     document.querySelectorAll('#menuMorador button').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
@@ -352,12 +363,14 @@ async function enviarEncomenda(){
   
   // Salva no cadastro do morador
   const m = encontrarOuCriarMorador(nome, apto, email);
-  m.encomendas.push({
+  const novaEncomenda = {
+    id: Date.now(),
     data: new Date().toLocaleString('pt-BR'),
     nome:nome, apto:apto, email:email, empresa:empresa, nota:nota, rastreio:rastreio
-  });
+  };
+  m.encomendas.push(novaEncomenda);
   
-  // Envia e-mail pelo EmailJS — TUDO NA MESMA TELA!
+  // Envia e-mail
   emailjs.send('service_t2de096', 'template_axu51ce', {
     name: nome,
     email: email,
@@ -365,11 +378,11 @@ async function enviarEncomenda(){
     empresa: empresa || 'Não informada',
     notafiscal: nota || 'Não informada',
     rastreio: rastreio || 'Não informada',
-    data: new Date().toLocaleString('pt-BR')
+    data: novaEncomenda.data
   })
   .then(function(){
     statusEl.className = 'status-envio enviado';
-    statusEl.innerHTML = `✅ <strong>ENVIADO COM SUCESSO!</strong><br>O morador ${nome} recebeu no e-mail ${email}`;
+    statusEl.innerHTML = `✅ <strong>REGISTRADO!</strong><br>Encomenda salva e e-mail enviado para ${nome}!`;
     
     // Limpa formulário
     document.getElementById('inpNome').value = '';
@@ -379,11 +392,14 @@ async function enviarEncomenda(){
     document.getElementById('inpNota').value = '';
     document.getElementById('inpRastreio').value = '';
     limparFoto();
+    
+    // Atualiza lista de encomendas
+    carregaTodasEncomendas();
   })
   .catch(function(erro){
     statusEl.className = 'status-envio falha';
-    statusEl.innerHTML = `❌ Erro ao enviar! Verifique o e-mail e tente novamente.`;
-    console.log('Detalhe do erro:', erro);
+    statusEl.innerHTML = `❌ Erro ao enviar! Verifique o e-mail.`;
+    console.log('Erro:', erro);
   })
   .finally(function(){
     btn.disabled = false;
@@ -392,11 +408,53 @@ async function enviarEncomenda(){
   });
 }
 
+function carregaTodasEncomendas(){
+  const div = document.getElementById('listaTodasEncomendas');
+  let todas = [];
+  moradores.forEach(m => {
+    m.encomendas.forEach(e => {
+      todas.push({...e, moradorNome:m.nome});
+    });
+  });
+  if(todas.length === 0){
+    div.innerHTML = '<p class="sem-dados">📭 Nenhuma encomenda registrada ainda.</p>';
+    return;
+  }
+  // Mais recentes primeiro
+  todas.reverse();
+  div.innerHTML = todas.map((e, i) => `
+    <div class="item-encomenda">
+      <strong>📦 ${e.moradorNome}</strong><br>
+      🏠 Apto: ${e.apto}<br>
+      📅 Data: ${e.data}<br>
+      ${e.empresa ? `🏬 Empresa: ${e.empresa}<br>` : ''}
+      ${e.nota ? `📄 Nota: ${e.nota}<br>` : ''}
+      ${e.rastreio ? `🔍 Rastreio: ${e.rastreio}<br>` : ''}
+      <button class="excluir" onclick="marcarRetirada(${i})">🗑️ Marcar Retirada</button>
+    </div>
+  `).join('');
+}
+
+function marcarRetirada(indiceLista){
+  let todas = [];
+  moradores.forEach((m, idxM) => {
+    m.encomendas.forEach((e, idxE) => {
+      todas.push({...e, idxMorador:idxM, idxEncomenda:idxE});
+    });
+  });
+  todas.reverse();
+  const remover = todas[indiceLista];
+  if(confirm('Marcar como retirada?')){
+    moradores[remover.idxMorador].encomendas.splice(remover.idxEncomenda, 1);
+    carregaTodasEncomendas();
+  }
+}
+
 function carregaMinhasEncomendas(){
   const m = usuarioLogado.dados;
   const div = document.getElementById('listaMinhas');
   if(m.encomendas.length === 0){
-    div.innerHTML = '<p style="text-align:center;color:#666;padding:20px">📭 Nenhuma encomenda registrada ainda.</p>';
+    div.innerHTML = '<p class="sem-dados">📭 Nenhuma encomenda registrada no momento.</p>';
     return;
   }
   div.innerHTML = m.encomendas.map(e => `
