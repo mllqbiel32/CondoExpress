@@ -6,8 +6,6 @@
 <title>CondoExpress — Bloco A Ouro Preto</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231769e0' rx='16' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white'%3E📦%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
 (function(){emailjs.init("TWDbG3DvjSw6fxXhr");})();
 </script>
@@ -47,12 +45,11 @@ nav button.active{background:#1769e0;color:white}
 .sem-email{background:#fffbeb;border-left-color:#f59e0b;color:#92400e}
 .texto-fixo{color:#16a34a;font-size:12px;margin-left:8px}
 .foto-preview{max-width:100%;max-height:200px;border-radius:8px;margin-top:10px;border:2px solid #ddd}
-.foto-encomenda{max-width:100%;max-height:180px;border-radius:8px;margin:10px 0;border:1px solid #ddd}
 .botoes-foto{display:flex;gap:10px;margin-top:8px}
 .botoes-foto button{flex:1}
 .camera{background:#f97316;color:white}
 .arquivo{background:#6366f1;color:white}
-.sincronizado{background:#dcfce7;color:#166534;padding:6px 10px;border-radius:20px;font-size:12px;display:inline-block;margin-left:8px}
+.foto-encomenda{max-width:100%;max-height:180px;border-radius:8px;margin:10px 0;border:1px solid #ddd}
 </style>
 </head>
 <body>
@@ -68,7 +65,7 @@ nav button.active{background:#1769e0;color:white}
 </div>
 
 <div id="sistema" class="hidden">
-  <h1 style="text-align:center;color:#1769e0;margin:10px 0">📦 CondoExpress — Bloco A Ouro Preto <span id="statusSinc" class="sincronizado">✅ Sincronizado</span></h1>
+  <h1 style="text-align:center;color:#1769e0;margin:10px 0">📦 CondoExpress — Bloco A Ouro Preto</h1>
   <p id="nomeLogado" style="text-align:center;color:#666;margin-bottom:15px"></p>
   <button class="secondary" style="max-width:200px;margin:0 auto 20px;display:block" onclick="sair()">Sair</button>
 
@@ -88,7 +85,7 @@ nav button.active{background:#1769e0;color:white}
 
   <section id="aba-inicio" class="aba card card-largo">
     <h2>Bem-vindo(a)! 🏠</h2>
-    <p id="textoInicio" style="margin:8px 0">Tudo sincronizado! Registra no celular → aparece no computador ✅</p>
+    <p id="textoInicio" style="margin:8px 0"></p>
   </section>
 
   <section id="aba-registrar" class="aba hidden card card-largo">
@@ -102,7 +99,7 @@ nav button.active{background:#1769e0;color:white}
     <div id="dadosMoradorSelecionado" class="dados-morador hidden">
       <strong>✅ Morador Selecionado:</strong><br>
       🏠 Apartamento: <span id="infoApto"></span><br>
-      👤 Nome: <span id="infoNome"></span> <span class="texto-fixo">✅ FIXO</span><br>
+      👤 Nome: <span id="infoNome"></span> <span class="texto-fixo">✅ FIXO — não alterar</span><br>
       📧 E-mail: <span id="infoEmail"></span>
     </div>
     
@@ -110,7 +107,7 @@ nav button.active{background:#1769e0;color:white}
     <div class="grid">
       <div>
         <label>Nome do Morador <span class="texto-fixo">✅ FIXO</span></label>
-        <input type="text" id="inpNome" readonly>
+        <input type="text" id="inpNome" readonly placeholder="Automático — não muda">
       </div>
       <div>
         <label>Apartamento <span class="texto-fixo">✅ FIXO</span></label>
@@ -121,7 +118,7 @@ nav button.active{background:#1769e0;color:white}
         <input type="text" value="A — Ouro Preto" readonly>
       </div>
       <div>
-        <label>E-mail <span style="color:#1769e0">✏️ EDITÁVEL</span></label>
+        <label>E-mail do Morador <span style="color:#1769e0">✏️ EDITÁVEL</span></label>
         <input type="email" id="inpEmail" placeholder="Preencha quando quiser">
       </div>
       <div>
@@ -145,21 +142,21 @@ nav button.active{background:#1769e0;color:white}
     </div>
     <input type="file" id="fotoArquivo" accept="image/*" style="display:none" onchange="mostrarFoto(this)">
     <input type="file" id="fotoCamera" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this)">
-    <img id="previewFoto" class="foto-preview hidden" alt="Pré-visualização">
+    <img id="previewFoto" class="foto-preview hidden" alt="Pré-visualização da foto">
     
-    <p id="avisoSemEmail" class="aviso hidden">⚠️ Sem e-mail — registrada! Cadastre depois na lista.</p>
+    <p id="avisoSemEmail" class="aviso hidden">⚠️ Sem e-mail — a encomenda fica registrada! Cadastre o e-mail depois na lista de moradores.</p>
     <button class="enviar" id="btnEnviar" onclick="enviarEncomenda()">✅ REGISTRAR ENCOMENDA</button>
     <div id="statusEnvio" class="status-envio hidden"></div>
   </section>
 
   <section id="aba-encomendas" class="aba hidden card card-largo">
-    <h2>📋 Todas as Encomendas — Atualizado em TODOS os aparelhos</h2>
-    <div id="listaTodasEncomendas" class="sem-dados">Carregando...</div>
+    <h2>📋 Todas as Encomendas</h2>
+    <div id="listaTodasEncomendas" class="sem-dados">Nenhuma encomenda ainda.</div>
   </section>
 
   <section id="aba-minhas" class="aba hidden card card-largo">
     <h2>📦 Minhas Encomendas</h2>
-    <div id="listaMinhas">Carregando...</div>
+    <div id="listaMinhas"></div>
   </section>
 
   <section id="aba-lista" class="aba hidden card card-largo">
@@ -167,18 +164,23 @@ nav button.active{background:#1769e0;color:white}
     <div id="formEditarMorador" class="form-editar hidden">
       <h3>✏️ Editar: <span id="editarAptoTitulo"></span></h3>
       <input type="hidden" id="indiceEditar">
-      <label>Nome Completo <span class="texto-fixo">✅ FIXO</span></label>
+      
+      <label>Nome Completo <span class="texto-fixo">✅ FIXO — NÃO ALTERAR</span></label>
       <input type="text" id="editarNome" readonly>
-      <label>E-mail</label>
+      
+      <label>E-mail <span style="color:#1769e0">✏️ Pode alterar</span></label>
       <input type="email" id="editarEmail">
-      <label>Usuário</label>
+      
+      <label>Usuário <span style="color:#1769e0">✏️ Pode alterar</span></label>
       <input type="text" id="editarUsuario">
-      <label>Senha</label>
+      
+      <label>Senha <span style="color:#1769e0">✏️ Pode alterar</span></label>
       <input type="text" id="editarSenha">
+      
       <button class="salvar" onclick="salvarEdicao()">💾 SALVAR</button>
       <button class="cancelar" onclick="cancelarEdicao()">❌ Cancelar</button>
     </div>
-    <div id="listaMoradores">Carregando...</div>
+    <div id="listaMoradores"></div>
   </section>
 
   <section id="aba-config" class="aba hidden card card-largo">
@@ -194,137 +196,91 @@ nav button.active{background:#1769e0;color:white}
 </div>
 
 <script>
-// 🔗 BANCO DE DADOS NA INTERNET — TUDO JUNTO
-const firebaseConfig = {
-  apiKey: "AIzaSyC6O2RfB8nXqkD9hBZ9Xz9Y8bKtR7qXz9Y",
-  authDomain: "condoexpress-bd.firebaseapp.com",
-  projectId: "condoexpress-bd",
-  storageBucket: "condoexpress-bd.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abc123def456ghi789jkl01"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// DADOS INICIAIS — NOMES FIXOS, NÃO MUDA
-const moradoresPadrao = [
-  {apto:"012OP",nome:"Claudete Conceição Rozas",email:"",usuario:"claudete.012",senha:"op012"},
-  {apto:"013OP",nome:"Cristina Filizola",email:"",usuario:"cristina.013",senha:"op013"},
-  {apto:"014OP",nome:"Urias Taques Junior",email:"",usuario:"urias.014",senha:"op014"},
-  {apto:"021OP",nome:"Pedro H. Chagas Rosseli",email:"",usuario:"pedro.021",senha:"op021"},
-  {apto:"022OP",nome:"Jorge Moreira Lima Neto / Sonia Mendes M. Lima",email:"",usuario:"jorge.022",senha:"op022"},
-  {apto:"023OP",nome:"Bonnie Marie Scannella e família",email:"",usuario:"bonnie.023",senha:"op023"},
-  {apto:"024OP",nome:"Katia Piccioni La Farina / Walter Signorini Junior",email:"",usuario:"katia.024",senha:"op024"},
-  {apto:"031OP",nome:"Arnaldo M. Camargo / Maria Lucia Camargo",email:"",usuario:"arnaldo.031",senha:"op031"},
-  {apto:"032OP",nome:"Jeanette Talib Heide",email:"",usuario:"jeanette.032",senha:"op032"},
-  {apto:"033OP",nome:"Renata R. Cunha Mesquita / Maria Antonia Mesquita",email:"",usuario:"renata.033",senha:"op033"},
-  {apto:"034OP",nome:"Luis Eduardo C. Pellon e família",email:"",usuario:"luis.034",senha:"op034"},
-  {apto:"041OP",nome:"Roberto Ferraz C. Noto / Jade Sagran Landgraf",email:"",usuario:"roberto.041",senha:"op041"},
-  {apto:"042OP",nome:"Marcelo Calvoso / Patricia M. Quintas Calvoso",email:"",usuario:"marcelo.042",senha:"op042"},
-  {apto:"043OP",nome:"Luiz Felipe Rodrigues Fay e família",email:"",usuario:"luizf.043",senha:"op043"},
-  {apto:"044OP",nome:"Heitor M. de Mendonça e família",email:"",usuario:"heitor.044",senha:"op044"},
-  {apto:"051OP",nome:"Ingo Schukze Blanck / Huguette Schulze Blanck",email:"",usuario:"ingo.051",senha:"op051"},
-  {apto:"052OP",nome:"Paulo Eugenio Weinberger / Roberta Riboni Weinberg",email:"",usuario:"paulo.052",senha:"op052"},
-  {apto:"053OP",nome:"Ana Paula dos R. Pirajá e família",email:"",usuario:"anapaula.053",senha:"op053"},
-  {apto:"054OP",nome:"Rachel M. Z. Salomão",email:"",usuario:"rachel.054",senha:"op054"},
-  {apto:"061OP",nome:"Claudia Paiva Aragão e família",email:"",usuario:"claudia.061",senha:"op061"},
-  {apto:"062OP",nome:"Caio Rafael Vernier e família",email:"",usuario:"caio.062",senha:"op062"},
-  {apto:"063OP",nome:"Maria Nazareth Gazzotti",email:"",usuario:"maria.063",senha:"op063"},
-  {apto:"064OP",nome:"Rodrigo Freire M. Artacho / Renata Semensin de Góes",email:"",usuario:"rodrigo.064",senha:"op064"},
-  {apto:"071OP",nome:"Heliana M. Talmon / Eduard M. Talmon",email:"",usuario:"heliana.071",senha:"op071"},
-  {apto:"072OP",nome:"Sebastião Costa Guedes / Claudete S. Guedes",email:"",usuario:"sebastiao.072",senha:"op072"},
-  {apto:"073OP",nome:"Tiago Maturana Loureiro e família",email:"",usuario:"tiago.073",senha:"op073"},
-  {apto:"074OP",nome:"Marcos S. Aranha e família",email:"",usuario:"marcos.074",senha:"op074"},
-  {apto:"081OP",nome:"Sergio Fisch / Paula D. Fisch",email:"",usuario:"sergio.081",senha:"op081"},
-  {apto:"082OP",nome:"Maria Antonieta G. Ronconi / Lucas Ronconi Raimundi",email:"",usuario:"mariaa.082",senha:"op082"},
-  {apto:"083OP",nome:"Elemer Lamberto S. Arassy e família",email:"",usuario:"elemer.083",senha:"op083"},
-  {apto:"084OP",nome:"Fernanda Braga / Fernando Braga",email:"",usuario:"fernanda.084",senha:"op084"},
-  {apto:"091OP",nome:"João Alberto Giannetti / Sergio Tadeu Lopes",email:"",usuario:"joao.091",senha:"op091"},
-  {apto:"092OP",nome:"",email:"",usuario:"op.092",senha:"op092"},
-  {apto:"093OP",nome:"Ricardo Dalge Lacerda / Thais Oliveira Timbó",email:"",usuario:"ricardo.093",senha:"op093"},
-  {apto:"094OP",nome:"Nilo Campion e família",email:"",usuario:"nilo.094",senha:"op094"},
-  {apto:"101OP",nome:"Paulo Cesar Mauro",email:"",usuario:"pauloc.101",senha:"op101"},
-  {apto:"103OP",nome:"Lauredo Ventura Bandeira / Elenilde Rezende Ventura",email:"",usuario:"lauredo.103",senha:"op103"},
-  {apto:"104OP",nome:"Umbelina Boges Bouabci",email:"",usuario:"umbelina.104",senha:"op104"},
-  {apto:"111OP",nome:"José Belfort Mattos / Tereza Belfort Mattos",email:"",usuario:"joseb.111",senha:"op111"},
-  {apto:"112OP",nome:"Peter Hemik Johansson e família",email:"",usuario:"peter.112",senha:"op112"},
-  {apto:"113OP",nome:"Fernando Blecher / Roberta A. Pretoni",email:"",usuario:"fernando.113",senha:"op113"},
-  {apto:"114OP",nome:"Felipe G. P. Trevisan e família",email:"",usuario:"felipe.114",senha:"op114"},
-  {apto:"121OP",nome:"Maria Cristina Lambert",email:"",usuario:"mariac.121",senha:"op121"},
-  {apto:"122OP",nome:"Eduardo Luiz Tiezzi Gomez e família",email:"",usuario:"eduardot.122",senha:"op122"},
-  {apto:"123OP",nome:"Marcos Istvan de Camargo / Simone Quintas",email:"",usuario:"marcosic.123",senha:"op123"},
-  {apto:"131OP",nome:"Lin Chin Ping e família",email:"",usuario:"lin.131",senha:"op131"},
-  {apto:"132OP",nome:"José Paulo S. Raoul / Arminda Raoul",email:"",usuario:"josep.132",senha:"op132"},
-  {apto:"133OP",nome:"Maria Aparecida Simões",email:"",usuario:"mariaaps.133",senha:"op133"},
-  {apto:"134OP",nome:"Frederico Grazzinelli Costa",email:"",usuario:"frederico.134",senha:"op134"},
-  {apto:"141OP",nome:"Cícero Nunes Domingos e família",email:"",usuario:"cicero.141",senha:"op141"},
-  {apto:"142OP",nome:"Alberto Esteves e família",email:"",usuario:"alberto.142",senha:"op142"},
-  {apto:"143OP",nome:"Wagner Ghirelli / Sonia Maria O. Ghirelli",email:"",usuario:"wagner.143",senha:"op143"},
-  {apto:"144OP",nome:"Ricardo Mader Rodrigues e família",email:"",usuario:"ricardom.144",senha:"op144"},
-  {apto:"151OP",nome:"Mario Eugenio Fruguele / Flavia Santin Fruguele",email:"",usuario:"mario.151",senha:"op151"},
-  {apto:"152OP",nome:"Sergio Tomas Atala / Maria José Torquato Janini",email:"",usuario:"sergiot.152",senha:"op152"},
-  {apto:"153OP",nome:"Rafael Moi de Andrade e família",email:"",usuario:"rafael.153",senha:"op153"},
-  {apto:"154OP",nome:"Marcus Vinicius Z. Campos / Juliana Spacca R. Zampar",email:"",usuario:"marcus.154",senha:"op154"},
-  {apto:"161OP",nome:"Newton Luciano e família",email:"",usuario:"newton.161",senha:"op161"},
-  {apto:"162OP",nome:"Leopoldo Francisco / Marilene Raimo",email:"",usuario:"leopoldo.162",senha:"op162"},
-  {apto:"163OP",nome:"Paulo Cezar Pratti / Matheus",email:"",usuario:"paulop.163",senha:"op163"},
-  {apto:"164OP",nome:"Luzia Leda Lima Calfat",email:"",usuario:"op.164",senha:"op164"},
-  {apto:"171OP",nome:"José Francisco R. Cavalcante / Mary Ann Cavalcante",email:"",usuario:"op.171",senha:"op171"},
-  {apto:"172OP",nome:"Michelle Priscilla P. Gallindo e família",email:"",usuario:"op.172",senha:"op172"},
-  {apto:"173OP",nome:"Marcos Aurélio Campos",email:"",usuario:"op.173",senha:"op173"},
-  {apto:"174OP",nome:"Argene Maria Coli Cruz",email:"",usuario:"op.174",senha:"op174"},
-  {apto:"181OP",nome:"Álvaro Archer de C. Andrade e família",email:"",usuario:"op.181",senha:"op181"},
-  {apto:"182OP",nome:"Renata Vasconcelos Emerson",email:"",usuario:"op.182",senha:"op182"},
-  {apto:"183OP",nome:"Daniele Marques Cotrim e família",email:"",usuario:"op.183",senha:"op183"},
-  {apto:"184OP",nome:"Aida A. de A. Perry Vidal e família",email:"",usuario:"op.184",senha:"op184"},
-  {apto:"191OP",nome:"Joseph A. Antich / Ana Maria Adam",email:"",usuario:"op.191",senha:"op191"},
-  {apto:"192OP",nome:"",email:"",usuario:"op.192",senha:"op192"},
-  {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia / Carolina Correia",email:"",usuario:"op.193",senha:"op193"},
-  {apto:"194OP",nome:"",email:"",usuario:"op.194",senha:"op194"}
+let moradores = [
+  {apto:"012OP",nome:"Claudete Conceição Rozas",email:"",usuario:"claudete.012",senha:"op012",encomendas:[]},
+  {apto:"013OP",nome:"Cristina Filizola",email:"",usuario:"cristina.013",senha:"op013",encomendas:[]},
+  {apto:"014OP",nome:"Urias Taques Junior",email:"",usuario:"urias.014",senha:"op014",encomendas:[]},
+  {apto:"021OP",nome:"Pedro H. Chagas Rosseli",email:"",usuario:"pedro.021",senha:"op021",encomendas:[]},
+  {apto:"022OP",nome:"Jorge Moreira Lima Neto / Sonia Mendes M. Lima",email:"",usuario:"jorge.022",senha:"op022",encomendas:[]},
+  {apto:"023OP",nome:"Bonnie Marie Scannella e família",email:"",usuario:"bonnie.023",senha:"op023",encomendas:[]},
+  {apto:"024OP",nome:"Katia Piccioni La Farina / Walter Signorini Junior",email:"",usuario:"katia.024",senha:"op024",encomendas:[]},
+  {apto:"031OP",nome:"Arnaldo M. Camargo / Maria Lucia Camargo",email:"",usuario:"arnaldo.031",senha:"op031",encomendas:[]},
+  {apto:"032OP",nome:"Jeanette Talib Heide",email:"",usuario:"jeanette.032",senha:"op032",encomendas:[]},
+  {apto:"033OP",nome:"Renata R. Cunha Mesquita / Maria Antonia Mesquita",email:"",usuario:"renata.033",senha:"op033",encomendas:[]},
+  {apto:"034OP",nome:"Luis Eduardo C. Pellon e família",email:"",usuario:"luis.034",senha:"op034",encomendas:[]},
+  {apto:"041OP",nome:"Roberto Ferraz C. Noto / Jade Sagran Landgraf",email:"",usuario:"roberto.041",senha:"op041",encomendas:[]},
+  {apto:"042OP",nome:"Marcelo Calvoso / Patricia M. Quintas Calvoso",email:"",usuario:"marcelo.042",senha:"op042",encomendas:[]},
+  {apto:"043OP",nome:"Luiz Felipe Rodrigues Fay e família",email:"",usuario:"luizf.043",senha:"op043",encomendas:[]},
+  {apto:"044OP",nome:"Heitor M. de Mendonça e família",email:"",usuario:"heitor.044",senha:"op044",encomendas:[]},
+  {apto:"051OP",nome:"Ingo Schukze Blanck / Huguette Schulze Blanck",email:"",usuario:"ingo.051",senha:"op051",encomendas:[]},
+  {apto:"052OP",nome:"Paulo Eugenio Weinberger / Roberta Riboni Weinberg",email:"",usuario:"paulo.052",senha:"op052",encomendas:[]},
+  {apto:"053OP",nome:"Ana Paula dos R. Pirajá e família",email:"",usuario:"anapaula.053",senha:"op053",encomendas:[]},
+  {apto:"054OP",nome:"Rachel M. Z. Salomão",email:"",usuario:"rachel.054",senha:"op054",encomendas:[]},
+  {apto:"061OP",nome:"Claudia Paiva Aragão e família",email:"",usuario:"claudia.061",senha:"op061",encomendas:[]},
+  {apto:"062OP",nome:"Caio Rafael Vernier e família",email:"",usuario:"caio.062",senha:"op062",encomendas:[]},
+  {apto:"063OP",nome:"Maria Nazareth Gazzotti",email:"",usuario:"maria.063",senha:"op063",encomendas:[]},
+  {apto:"064OP",nome:"Rodrigo Freire M. Artacho / Renata Semensin de Góes",email:"",usuario:"rodrigo.064",senha:"op064",encomendas:[]},
+  {apto:"071OP",nome:"Heliana M. Talmon / Eduard M. Talmon",email:"",usuario:"heliana.071",senha:"op071",encomendas:[]},
+  {apto:"072OP",nome:"Sebastião Costa Guedes / Claudete S. Guedes",email:"",usuario:"sebastiao.072",senha:"op072",encomendas:[]},
+  {apto:"073OP",nome:"Tiago Maturana Loureiro e família",email:"",usuario:"tiago.073",senha:"op073",encomendas:[]},
+  {apto:"074OP",nome:"Marcos S. Aranha e família",email:"",usuario:"marcos.074",senha:"op074",encomendas:[]},
+  {apto:"081OP",nome:"Sergio Fisch / Paula D. Fisch",email:"",usuario:"sergio.081",senha:"op081",encomendas:[]},
+  {apto:"082OP",nome:"Maria Antonieta G. Ronconi / Lucas Ronconi Raimundi",email:"",usuario:"mariaa.082",senha:"op082",encomendas:[]},
+  {apto:"083OP",nome:"Elemer Lamberto S. Arassy e família",email:"",usuario:"elemer.083",senha:"op083",encomendas:[]},
+  {apto:"084OP",nome:"Fernanda Braga / Fernando Braga",email:"",usuario:"fernanda.084",senha:"op084",encomendas:[]},
+  {apto:"091OP",nome:"João Alberto Giannetti / Sergio Tadeu Lopes",email:"",usuario:"joao.091",senha:"op091",encomendas:[]},
+  {apto:"092OP",nome:"",email:"",usuario:"op.092",senha:"op092",encomendas:[]},
+  {apto:"093OP",nome:"Ricardo Dalge Lacerda / Thais Oliveira Timbó",email:"",usuario:"ricardo.093",senha:"op093",encomendas:[]},
+  {apto:"094OP",nome:"Nilo Campion e família",email:"",usuario:"nilo.094",senha:"op094",encomendas:[]},
+  {apto:"101OP",nome:"Paulo Cesar Mauro",email:"",usuario:"pauloc.101",senha:"op101",encomendas:[]},
+  {apto:"103OP",nome:"Lauredo Ventura Bandeira / Elenilde Rezende Ventura",email:"",usuario:"lauredo.103",senha:"op103",encomendas:[]},
+  {apto:"104OP",nome:"Umbelina Boges Bouabci",email:"",usuario:"umbelina.104",senha:"op104",encomendas:[]},
+  {apto:"111OP",nome:"José Belfort Mattos / Tereza Belfort Mattos",email:"",usuario:"joseb.111",senha:"op111",encomendas:[]},
+  {apto:"112OP",nome:"Peter Hemik Johansson e família",email:"",usuario:"peter.112",senha:"op112",encomendas:[]},
+  {apto:"113OP",nome:"Fernando Blecher / Roberta A. Pretoni",email:"",usuario:"fernando.113",senha:"op113",encomendas:[]},
+  {apto:"114OP",nome:"Felipe G. P. Trevisan e família",email:"",usuario:"felipe.114",senha:"op114",encomendas:[]},
+  {apto:"121OP",nome:"Maria Cristina Lambert",email:"",usuario:"mariac.121",senha:"op121",encomendas:[]},
+  {apto:"122OP",nome:"Eduardo Luiz Tiezzi Gomez e família",email:"",usuario:"eduardot.122",senha:"op122",encomendas:[]},
+  {apto:"123OP",nome:"Marcos Istvan de Camargo / Simone Quintas",email:"",usuario:"marcosic.123",senha:"op123",encomendas:[]},
+  {apto:"131OP",nome:"Lin Chin Ping e família",email:"",usuario:"lin.131",senha:"op131",encomendas:[]},
+  {apto:"132OP",nome:"José Paulo S. Raoul / Arminda Raoul",email:"",usuario:"josep.132",senha:"op132",encomendas:[]},
+  {apto:"133OP",nome:"Maria Aparecida Simões",email:"",usuario:"mariaaps.133",senha:"op133",encomendas:[]},
+  {apto:"134OP",nome:"Frederico Grazzinelli Costa",email:"",usuario:"frederico.134",senha:"op134",encomendas:[]},
+  {apto:"141OP",nome:"Cícero Nunes Domingos e família",email:"",usuario:"cicero.141",senha:"op141",encomendas:[]},
+  {apto:"142OP",nome:"Alberto Esteves e família",email:"",usuario:"alberto.142",senha:"op142",encomendas:[]},
+  {apto:"143OP",nome:"Wagner Ghirelli / Sonia Maria O. Ghirelli",email:"",usuario:"wagner.143",senha:"op143",encomendas:[]},
+  {apto:"144OP",nome:"Ricardo Mader Rodrigues e família",email:"",usuario:"ricardom.144",senha:"op144",encomendas:[]},
+  {apto:"151OP",nome:"Mario Eugenio Fruguele / Flavia Santin Fruguele",email:"",usuario:"mario.151",senha:"op151",encomendas:[]},
+  {apto:"152OP",nome:"Sergio Tomas Atala / Maria José Torquato Janini",email:"",usuario:"sergiot.152",senha:"op152",encomendas:[]},
+  {apto:"153OP",nome:"Rafael Moi de Andrade e família",email:"",usuario:"rafael.153",senha:"op153",encomendas:[]},
+  {apto:"154OP",nome:"Marcus Vinicius Z. Campos / Juliana Spacca R. Zampar",email:"",usuario:"marcus.154",senha:"op154",encomendas:[]},
+  {apto:"161OP",nome:"Newton Luciano e família",email:"",usuario:"newton.161",senha:"op161",encomendas:[]},
+  {apto:"162OP",nome:"Leopoldo Francisco / Marilene Raimo",email:"",usuario:"leopoldo.162",senha:"op162",encomendas:[]},
+  {apto:"163OP",nome:"Paulo Cezar Pratti / Matheus",email:"",usuario:"paulop.163",senha:"op163",encomendas:[]},
+  {apto:"164OP",nome:"Luzia Leda Lima Calfat",email:"",usuario:"op.164",senha:"op164",encomendas:[]},
+  {apto:"171OP",nome:"José Francisco R. Cavalcante / Mary Ann Cavalcante",email:"",usuario:"op.171",senha:"op171",encomendas:[]},
+  {apto:"172OP",nome:"Michelle Priscilla P. Gallindo e família",email:"",usuario:"op.172",senha:"op172",encomendas:[]},
+  {apto:"173OP",nome:"Marcos Aurélio Campos",email:"",usuario:"op.173",senha:"op173",encomendas:[]},
+  {apto:"174OP",nome:"Argene Maria Coli Cruz",email:"",usuario:"op.174",senha:"op174",encomendas:[]},
+  {apto:"181OP",nome:"Álvaro Archer de C. Andrade e família",email:"",usuario:"op.181",senha:"op181",encomendas:[]},
+  {apto:"182OP",nome:"Renata Vasconcelos Emerson",email:"",usuario:"op.182",senha:"op182",encomendas:[]},
+  {apto:"183OP",nome:"Daniele Marques Cotrim e família",email:"",usuario:"op.183",senha:"op183",encomendas:[]},
+  {apto:"184OP",nome:"Aida A. de A. Perry Vidal e família",email:"",usuario:"op.184",senha:"op184",encomendas:[]},
+  {apto:"191OP",nome:"Joseph A. Antich / Ana Maria Adam",email:"",usuario:"op.191",senha:"op191",encomendas:[]},
+  {apto:"192OP",nome:"",email:"",usuario:"op.192",senha:"op192",encomendas:[]},
+  {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia / Carolina Correia",email:"",usuario:"op.193",senha:"op193",encomendas:[]},
+  {apto:"194OP",nome:"",email:"",usuario:"op.194",senha:"op194",encomendas:[]}
 ];
 
-const admin = {usuario:"admin",senha:"condo2026",nome:"Portaria — Administrador"};
+let admin = {usuario:"admin",senha:"condo2026",nome:"Portaria — Administrador"};
 let usuarioLogado = null, ehAdmin = false;
-let indiceSelecionado = null, fotoBase64 = null;
-let moradoresCarregados = [];
-let encomendasCarregadas = [];
-
-// Inicializar banco
-async function inicializarBanco(){
-  const snap = await db.collection('config').doc('inicializado').get();
-  if(!snap.exists){
-    for(const m of moradoresPadrao){
-      await db.collection('moradores').add({...m});
-    }
-    await db.collection('config').doc('inicializado').set({feito:true,em:new Date()});
-    console.log("✅ Dados padrão carregados!");
-  }
-  await carregarMoradores();
-  await carregarEncomendas();
-}
-
-async function carregarMoradores(){
-  const snap = await db.collection('moradores').get();
-  moradoresCarregados = snap.docs.map(d => ({id:d.id, ...d.data()}));
-  carregarListaApartamentos();
-  carregaListaMoradores();
-}
-
-async function carregarEncomendas(){
-  const snap = await db.collection('encomendas').orderBy('data','desc').get();
-  encomendasCarregadas = snap.docs.map(d => ({id:d.id, ...d.data()}));
-  carregaTodasEncomendas();
-  if(usuarioLogado && !ehAdmin) carregaMinhasEncomendas();
-}
-
-// Atualiza em tempo real TODOS os aparelhos
-db.collection('encomendas').onSnapshot(() => carregarEncomendas());
-db.collection('moradores').onSnapshot(() => carregarMoradores());
+let indiceSelecionado = null;
+let fotoBase64 = null;
 
 function carregarListaApartamentos(){
   const sel = document.getElementById('selApto');
   sel.innerHTML = '<option value="">-- Selecione o Apartamento --</option>';
-  moradoresCarregados.forEach((m, i) => {
+  moradores.forEach((m, i) => {
     if(m.apto){
       const opt = document.createElement('option');
       opt.value = i;
@@ -348,7 +304,7 @@ function preencherDadosMorador(){
     return;
   }
   
-  const m = moradoresCarregados[indiceSelecionado];
+  const m = moradores[indiceSelecionado];
   document.getElementById('inpNome').value = m.nome || '';
   document.getElementById('inpApto').value = m.apto;
   document.getElementById('inpEmail').value = m.email || '';
@@ -390,16 +346,21 @@ function entrar(){
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Nome FIXO ✅ Edita dados ✅ Foto aparece para morador ✅";
+    carregarListaApartamentos();
+    carregaListaMoradores();
+    carregaTodasEncomendas();
     return;
   }
   
-  const m = moradoresCarregados.find(x => x.usuario === u && x.senha === s);
+  const m = moradores.find(x => x.usuario === u && x.senha === s);
   if(m){
     ehAdmin = false; usuarioLogado = {tipo:'morador',nome:m.nome,apto:m.apto,dados:m};
     document.getElementById('telaLogin').classList.add('hidden');
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${m.nome} — Apto ${m.apto}`;
     document.getElementById('menuMorador').classList.remove('hidden');
+    document.getElementById('textoInicio').textContent = "Bem-vindo(a)! Veja suas encomendas e fotos em '📦 Minhas Encomendas'.";
     return;
   }
   
@@ -427,9 +388,13 @@ function mostrarAba(nome){
   if(ehAdmin){
     document.querySelectorAll('#menuAdmin button').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
+    if(nome === 'registrar') carregarListaApartamentos();
+    if(nome === 'lista') carregaListaMoradores();
+    if(nome === 'encomendas') carregaTodasEncomendas();
   }else{
     document.querySelectorAll('#menuMorador button').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
+    if(nome === 'minhas') carregaMinhasEncomendas();
   }
 }
 
@@ -437,25 +402,24 @@ async function enviarEncomenda(){
   if(!ehAdmin){alert("Acesso negado!");return}
   if(!indiceSelecionado){alert("⚠️ Escolha o apartamento!");return}
   
-  const m = moradoresCarregados[indiceSelecionado];
+  const m = moradores[indiceSelecionado];
   const email = document.getElementById('inpEmail').value.trim();
   const empresa = document.getElementById('inpEmpresa').value.trim();
   const nota = document.getElementById('inpNota').value.trim();
   const rastreio = document.getElementById('inpRastreio').value.trim();
   
-  if(email && m.email !== email){
-    await db.collection('moradores').doc(m.id).update({email:email});
-  }
+  if(email) m.email = email;
   
   const btn = document.getElementById('btnEnviar');
   const statusEl = document.getElementById('statusEnvio');
   
   btn.disabled = true;
-  btn.textContent = "⏳ Salvando na nuvem...";
+  btn.textContent = "⏳ Salvando...";
   statusEl.classList.remove('hidden','enviado','falha');
   statusEl.className = 'status-envio enviando';
   
   const novaEncomenda = {
+    id: Date.now(),
     data: new Date().toLocaleString('pt-BR'),
     nome: m.nome,
     apto: m.apto,
@@ -466,7 +430,7 @@ async function enviarEncomenda(){
     foto: fotoBase64 || null
   };
   
-  await db.collection('encomendas').add(novaEncomenda);
+  m.encomendas.push(novaEncomenda);
   
   if(email){
     try{
@@ -478,17 +442,17 @@ async function enviarEncomenda(){
         data: novaEncomenda.data
       });
       statusEl.className = 'status-envio enviado';
-      statusEl.innerHTML = `✅ SALVO NA NUVEM! Aparece em todos os aparelhos ✅<br>${m.nome} — Apto ${m.apto}`;
+      statusEl.innerHTML = `✅ REGISTRADO + E-MAIL ENVIADO!<br>${m.nome} — Apto ${m.apto}`;
     }catch{
       statusEl.className = 'status-envio falha';
-      statusEl.innerHTML = `✅ SALVO! Aparece em todos aparelhos ✅<br>(e-mail não enviado)`;
+      statusEl.innerHTML = `⚠️ Registrado, e-mail não enviado.`;
     }
   }else{
     statusEl.className = 'status-envio enviado';
-    statusEl.innerHTML = `✅ SALVO NA NUVEM! Aparece em todos aparelhos ✅`;
+    statusEl.innerHTML = `✅ REGISTRADO! Sem e-mail.`;
   }
   
-  setTimeout(() => statusEl.classList.add('hidden'), 5000);
+  setTimeout(() => statusEl.classList.add('hidden'), 6000);
   btn.disabled = false;
   btn.textContent = "✅ REGISTRAR ENCOMENDA";
   
@@ -503,42 +467,57 @@ async function enviarEncomenda(){
   document.getElementById('inpEmpresa').value = '';
   document.getElementById('inpNota').value = '';
   document.getElementById('inpRastreio').value = '';
+  
+  carregaTodasEncomendas();
 }
 
 function carregaTodasEncomendas(){
   const div = document.getElementById('listaTodasEncomendas');
-  if(encomendasCarregadas.length === 0){
+  let todas = [];
+  moradores.forEach(m => {
+    m.encomendas.forEach(e => todas.push({...e, moradorNome:m.nome}));
+  });
+  if(todas.length === 0){
     div.innerHTML = '<p class="sem-dados">📭 Nenhuma encomenda registrada ainda.</p>';
     return;
   }
-  div.innerHTML = encomendasCarregadas.map(e => `
+  todas.reverse();
+  div.innerHTML = todas.map((e, i) => `
     <div class="item-encomenda">
-      <strong>📦 ${e.nome}</strong><br>
+      <strong>📦 ${e.moradorNome}</strong><br>
       🏠 Apto: ${e.apto}<br>
       📅 Data: ${e.data}<br>
       ${e.empresa!=='Não informada'?`🏬 Empresa: ${e.empresa}<br>`:''}
-      ${e.foto?`<img src="${e.foto}" class="foto-encomenda" alt="Foto">`:'📷 Sem foto'}<br>
-      <button class="excluir" onclick="marcarRetirada('${e.id}')">🗑️ Marcar Retirada</button>
+      ${e.foto?`<img src="${e.foto}" class="foto-encomenda" alt="Foto da encomenda">`:'📷 Sem foto'}<br>
+      <button class="excluir" onclick="marcarRetirada(${i})">🗑️ Marcar Retirada</button>
     </div>
   `).join('');
 }
 
-async function marcarRetirada(id){
+function marcarRetirada(indiceLista){
+  let todas = [];
+  moradores.forEach((m, idxM) => {
+    m.encomendas.forEach((e, idxE) => {
+      todas.push({...e, idxMorador:idxM, idxEncomenda:idxE});
+    });
+  });
+  todas.reverse();
+  const remover = todas[indiceLista];
   if(confirm('Marcar como retirada?')){
-    await db.collection('encomendas').doc(id).delete();
+    moradores[remover.idxMorador].encomendas.splice(remover.idxEncomenda, 1);
+    carregaTodasEncomendas();
   }
 }
 
 function carregaMinhasEncomendas(){
   if(!usuarioLogado || usuarioLogado.tipo !== 'morador') return;
-  const meuApto = usuarioLogado.dados.apto;
-  const minhas = encomendasCarregadas.filter(e => e.apto === meuApto);
+  const m = usuarioLogado.dados;
   const div = document.getElementById('listaMinhas');
-  if(minhas.length === 0){
+  if(m.encomendas.length === 0){
     div.innerHTML = '<p class="sem-dados">📭 Nenhuma encomenda no momento.</p>';
     return;
   }
-  div.innerHTML = minhas.map(e => `
+  div.innerHTML = m.encomendas.map(e => `
     <div class="item-encomenda" style="background:#fffbeb;border-left:4px solid #f59e0b;padding:12px;border-radius:6px;margin:8px 0">
       <strong>📦 NOVA ENCOMENDA!</strong><br>
       📅 ${e.data}<br>
@@ -547,26 +526,24 @@ function carregaMinhasEncomendas(){
       ${e.foto?`<img src="${e.foto}" class="foto-encomenda" alt="Foto da encomenda">`:'📷 Sem foto'}<br>
       <em>Retire na portaria!</em>
     </div>
-  `).join('');
+  `).reverse().join('');
 }
 
 function carregaListaMoradores(){
   if(!ehAdmin) return;
-  document.getElementById('listaMoradores').innerHTML = moradoresCarregados.map((m, i) => `
+  document.getElementById('listaMoradores').innerHTML = moradores.map((m, i) => `
     <div class="item-morador">
       <div>
         <strong>${m.apto}</strong> — ${m.nome || '⚠️ SEM NOME'} ✅ FIXO<br>
-        <small>📧 ${m.email || '⚠️ Sem e-mail'}</small>
+        <small>📧 ${m.email || '⚠️ Sem e-mail'} | Encomendas: ${m.encomendas.length}</small>
       </div>
-      <button class="editar" onclick="abrirEdicao(${i}, '${m.id}')">✏️ EDITAR</button>
+      <button class="editar" onclick="abrirEdicao(${i})">✏️ EDITAR DADOS</button>
     </div>
   `).join('');
 }
 
-let idEdicaoAtual = null;
-function abrirEdicao(indice, docId){
-  idEdicaoAtual = docId;
-  const m = moradoresCarregados[indice];
+function abrirEdicao(indice){
+  const m = moradores[indice];
   document.getElementById('indiceEditar').value = indice;
   document.getElementById('editarAptoTitulo').textContent = m.apto;
   document.getElementById('editarNome').value = m.nome;
@@ -576,48 +553,41 @@ function abrirEdicao(indice, docId){
   document.getElementById('formEditarMorador').classList.remove('hidden');
 }
 
-async function salvarEdicao(){
-  if(!idEdicaoAtual){alert("Erro! Tente de novo.");return}
-  await db.collection('moradores').doc(idEdicaoAtual).update({
-    email: document.getElementById('editarEmail').value.trim(),
-    usuario: document.getElementById('editarUsuario').value.trim(),
-    senha: document.getElementById('editarSenha').value.trim()
-  });
-  alert("✅ Salvo na nuvem! Aparece em todos aparelhos ✅");
+function salvarEdicao(){
+  const i = parseInt(document.getElementById('indiceEditar').value);
+  moradores[i].email = document.getElementById('editarEmail').value.trim();
+  moradores[i].usuario = document.getElementById('editarUsuario').value.trim();
+  moradores[i].senha = document.getElementById('editarSenha').value.trim();
+  alert("✅ Salvo! Nome continua FIXO ✅");
   document.getElementById('formEditarMorador').classList.add('hidden');
-  idEdicaoAtual = null;
+  carregaListaMoradores();
+  carregarListaApartamentos();
 }
 
 function cancelarEdicao(){
   document.getElementById('formEditarMorador').classList.add('hidden');
-  idEdicaoAtual = null;
 }
 
-async function alterarSenha(){
+function alterarSenha(){
   const at = document.getElementById('senhaAtual').value.trim();
   const n1 = document.getElementById('senhaNova').value.trim();
   const n2 = document.getElementById('senhaNova2').value.trim();
   if(!at || !n1 || !n2){alert("Preencha tudo!");return}
   if(n1 !== n2){alert("Senhas não batem!");return}
   if(n1.length < 4){alert("Mínimo 4 caracteres!");return}
-  
   if(ehAdmin){
     if(at !== admin.senha){alert("Senha atual errada!");return}
     admin.senha = n1;
-    alert("✅ Senha alterada!");
   }else{
-    const m = moradoresCarregados.find(x => x.usuario === usuarioLogado.dados.usuario);
+    const m = usuarioLogado.dados;
     if(at !== m.senha){alert("Senha atual errada!");return}
-    await db.collection('moradores').doc(m.id).update({senha:n1});
-    alert("✅ Senha alterada!");
+    m.senha = n1;
   }
+  alert("✅ Senha alterada!");
   document.getElementById('senhaAtual').value = '';
   document.getElementById('senhaNova').value = '';
   document.getElementById('senhaNova2').value = '';
 }
-
-// Iniciar tudo
-inicializarBanco();
 </script>
 
 </body>
