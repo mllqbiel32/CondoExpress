@@ -20,6 +20,9 @@ button{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:
 .whatsapp{background:#25d366;color:white;margin-top:12px}
 .primary{background:#1769e0;color:white;margin-top:16px}
 .secondary{background:#e5e7eb;color:#374151;margin-top:8px}
+.editar{background:#facc15;color:#854d0e;margin:4px 0 0 8px;width:auto;display:inline-block;padding:6px 12px;font-size:13px}
+.salvar{background:#16a34a;color:white;margin-top:12px}
+.cancelar{background:#e5e7eb;color:#374151;margin-top:8px}
 .perigo{background:#fee2e2;color:#b91c1c;margin-top:8px}
 .success{color:#16a34a;margin-top:10px}
 .error{color:#dc2626;margin-top:10px}
@@ -32,8 +35,10 @@ nav button{width:auto;box-shadow:0 2px 4px rgba(0,0,0,.08);background:white;colo
 nav button.active{background:#1769e0;color:white}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
 .item-encomenda{padding:14px;border-bottom:1px solid #eee}
+.item-morador{padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
 .area-senha{background:#f9fafb;padding:16px;border-radius:12px;margin-top:16px}
 .aviso{background:#fef3c7;padding:12px;border-radius:8px;color:#92400e;margin-bottom:16px}
+.form-editar{background:#eff6ff;padding:16px;border-radius:12px;margin:16px 0;border-left:4px solid #1769e0}
 </style>
 </head>
 <body>
@@ -100,6 +105,20 @@ nav button.active{background:#1769e0;color:white}
 
   <section id="aba-lista" class="aba hidden card card-largo">
     <h2>👥 Moradores — Bloco A Ouro Preto</h2>
+    
+    <!-- FORMULÁRIO DE EDITAR MORADOR -->
+    <div id="formEditarMorador" class="form-editar hidden">
+      <h3 style="font-size:16px;margin-bottom:12px">✏️ Editar Morador — <span id="editarAptoTitulo"></span></h3>
+      <input type="hidden" id="indiceEditar">
+      <label>Nome Completo</label><input type="text" id="editarNome" placeholder="Digite o nome completo">
+      <label>Usuário de Acesso</label><input type="text" id="editarUsuario" placeholder="Ex: maria.123">
+      <label>Senha</label><input type="text" id="editarSenha" placeholder="Ex: op123">
+      <label>Telefone / WhatsApp</label><input type="text" id="editarTelefone" placeholder="Com DDD">
+      <button class="salvar" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+      <button class="cancelar" onclick="cancelarEdicao()">❌ Cancelar</button>
+      <p id="msgEdicao" class="hidden"></p>
+    </div>
+
     <div id="listaMoradores"></div>
   </section>
 
@@ -157,6 +176,7 @@ let moradores = [
   {apto:"083OP",nome:"Elemer Lamberto S. Arassy e família",bloco:"A — Ouro Preto",usuario:"elemer.083",senha:"op083",telefone:"",encomendas:[]},
   {apto:"084OP",nome:"Fernanda Braga / Fernando Braga",bloco:"A — Ouro Preto",usuario:"fernanda.084",senha:"op084",telefone:"",encomendas:[]},
   {apto:"091OP",nome:"João Alberto Giannetti / Sergio Tadeu Lopes",bloco:"A — Ouro Preto",usuario:"joao.091",senha:"op091",telefone:"",encomendas:[]},
+  {apto:"092OP",nome:"",bloco:"A — Ouro Preto",usuario:"op.092",senha:"op092",telefone:"",encomendas:[]},
   {apto:"093OP",nome:"Ricardo Dalge Lacerda / Thais Oliveira Timbó",bloco:"A — Ouro Preto",usuario:"ricardo.093",senha:"op093",telefone:"",encomendas:[]},
   {apto:"094OP",nome:"Nilo Campion e família",bloco:"A — Ouro Preto",usuario:"nilo.094",senha:"op094",telefone:"",encomendas:[]},
   {apto:"101OP",nome:"Paulo Cesar Mauro",bloco:"A — Ouro Preto",usuario:"pauloc.101",senha:"op101",telefone:"",encomendas:[]},
@@ -195,7 +215,8 @@ let moradores = [
   {apto:"184OP",nome:"Aida A. de A. Perry Vidal e família",bloco:"A — Ouro Preto",usuario:"op.184",senha:"op184",telefone:"",encomendas:[]},
   {apto:"191OP",nome:"Joseph A. Antich / Ana Maria Adam",bloco:"A — Ouro Preto",usuario:"op.191",senha:"op191",telefone:"",encomendas:[]},
   {apto:"192OP",nome:"",bloco:"A — Ouro Preto",usuario:"op.192",senha:"op192",telefone:"",encomendas:[]},
-  {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia / Carolina Correia",bloco:"A — Ouro Preto",usuario:"op.193",senha:"op193",telefone:"",encomendas:[]}
+  {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia / Carolina Correia",bloco:"A — Ouro Preto",usuario:"op.193",senha:"op193",telefone:"",encomendas:[]},
+  {apto:"194OP",nome:"",bloco:"A — Ouro Preto",usuario:"op.194",senha:"op194",telefone:"",encomendas:[]}
 ];
 
 let admin = {usuario:"admin",senha:"condo2026",nome:"Portaria — Administrador"};
@@ -213,7 +234,7 @@ function entrar(){
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
     document.getElementById('areaAdminConfig').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo! Você tem acesso completo: registrar encomendas, ver todos os moradores e alterar configurações.";
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Você tem acesso completo: registrar encomendas, ver/editar moradores e alterar configurações.";
     carregaListaMoradores();
     return;
   }
@@ -252,6 +273,7 @@ function mostrarAba(nome){
   if(ehAdmin){
     document.querySelectorAll('#menuAdmin button').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
+    if(nome === 'lista') carregaListaMoradores();
   }else{
     document.querySelectorAll('#menuMorador button').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
@@ -355,7 +377,63 @@ function carregaMinhasEncomendas(){
 function carregaListaMoradores(){
   if(!ehAdmin) return;
   const div = document.getElementById('listaMoradores');
-  div.innerHTML = moradores.map(m => `<div style="padding:10px 0;border-bottom:1px solid #eee"><strong>${m.apto}</strong> — ${m.nome || '⚠️ PREENCHER NOME'}<br><small>Usuário: ${m.usuario} | Senha: ${m.senha} | Encomendas: ${m.encomendas.length}</small></div>`).join('');
+  div.innerHTML = moradores.map((m, i) => `
+    <div class="item-morador">
+      <div>
+        <strong>${m.apto}</strong> — ${m.nome || '⚠️ PREENCHER NOME'}<br>
+        <small>Usuário: ${m.usuario} | Senha: ${m.senha} | Encomendas: ${m.encomendas.length}</small>
+      </div>
+      <button class="editar" onclick="abrirEdicao(${i})">✏️ Editar</button>
+    </div>
+  `).join('');
+}
+
+function abrirEdicao(indice){
+  const m = moradores[indice];
+  document.getElementById('indiceEditar').value = indice;
+  document.getElementById('editarAptoTitulo').textContent = m.apto;
+  document.getElementById('editarNome').value = m.nome;
+  document.getElementById('editarUsuario').value = m.usuario;
+  document.getElementById('editarSenha').value = m.senha;
+  document.getElementById('editarTelefone').value = m.telefone;
+  document.getElementById('formEditarMorador').classList.remove('hidden');
+  document.getElementById('msgEdicao').classList.add('hidden');
+}
+
+function salvarEdicao(){
+  const i = parseInt(document.getElementById('indiceEditar').value);
+  const nome = document.getElementById('editarNome').value.trim();
+  const usuario = document.getElementById('editarUsuario').value.trim();
+  const senha = document.getElementById('editarSenha').value.trim();
+  const telefone = document.getElementById('editarTelefone').value.trim();
+  const msg = document.getElementById('msgEdicao');
+  msg.classList.add('hidden');
+  
+  if(!usuario || !senha){
+    msg.textContent = "Usuário e Senha não podem ficar vazios!";
+    msg.className = 'error';
+    msg.classList.remove('hidden');
+    return;
+  }
+  
+  moradores[i].nome = nome;
+  moradores[i].usuario = usuario;
+  moradores[i].senha = senha;
+  moradores[i].telefone = telefone;
+  
+  msg.textContent = "✅ Dados salvos com sucesso!";
+  msg.className = 'success';
+  msg.classList.remove('hidden');
+  
+  setTimeout(() => {
+    document.getElementById('formEditarMorador').classList.add('hidden');
+    carregaListaMoradores();
+  }, 1200);
+}
+
+function cancelarEdicao(){
+  document.getElementById('formEditarMorador').classList.add('hidden');
+  document.getElementById('msgEdicao').classList.add('hidden');
 }
 
 function alterarSenha(){
