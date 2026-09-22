@@ -10,11 +10,12 @@
 header{background:#1769e0;color:white;padding:18px 20px;display:flex;justify-content:space-between;align-items:center}
 header h1{margin:0;font-size:21px}.container{max-width:1050px;margin:24px auto;padding:0 16px}
 nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
-button{border:0;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer}
+button, a.whatsapp{border:0;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
 nav button{background:white;color:#1769e0;box-shadow:0 2px 8px #0001}
 nav button.active,button.primary{background:#1769e0;color:white}
 button.secondary{background:#e5e7eb;color:#374151}
-button.whatsapp{background:#25d366;color:white;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+a.whatsapp{background:#25d366;color:white}
+button.cam{background:#f97316;color:white}
 .card{background:white;border-radius:16px;padding:20px;box-shadow:0 3px 15px #00000012;margin-bottom:18px}
 h2,h3{margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
@@ -23,6 +24,7 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 .eye-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:20px;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
 .hidden{display:none}.search{margin-bottom:15px;width:260px;max-width:100%}
 .package{border:1px solid #e2e6eb;border-radius:12px;padding:15px;margin:10px 0}
+.package-img{max-width:100%;border-radius:10px;margin:10px 0}
 .status{display:inline-block;padding:6px 12px;border-radius:20px;background:#fff3cd;color:#8a6500;font-size:14px;font-weight:bold;margin:8px 0}
 .small{color:#6b7280;font-size:13px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
 .hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px}
@@ -38,6 +40,11 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 .success{color:#16a34a;font-size:14px;margin:8px 0}
 .error{color:#dc2626;font-size:14px;margin:8px 0}
 .resident-item{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:12px;border-bottom:1px solid #eee}
+.note{background:#fffbeb;border-radius:8px;padding:10px;margin:10px 0;font-size:13px}
+.cam-area{background:#1f2937;border-radius:12px;padding:15px;margin:10px 0;text-align:center}
+.cam-area video{max-width:100%;border-radius:8px}
+.cam-area img{max-width:100%;border-radius:8px;margin-top:10px}
+.optional{color:#6b7280;font-size:12px}
 </style>
 </head>
 <body>
@@ -133,6 +140,7 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <section id="residents" class="hidden">
 <div class="card">
 <h2>👥 Cadastro de Moradores</h2>
+<div class="note">📱 Digite o telefone com DDD, exemplo: <strong>(31) 98888-1234</strong></div>
 <form id="residentForm">
 <div class="grid">
 <div><label>Nome completo</label><input id="rName" required></div>
@@ -158,14 +166,29 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <section id="register" class="hidden">
 <div class="card">
 <h2>📦 Registrar Encomenda</h2>
+<div class="note">📸 Tira a foto e preenche os dados — pode fazer rápido!</div>
+
+<!-- CÂMERA -->
+<div class="cam-area">
+  <h3 style="color:white;margin-top:0">📸 Foto da Encomenda</h3>
+  <video id="camera" autoplay playsinline class="hidden"></video>
+  <img id="fotoPreview" class="hidden" alt="Foto tirada">
+  <div style="margin-top:10px">
+    <button type="button" class="cam" onclick="ligarCamera()">📷 Ligar Câmera</button>
+    <button type="button" class="primary hidden" id="btnTirarFoto" onclick="tirarFoto()">📸 Tirar Foto</button>
+    <button type="button" class="secondary hidden" id="btnNovaFoto" onclick="novaFoto()">🔄 Nova Foto</button>
+    <input type="hidden" id="fotoBase64">
+  </div>
+</div>
+
 <form id="packageForm">
 <div class="grid">
 <div><label>Nome do morador</label><input id="name" required></div>
 <div><label>Bloco</label><select id="block"><option>A — Ouro Preto</option><option>B — Sabará</option></select></div>
 <div><label>Apartamento</label><input id="apt" required></div>
 <div><label>Telefone WhatsApp</label><input id="phone" placeholder="(31) 9xxxx-xxxx" required></div>
-<div><label>Loja / Transportadora</label><input id="store" required></div>
-<div><label>Código de rastreio</label><input id="tracking"></div>
+<div><label>Loja / Transportadora <span class="optional">(opcional)</span></label><input id="store" placeholder="Ex: Shopee, Correios..."></div>
+<div><label>Código de rastreio <span class="optional">(opcional)</span></label><input id="tracking" placeholder="Se tiver..."></div>
 </div>
 <br>
 <button class="whatsapp" type="submit">✅ Registrar e enviar no WhatsApp 🟢</button>
@@ -241,6 +264,7 @@ let packages = JSON.parse(localStorage.getItem('packages') || '[]');
 let residents = JSON.parse(localStorage.getItem('residents') || '[]');
 let currentUser = null;
 let selectedPackageId = null;
+let streamCamera = null;
 
 if(!residents.length) {
   residents = [
@@ -251,14 +275,67 @@ if(!residents.length) {
   localStorage.setItem('residents', JSON.stringify(residents));
 }
 
-function formatPhone(p) {
-  return p.replace(/\D/g,'');
+function limparTelefone(texto) {
+  let num = texto.replace(/\D/g, '');
+  if(num.length === 11 && !num.startsWith('55')) num = '55' + num;
+  if(num.length === 10 && !num.startsWith('55')) num = '55' + num;
+  return num;
 }
 
 function togglePass(id) {
   const el = document.getElementById(id);
   el.type = el.type === 'password' ? 'text' : 'password';
 }
+
+// ========== FUNÇÕES DA CÂMERA ==========
+async function ligarCamera() {
+  try {
+    streamCamera = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'environment', width: {ideal:1280}, height: {ideal:720} } 
+    });
+    const video = document.getElementById('camera');
+    video.srcObject = streamCamera;
+    video.classList.remove('hidden');
+    document.getElementById('btnTirarFoto').classList.remove('hidden');
+    this.style.display = 'none';
+  } catch(erro) {
+    alert('⚠️ Não conseguiu abrir a câmera.\nVerifique as permissões do navegador.');
+  }
+}
+
+function tirarFoto() {
+  const video = document.getElementById('camera');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+  
+  const fotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
+  document.getElementById('fotoBase64').value = fotoBase64;
+  
+  const img = document.getElementById('fotoPreview');
+  img.src = fotoBase64;
+  img.classList.remove('hidden');
+  
+  document.getElementById('btnTirarFoto').classList.add('hidden');
+  document.getElementById('btnNovaFoto').classList.remove('hidden');
+  
+  if(streamCamera) {
+    streamCamera.getTracks().forEach(t => t.stop());
+    streamCamera = null;
+  }
+  video.classList.add('hidden');
+}
+
+function novaFoto() {
+  document.getElementById('fotoPreview').classList.add('hidden');
+  document.getElementById('fotoBase64').value = '';
+  document.getElementById('btnNovaFoto').classList.add('hidden');
+  document.querySelector('.cam .cam').style.display = 'inline-block';
+  ligarCamera();
+}
+// =======================================
 
 function setLoginRole(role) {
   document.getElementById('adminTab').classList.toggle('active', role==='admin');
@@ -421,10 +498,14 @@ function openRecord(id) {
   renderPackages();
 }
 
-function sendWhatsApp(phone, name, store, apt) {
-  const num = formatPhone(phone);
-  const msg = encodeURIComponent(`Olá ${name}! Tudo bem?\n\nChegou sua encomenda da ${store}! 📦\nApto ${apt}\nPode retirar na portaria quando quiser.\n\n— CondoExpress ✅`);
-  window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
+function montarMsg(nome, loja, apt) {
+  return encodeURIComponent(
+    `Olá ${nome}! Tudo bem?\n\n` +
+    `Chegou sua encomenda${loja ? ` da ${loja}` : ''}! 📦\n` +
+    `Apto ${apt}\n` +
+    `Pode retirar na portaria quando quiser.\n\n` +
+    `— CondoExpress ✅`
+  );
 }
 
 function renderPackages() {
@@ -439,37 +520,37 @@ function renderPackages() {
   
   document.getElementById('packageList').innerHTML = list.length ? list.map(p => {
     const isSelected = selectedPackageId === p.id;
+    const numLimpo = p.phone ? limparTelefone(p.phone) : '';
+    const temNumero = numLimpo && numLimpo.length >= 12;
+    
     return `
     <div class="package">
       <div>
         <b>${p.name}</b> — Apto ${p.apt} • ${p.block}<br>
-        📦 ${p.store}<br>
+        📦 ${p.store || 'Não informado'}<br>
         📱 WhatsApp: ${p.phone || 'Não cadastrado'}<br>
         <span class="small">Recebida: ${p.date}</span>
       </div>
+      ${p.foto ? `<img src="${p.foto}" class="package-img" alt="Foto da encomenda">` : ''}
       <span class="status">${p.status}</span>
       <div class="actions">
-        ${!isSelected ? `<button class="blue" onclick="openRecord(${p.id})">📄 Ver detalhes</button>` : ''}
-        ${currentUser && currentUser.role==='admin' && p.status!=='Entregue' && p.phone ? `<a class="whatsapp" href="https://wa.me/${formatPhone(p.phone)}?text=${encodeURIComponent(`Olá ${p.name}! Tudo bem? Chegou sua encomenda da ${p.store}! 📦 Apto ${p.apt} Pode retirar na portaria quando quiser. — CondoExpress ✅`)}" target="_blank">🟢 Enviar WhatsApp</a>` : ''}
-        ${currentUser && currentUser.role==='admin' && p.status!=='Entregue' ? `<button class="secondary" onclick="deliver(${p.id})">Marcar retirada</button>` : ''}
+        ${!isSelected ? `<button class="primary" onclick="openRecord(${p.id})">📄 Ver detalhes</button>` : ''}
+        ${currentUser && currentUser.role==='admin' && p.status!=='Entregue' && temNumero ? 
+          `<a class="whatsapp" href="https://wa.me/${numLimpo}?text=${montarMsg(p.name, p.store, p.apt)}" target="_blank">🟢 Enviar WhatsApp</a>` : ''}
+        ${currentUser && currentUser.role==='admin' && p.status!=='Entregue' && !temNumero ? 
+          `<span class="error">⚠️ Telefone inválido</span>` : ''}
+        ${currentUser && currentUser.role==='admin' && p.status!=='Entregue' ? 
+          `<button class="secondary" onclick="deliver(${p.id})">Marcar retirada</button>` : ''}
       </div>
       
       ${isSelected ? `
       <div class="whatsapp-msg">
         <h3>📄 Detalhes da Encomenda</h3>
+        ${p.foto ? `<img src="${p.foto}" class="package-img" alt="Foto da encomenda">` : ''}
         <p><strong>Morador:</strong> ${p.name} • Apto ${p.apt} • ${p.block}<br>
         <strong>Telefone:</strong> 📱 ${p.phone || 'Não informado'}<br>
-        <strong>Loja:</strong> ${p.store} • Rastreio: ${p.tracking || '-'}</p>
-        
-        ${currentUser && currentUser.role === 'admin' && p.phone ? `
-        <p><strong>✅ Para enviar:</strong> toque no botão "🟢 Enviar WhatsApp" acima<br>
-        Vai abrir o WhatsApp direto com a mensagem pronta!</p>
-        ` : ''}
-        
-        ${currentUser && currentUser.role !== 'admin' ? `
-        <p><strong>📦 Encomenda registrada!</strong><br>
-        Pode retirar na portaria quando quiser!</p>
-        ` : ''}
+        <strong>Loja:</strong> ${p.store || 'Não informada'}<br>
+        <strong>Rastreio:</strong> ${p.tracking || '-'}</p>
       </div>
       ` : ''}
     </div>
@@ -492,41 +573,62 @@ function renderResidents() {
 
 document.getElementById('packageForm').onsubmit = function(e) {
   e.preventDefault();
-  const phoneVal = formatPhone(document.getElementById('phone').value);
-  const nameVal = document.getElementById('name').value;
-  const aptVal = document.getElementById('apt').value;
-  const storeVal = document.getElementById('store').value;
+  
+  const nome = document.getElementById('name').value;
+  const bloco = document.getElementById('block').value;
+  const apt = document.getElementById('apt').value;
+  const telefoneBruto = document.getElementById('phone').value;
+  const telefoneLimpo = limparTelefone(telefoneBruto);
+  const loja = document.getElementById('store').value || 'Não informada';
+  const rastreio = document.getElementById('tracking').value;
+  const foto = document.getElementById('fotoBase64').value || '';
+  
+  if(telefoneLimpo.length < 12) {
+    alert('⚠️ Telefone incorreto! Digite com DDD e número completo.\nExemplo: (31) 98888-1234');
+    return;
+  }
   
   const p = {
     id: Date.now(),
-    name: nameVal,
-    block: document.getElementById('block').value,
-    apt: aptVal,
-    phone: phoneVal,
-    store: storeVal,
-    tracking: document.getElementById('tracking').value,
+    name: nome,
+    block: bloco,
+    apt: apt,
+    phone: telefoneLimpo,
+    store: loja,
+    tracking: rastreio,
+    foto: foto,
     status: 'Aguardando retirada',
     date: new Date().toLocaleString('pt-BR')
   };
   packages.unshift(p);
   localStorage.setItem('packages', JSON.stringify(packages));
   
-  const msg = encodeURIComponent(`Olá ${nameVal}! Tudo bem?\n\nChegou sua encomenda da ${storeVal}! 📦\nApto ${aptVal}\nPode retirar na portaria quando quiser.\n\n— CondoExpress ✅`);
-  window.open(`https://wa.me/${phoneVal}?text=${msg}`, '_blank');
+  const link = `https://wa.me/${telefoneLimpo}?text=${montarMsg(nome, loja, apt)}`;
+  window.open(link, '_blank');
   
-  alert('✅ Encomenda registrada!\n🟢 WhatsApp abrindo...');
+  alert(`✅ Encomenda registrada!\n🟢 WhatsApp abrindo...\n📱 Número: ${telefoneLimpo}`);
   this.reset();
+  document.getElementById('fotoPreview').classList.add('hidden');
+  document.getElementById('fotoBase64').value = '';
+  document.getElementById('btnNovaFoto').classList.add('hidden');
   selectedPackageId = p.id;
   show('search', null);
 };
 
 document.getElementById('residentForm').onsubmit = function(e) {
   e.preventDefault();
+  
+  const tel = limparTelefone(document.getElementById('rPhone').value);
+  if(tel.length < 12) {
+    alert('⚠️ Telefone incorreto! Digite com DDD.\nExemplo: (31) 98888-1234');
+    return;
+  }
+  
   residents.push({
     name: document.getElementById('rName').value,
     block: document.getElementById('rBlock').value,
     apt: document.getElementById('rApt').value,
-    phone: formatPhone(document.getElementById('rPhone').value),
+    phone: tel,
     user: document.getElementById('rUser').value,
     pass: document.getElementById('rPass').value
   });
