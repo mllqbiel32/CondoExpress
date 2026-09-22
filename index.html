@@ -26,27 +26,31 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-bloco { background: white; color: #16a34a; border: 2px solid #16a34a; font-size: 18px; margin: 10px 0; }
 .btn-bloco-a { background: #1e40af; color: white; border: none; }
 .btn-voltar { background: #e5e7eb; color: #374151; margin-bottom: 15px; }
+.btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
 
-/* Cards e Listas */
+/* Cards e Formulário */
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+label { font-weight: 600; font-size: 14px; color: #374151; display: block; margin: 12px 0 4px; }
+input, select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; }
+input[readonly] { background: #f3f4f6; color: #4b5563; }
 .lista-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
 .lista-item:last-child { border: none; }
 .lista-item strong { font-size: 15px; color: #111827; display: block; }
 .lista-item span { font-size: 14px; color: #6b7280; }
+.encomenda-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
+.encomenda-data { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+.sucesso { background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; margin-top: 12px; text-align: center; font-weight: 600; }
 .tag-bloco { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; color: white; margin-left: 8px; }
 .tag-a { background: #1e40af; }
 .tag-b { background: #16a34a; }
+.vago { color: #9ca3af; font-style: italic; }
 
 /* Telas */
 .tela { display: none; }
 .tela.ativa { display: block; }
-
-/* Responsivo */
-@media (max-width: 480px) {
-  .btn { padding: 16px; font-size: 17px; }
-  .card { padding: 16px; }
-}
+.aba { display: none; }
+.aba.ativa { display: block; }
 </style>
 </head>
 <body>
@@ -80,36 +84,53 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
   <button class="btn btn-sair" onclick="voltarEscolha()">Sair</button>
 
   <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAba('moradores-a')">👥 Moradores</button>
-    <button class="btn btn-nav" onclick="mostrarAba('encomendas-a')">📦 Encomendas</button>
-    <button class="btn btn-nav" onclick="mostrarAba('config-a')">⚙️ Configurações</button>
+    <button class="btn btn-nav ativo" onclick="mostrarAbaA('moradores-a')">👥 Moradores</button>
+    <button class="btn btn-nav" onclick="mostrarAbaA('registrar-a')">📦 Registrar Encomenda</button>
+    <button class="btn btn-nav" onclick="mostrarAbaA('encomendas-a')">📋 Lista de Encomendas</button>
   </nav>
 
   <!-- ABA MORADORES A -->
-  <div id="moradores-a" class="aba">
+  <div id="moradores-a" class="aba ativa">
     <div class="card">
       <h2>👥 Moradores — Bloco A Ouro Preto <span class="tag-bloco tag-a">A</span></h2>
       <div id="lista-moradores-a"></div>
     </div>
   </div>
 
-  <!-- ABA ENCOMENDAS A -->
-  <div id="encomendas-a" class="aba" style="display:none">
+  <!-- ABA REGISTRAR ENCOMENDA A -->
+  <div id="registrar-a" class="aba">
     <div class="card">
-      <h2>📦 Encomendas — Bloco A</h2>
-      <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>
+      <h2>📦 Registrar Encomenda — Bloco A</h2>
+      
+      <label>Apartamento do Morador</label>
+      <select id="sel-apto-a" onchange="preencherMorador('a')">
+        <option value="">-- Selecione o apartamento --</option>
+      </select>
+
+      <label>Nome do Morador</label>
+      <input type="text" id="nome-morador-a" readonly>
+
+      <label>Empresa / Loja</label>
+      <input type="text" id="empresa-a" placeholder="Ex: Shopee, Mercado Livre...">
+
+      <label>Número da Nota Fiscal</label>
+      <input type="text" id="nota-a" placeholder="Digite o número">
+
+      <label>Código de Rastreio</label>
+      <input type="text" id="rastreio-a" placeholder="Código de rastreamento">
+
+      <button class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>
+      <div id="msg-sucesso-a" class="sucesso hidden">✅ Encomenda registrada com sucesso!</div>
     </div>
   </div>
 
-  <!-- ABA CONFIG A -->
-  <div id="config-a" class="aba" style="display:none">
+  <!-- ABA LISTA ENCOMENDAS A -->
+  <div id="encomendas-a" class="aba">
     <div class="card">
-      <h2>⚙️ Configurações</h2>
-      <p style="color:#6b7280; line-height:1.6">
-        <strong>Bloco:</strong> A — Ouro Preto<br>
-        <strong>Usuário:</strong> Administrador<br>
-        <strong>Versão:</strong> 1.0
-      </p>
+      <h2>📋 Encomendas Registradas — Bloco A</h2>
+      <div id="lista-encomendas-a">
+        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>
+      </div>
     </div>
   </div>
 </div>
@@ -126,35 +147,52 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 
   <nav>
     <button class="btn btn-nav ativo" onclick="mostrarAbaB('moradores-b')">👥 Moradores</button>
-    <button class="btn btn-nav" onclick="mostrarAbaB('encomendas-b')">📦 Encomendas</button>
-    <button class="btn btn-nav" onclick="mostrarAbaB('config-b')">⚙️ Configurações</button>
+    <button class="btn btn-nav" onclick="mostrarAbaB('registrar-b')">📦 Registrar Encomenda</button>
+    <button class="btn btn-nav" onclick="mostrarAbaB('encomendas-b')">📋 Lista de Encomendas</button>
   </nav>
 
   <!-- ABA MORADORES B -->
-  <div id="moradores-b" class="aba">
+  <div id="moradores-b" class="aba ativa">
     <div class="card">
       <h2>👥 Moradores — Bloco B Sabará <span class="tag-bloco tag-b">B</span></h2>
       <div id="lista-moradores-b"></div>
     </div>
   </div>
 
-  <!-- ABA ENCOMENDAS B -->
-  <div id="encomendas-b" class="aba" style="display:none">
+  <!-- ABA REGISTRAR ENCOMENDA B -->
+  <div id="registrar-b" class="aba">
     <div class="card">
-      <h2>📦 Encomendas — Bloco B</h2>
-      <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>
+      <h2>📦 Registrar Encomenda — Bloco B</h2>
+      
+      <label>Apartamento do Morador</label>
+      <select id="sel-apto-b" onchange="preencherMorador('b')">
+        <option value="">-- Selecione o apartamento --</option>
+      </select>
+
+      <label>Nome do Morador</label>
+      <input type="text" id="nome-morador-b" readonly>
+
+      <label>Empresa / Loja</label>
+      <input type="text" id="empresa-b" placeholder="Ex: Shopee, Mercado Livre...">
+
+      <label>Número da Nota Fiscal</label>
+      <input type="text" id="nota-b" placeholder="Digite o número">
+
+      <label>Código de Rastreio</label>
+      <input type="text" id="rastreio-b" placeholder="Código de rastreamento">
+
+      <button class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>
+      <div id="msg-sucesso-b" class="sucesso hidden">✅ Encomenda registrada com sucesso!</div>
     </div>
   </div>
 
-  <!-- ABA CONFIG B -->
-  <div id="config-b" class="aba" style="display:none">
+  <!-- ABA LISTA ENCOMENDAS B -->
+  <div id="encomendas-b" class="aba">
     <div class="card">
-      <h2>⚙️ Configurações</h2>
-      <p style="color:#6b7280; line-height:1.6">
-        <strong>Bloco:</strong> B — Sabará<br>
-        <strong>Usuário:</strong> Administrador<br>
-        <strong>Versão:</strong> 1.0
-      </p>
+      <h2>📋 Encomendas Registradas — Bloco B</h2>
+      <div id="lista-encomendas-b">
+        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>
+      </div>
     </div>
   </div>
 </div>
@@ -163,7 +201,7 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 
 <script>
 // ==========================================
-// DADOS DOS MORADORES — BLOCO A
+// DADOS DOS MORADORES
 // ==========================================
 const BlocoA = [
   {apto:"012OP",nome:"Claudete Conceição Rozas"},
@@ -241,9 +279,6 @@ const BlocoA = [
   {apto:"194OP",nome:"Vago"}
 ];
 
-// ==========================================
-// DADOS DOS MORADORES — BLOCO B (ATUALIZADO)
-// ==========================================
 const BlocoB = [
   {apto:"011SAB",nome:"Carlos E. Simões Duarte / Patricia Luciano"},
   {apto:"012SAB",nome:"Joseph Gross"},
@@ -321,31 +356,28 @@ const BlocoB = [
   {apto:"194SAB",nome:"Vago"}
 ];
 
+// ARMAZENAR ENCOMENDAS
+let encomendasA = [];
+let encomendasB = [];
+
 // ==========================================
 // FUNÇÕES
 // ==========================================
-function renderizar(lista, elementoId, siglaBloco) {
-  const el = document.getElementById(elementoId);
-  el.innerHTML = '';
-  lista.forEach(m => {
-    const nome = m.nome || 'Vago';
-    el.innerHTML += `<div class="lista-item">
-      <strong>${m.apto}</strong>
-      <span>${nome}</span>
-    </div>`;
-  });
-}
 
 // Tela de escolha
 function abrirBlocoA() {
   document.getElementById('tela-escolha').classList.remove('ativa');
   document.getElementById('tela-bloco-a').classList.add('ativa');
-  renderizar(BlocoA, 'lista-moradores-a', 'A');
+  carregarListaMoradores('a');
+  carregarSelectAptos('a');
+  carregarListaEncomendas('a');
 }
 function abrirBlocoB() {
   document.getElementById('tela-escolha').classList.remove('ativa');
   document.getElementById('tela-bloco-b').classList.add('ativa');
-  renderizar(BlocoB, 'lista-moradores-b', 'B');
+  carregarListaMoradores('b');
+  carregarSelectAptos('b');
+  carregarListaEncomendas('b');
 }
 function voltarEscolha() {
   document.getElementById('tela-bloco-a').classList.remove('ativa');
@@ -353,20 +385,117 @@ function voltarEscolha() {
   document.getElementById('tela-escolha').classList.add('ativa');
 }
 
-// Abas Bloco A
-function mostrarAba(nomeAba) {
-  document.querySelectorAll('#tela-bloco-a .aba').forEach(el => el.style.display = 'none');
-  document.querySelectorAll('#tela-bloco-a .btn-nav').forEach(el => el.classList.remove('ativo'));
-  document.getElementById(nomeAba).style.display = 'block';
-  event.target.classList.add('ativo');
+// Carregar lista de moradores
+function carregarListaMoradores(sigla) {
+  const lista = sigla === 'a' ? BlocoA : BlocoB;
+  const el = document.getElementById(`lista-moradores-${sigla}`);
+  el.innerHTML = '';
+  lista.forEach(m => {
+    const nome = m.nome || '<span class="vago">Vago</span>';
+    el.innerHTML += `<div class="lista-item"><strong>${m.apto}</strong><br>${nome}</div>`;
+  });
 }
 
-// Abas Bloco B
-function mostrarAbaB(nomeAba) {
-  document.querySelectorAll('#tela-bloco-b .aba').forEach(el => el.style.display = 'none');
-  document.querySelectorAll('#tela-bloco-b .btn-nav').forEach(el => el.classList.remove('ativo'));
-  document.getElementById(nomeAba).style.display = 'block';
+// Preencher lista de apartamentos no select
+function carregarSelectAptos(sigla) {
+  const lista = sigla === 'a' ? BlocoA : BlocoB;
+  const el = document.getElementById(`sel-apto-${sigla}`);
+  el.innerHTML = '<option value="">-- Selecione o apartamento --</option>';
+  lista.forEach((m, idx) => {
+    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
+  });
+}
+
+// Preencher nome do morador ao selecionar
+function preencherMorador(sigla) {
+  const lista = sigla === 'a' ? BlocoA : BlocoB;
+  const sel = document.getElementById(`sel-apto-${sigla}`).value;
+  if(sel === '') {
+    document.getElementById(`nome-morador-${sigla}`).value = '';
+    return;
+  }
+  const morador = lista[parseInt(sel)];
+  document.getElementById(`nome-morador-${sigla}`).value = morador.nome || 'Vago';
+}
+
+// Salvar encomenda
+function salvarEncomenda(sigla) {
+  const selIdx = document.getElementById(`sel-apto-${sigla}`).value;
+  if(selIdx === '') { alert('Selecione o apartamento!'); return; }
+  
+  const lista = sigla === 'a' ? BlocoA : BlocoB;
+  const morador = lista[parseInt(selIdx)];
+  const empresa = document.getElementById(`empresa-${sigla}`).value.trim();
+  const nota = document.getElementById(`nota-${sigla}`).value.trim();
+  const rastreio = document.getElementById(`rastreio-${sigla}`).value.trim();
+
+  if(!empresa) { alert('Digite a empresa/loja!'); return; }
+
+  const encomenda = {
+    apto: morador.apto,
+    nome: morador.nome || 'Vago',
+    empresa: empresa,
+    nota: nota || 'Não informada',
+    rastreio: rastreio || 'Não informado',
+    data: new Date().toLocaleString('pt-BR')
+  };
+
+  if(sigla === 'a') encomendasA.unshift(encomenda);
+  else encomendasB.unshift(encomenda);
+
+  // Limpar formulário
+  document.getElementById(`sel-apto-${sigla}`).value = '';
+  document.getElementById(`nome-morador-${sigla}`).value = '';
+  document.getElementById(`empresa-${sigla}`).value = '';
+  document.getElementById(`nota-${sigla}`).value = '';
+  document.getElementById(`rastreio-${sigla}`).value = '';
+
+  // Mostrar mensagem e atualizar lista
+  const msg = document.getElementById(`msg-sucesso-${sigla}`);
+  msg.classList.remove('hidden');
+  setTimeout(() => msg.classList.add('hidden'), 3000);
+  
+  carregarListaEncomendas(sigla);
+  mostrarAba(sigla === 'a' ? 'encomendas-a' : 'encomendas-b', sigla);
+}
+
+// Carregar lista de encomendas
+function carregarListaEncomendas(sigla) {
+  const lista = sigla === 'a' ? encomendasA : encomendasB;
+  const el = document.getElementById(`lista-encomendas-${sigla}`);
+  
+  if(lista.length === 0) {
+    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';
+    return;
+  }
+
+  el.innerHTML = '';
+  lista.forEach(e => {
+    el.innerHTML += `<div class="encomenda-item">
+      <strong>📦 ${e.empresa}</strong><br>
+      <span>${e.apto} — ${e.nome}</span><br>
+      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
+      <span class="encomenda-data">${e.data}</span>
+    </div>`;
+  });
+}
+
+// Navegação entre abas
+function mostrarAbaA(nomeAba) {
+  document.querySelectorAll('#tela-bloco-a .aba').forEach(el => el.classList.remove('ativa'));
+  document.querySelectorAll('#tela-bloco-a .btn-nav').forEach(el => el.classList.remove('ativo'));
+  document.getElementById(nomeAba).classList.add('ativa');
   event.target.classList.add('ativo');
+}
+function mostrarAbaB(nomeAba) {
+  document.querySelectorAll('#tela-bloco-b .aba').forEach(el => el.classList.remove('ativa'));
+  document.querySelectorAll('#tela-bloco-b .btn-nav').forEach(el => el.classList.remove('ativo'));
+  document.getElementById(nomeAba).classList.add('ativa');
+  event.target.classList.add('ativo');
+}
+function mostrarAba(nomeAba, sigla) {
+  if(sigla === 'a') mostrarAbaA(nomeAba);
+  else mostrarAbaB(nomeAba);
 }
 </script>
 
