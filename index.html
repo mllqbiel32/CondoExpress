@@ -46,9 +46,6 @@ nav button.active{background:#1769e0;color:white}
   <label>Senha</label>
   <input type="password" id="inpSenha" placeholder="Digite sua senha">
   <button class="primary" onclick="entrar()">Entrar</button>
-  <p style="margin-top:16px;font-size:13px;color:#666;text-align:center">
-    Admin: usuário <b>admin</b> | senha <b>condo2026</b>
-  </p>
   <p id="msgErroLogin" class="error hidden" style="text-align:center"></p>
 </div>
 
@@ -71,88 +68,55 @@ nav button.active{background:#1769e0;color:white}
     <button onclick="mostrarAba('config')">🔑 Alterar Senha</button>
   </nav>
 
-  <!-- ABA INÍCIO -->
   <section id="aba-inicio" class="aba card card-largo">
     <h2 id="tituloInicio">Bem-vindo(a)! 🏠</h2>
     <p id="textoInicio" style="margin:8px 0"></p>
   </section>
 
-  <!-- ABA REGISTRAR ENCOMENDA — SÓ ADMIN -->
   <section id="aba-registrar" class="aba hidden card card-largo">
     <h2>📦 Registrar Encomenda</h2>
-
-    <button type="button" class="btn-cam" onclick="document.getElementById('inputCam').click()">
-      📷 Tirar Foto
-    </button>
+    <button type="button" class="btn-cam" onclick="document.getElementById('inputCam').click()">📷 Tirar Foto</button>
     <input type="file" id="inputCam" accept="image/*" capture="environment" style="display:none" onchange="arquivoSelecionado(this)">
-
-    <button type="button" class="btn-galeria" onclick="document.getElementById('inputGaleria').click()">
-      📁 Escolher da Galeria
-    </button>
+    <button type="button" class="btn-galeria" onclick="document.getElementById('inputGaleria').click()">📁 Escolher da Galeria</button>
     <input type="file" id="inputGaleria" accept="image/*" style="display:none" onchange="arquivoSelecionado(this)">
-
     <img id="imgPreview" class="preview-img hidden" alt="Foto carregada">
     <p id="statusLeitura" class="leitura-status hidden"></p>
     <button type="button" class="secondary hidden" id="btnLimparFoto" onclick="limparFoto()">❌ Trocar Foto</button>
     <input type="hidden" id="fotoBase64">
-
     <div class="grid">
-      <div>
-        <label>Nome do Morador</label>
-        <input type="text" id="inpNome" placeholder="Nome — preenche automático">
-      </div>
-      <div>
-        <label>Apartamento</label>
-        <input type="text" id="inpApto" placeholder="Ex: 012OP">
-      </div>
-      <div>
-        <label>Bloco</label>
-        <input type="text" id="inpBloco" value="A — Ouro Preto" readonly>
-      </div>
-      <div>
-        <label>Telefone / WhatsApp</label>
-        <input type="text" id="inpTelefone" placeholder="Com DDD">
-      </div>
+      <div><label>Nome do Morador</label><input type="text" id="inpNome" placeholder="Nome — preenche automático"></div>
+      <div><label>Apartamento</label><input type="text" id="inpApto" placeholder="Ex: 012OP"></div>
+      <div><label>Bloco</label><input type="text" id="inpBloco" value="A — Ouro Preto" readonly></div>
+      <div><label>Telefone / WhatsApp</label><input type="text" id="inpTelefone" placeholder="Com DDD"></div>
     </div>
-
     <button class="whatsapp" onclick="enviarEncomenda()">✅ Registrar e Enviar no WhatsApp</button>
     <p id="msgStatus" class="hidden"></p>
   </section>
 
-  <!-- ABA MINHAS ENCOMENDAS — SÓ MORADOR -->
   <section id="aba-minhas" class="aba hidden card card-largo">
     <h2>📦 Minhas Encomendas</h2>
     <div id="listaMinhas"></div>
   </section>
 
-  <!-- ABA LISTA DE MORADORES — SÓ ADMIN -->
   <section id="aba-lista" class="aba hidden card card-largo">
     <h2>👥 Moradores — Bloco A Ouro Preto</h2>
     <div id="listaMoradores"></div>
   </section>
 
-  <!-- ABA CONFIGURAÇÕES — TODOS -->
   <section id="aba-config" class="aba hidden card card-largo">
     <h2 id="tituloConfig">⚙️ Configurações</h2>
-    
     <div class="area-senha">
       <h3 style="font-size:16px;margin-bottom:12px">🔑 Alterar Senha</h3>
-      <label>Senha Atual</label>
-      <input type="password" id="senhaAtual" placeholder="Digite sua senha atual">
-      <label>Nova Senha</label>
-      <input type="password" id="senhaNova" placeholder="Digite a nova senha">
-      <label>Repetir Nova Senha</label>
-      <input type="password" id="senhaNova2" placeholder="Digite a nova senha de novo">
+      <label>Senha Atual</label><input type="password" id="senhaAtual" placeholder="Digite sua senha atual">
+      <label>Nova Senha</label><input type="password" id="senhaNova" placeholder="Digite a nova senha">
+      <label>Repetir Nova Senha</label><input type="password" id="senhaNova2" placeholder="Digite a nova senha de novo">
       <button class="primary" onclick="alterarSenha()">Salvar Nova Senha</button>
       <p id="msgSenha" class="hidden"></p>
     </div>
-
     <div id="areaAdminConfig" class="hidden area-senha">
       <h3 style="font-size:16px;margin:20px 0 12px">👤 Dados do Administrador</h3>
-      <label>Nome / Identificação</label>
-      <input type="text" id="nomeAdminAtual" value="Portaria — Administrador">
-      <label>Novo Usuário de Acesso</label>
-      <input type="text" id="usuarioAdminNovo" value="admin">
+      <label>Nome / Identificação</label><input type="text" id="nomeAdminAtual" value="Portaria — Administrador">
+      <label>Novo Usuário de Acesso</label><input type="text" id="usuarioAdminNovo" value="admin">
       <button class="primary" onclick="alterarDadosAdmin()">Salvar Dados</button>
       <p id="msgAdminDados" class="hidden"></p>
     </div>
@@ -160,9 +124,6 @@ nav button.active{background:#1769e0;color:white}
 </div>
 
 <script>
-// ==============================================
-// BANCO DE DADOS — MORADORES
-// ==============================================
 let moradores = [
   {apto:"012OP",nome:"Claudete Conceição Rozas",bloco:"A — Ouro Preto",usuario:"claudete.012",senha:"op012",telefone:"",encomendas:[]},
   {apto:"013OP",nome:"Cristina Filizola",bloco:"A — Ouro Preto",usuario:"cristina.013",senha:"op013",telefone:"",encomendas:[]},
@@ -222,23 +183,28 @@ let moradores = [
   {apto:"154OP",nome:"Marcus Vinicius Z. Campos / Juliana Spacca R. Zampar",bloco:"A — Ouro Preto",usuario:"marcus.154",senha:"op154",telefone:"",encomendas:[]},
   {apto:"161OP",nome:"Newton Luciano e família",bloco:"A — Ouro Preto",usuario:"newton.161",senha:"op161",telefone:"",encomendas:[]},
   {apto:"162OP",nome:"Leopoldo Francisco / Marilene Raimo",bloco:"A — Ouro Preto",usuario:"leopoldo.162",senha:"op162",telefone:"",encomendas:[]},
-  {apto:"163OP",nome:"Paulo Cezar Pratti / Matheus",bloco:"A — Ouro Preto",usuario:"paulop.163",senha:"op163",telefone:"",encomendas:[]}
+  {apto:"163OP",nome:"Paulo Cezar Pratti / Matheus",bloco:"A — Ouro Preto",usuario:"paulop.163",senha:"op163",telefone:"",encomendas:[]},
+  {apto:"164OP",nome:"Luzia Leda Lima Calfat",bloco:"A — Ouro Preto",usuario:"op.164",senha:"op164",telefone:"",encomendas:[]},
+  {apto:"171OP",nome:"José Francisco R. Cavalcante / Mary Ann Cavalcante",bloco:"A — Ouro Preto",usuario:"op.171",senha:"op171",telefone:"",encomendas:[]},
+  {apto:"172OP",nome:"Michelle Priscilla P. Gallindo e família",bloco:"A — Ouro Preto",usuario:"op.172",senha:"op172",telefone:"",encomendas:[]},
+  {apto:"173OP",nome:"Marcos Aurélio Campos",bloco:"A — Ouro Preto",usuario:"op.173",senha:"op173",telefone:"",encomendas:[]},
+  {apto:"174OP",nome:"Argene Maria Coli Cruz",bloco:"A — Ouro Preto",usuario:"op.174",senha:"op174",telefone:"",encomendas:[]},
+  {apto:"181OP",nome:"Álvaro Archer de C. Andrade e família",bloco:"A — Ouro Preto",usuario:"op.181",senha:"op181",telefone:"",encomendas:[]},
+  {apto:"182OP",nome:"Renata Vasconcelos Emerson",bloco:"A — Ouro Preto",usuario:"op.182",senha:"op182",telefone:"",encomendas:[]},
+  {apto:"183OP",nome:"Daniele Marques Cotrim e família",bloco:"A — Ouro Preto",usuario:"op.183",senha:"op183",telefone:"",encomendas:[]},
+  {apto:"184OP",nome:"Aida A. de A. Perry Vidal e família",bloco:"A — Ouro Preto",usuario:"op.184",senha:"op184",telefone:"",encomendas:[]},
+  {apto:"191OP",nome:"Joseph A. Antich / Ana Maria Adam",bloco:"A — Ouro Preto",usuario:"op.191",senha:"op191",telefone:"",encomendas:[]},
+  {apto:"192OP",nome:"",bloco:"A — Ouro Preto",usuario:"op.192",senha:"op192",telefone:"",encomendas:[]},
+  {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia / Carolina Correia",bloco:"A — Ouro Preto",usuario:"op.193",senha:"op193",telefone:"",encomendas:[]}
 ];
 
-// ADMIN
 let admin = {usuario:"admin",senha:"condo2026",nome:"Portaria — Administrador"};
-
 let usuarioLogado = null;
 let ehAdmin = false;
 
-// ==============================================
-// LOGIN
-// ==============================================
 function entrar(){
   const u = document.getElementById('inpUsuario').value.trim();
   const s = document.getElementById('inpSenha').value.trim();
-  
-  // ADMIN
   if(u === admin.usuario && s === admin.senha){
     ehAdmin = true;
     usuarioLogado = {tipo:'admin',nome:admin.nome};
@@ -251,8 +217,6 @@ function entrar(){
     carregaListaMoradores();
     return;
   }
-  
-  // MORADOR
   const m = moradores.find(x => x.usuario === u && x.senha === s);
   if(m){
     ehAdmin = false;
@@ -261,22 +225,16 @@ function entrar(){
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${m.nome} — Apto ${m.apto}`;
     document.getElementById('menuMorador').classList.remove('hidden');
-    document.getElementById('textoInicio').innerHTML = `
-      Bem-vindo(a)! Aqui você acompanha suas encomendas e pode alterar sua senha.<br>
-      <span style="color:red;font-size:13px">⚠️ Você não pode registrar encomendas — isso é feito pela portaria.</span>
-    `;
+    document.getElementById('textoInicio').innerHTML = `Bem-vindo(a)! Aqui você acompanha suas encomendas e pode alterar sua senha.<br><span style="color:red;font-size:13px">⚠️ Você não pode registrar encomendas — isso é feito pela portaria.</span>`;
     return;
   }
-  
-  // ERRO
   const e = document.getElementById('msgErroLogin');
   e.textContent = "Usuário ou senha incorretos!";
   e.classList.remove('hidden');
 }
 
 function sair(){
-  usuarioLogado = null;
-  ehAdmin = false;
+  usuarioLogado = null; ehAdmin = false;
   document.getElementById('sistema').classList.add('hidden');
   document.getElementById('telaLogin').classList.remove('hidden');
   document.getElementById('inpUsuario').value = '';
@@ -288,13 +246,9 @@ function sair(){
   document.querySelectorAll('.aba').forEach(a => a.classList.add('hidden'));
 }
 
-// ==============================================
-// NAVEGAÇÃO
-// ==============================================
 function mostrarAba(nome){
   document.querySelectorAll('.aba').forEach(a => a.classList.add('hidden'));
   document.getElementById(`aba-${nome}`).classList.remove('hidden');
-  
   if(ehAdmin){
     document.querySelectorAll('#menuAdmin button').forEach(b => b.classList.remove('active'));
     event.target.classList.add('active');
@@ -305,15 +259,11 @@ function mostrarAba(nome){
   }
 }
 
-// ==============================================
-// FOTO + LEITURA AUTOMÁTICA — SÓ ADMIN
-// ==============================================
 function arquivoSelecionado(input){
   if(!ehAdmin){alert("Acesso negado!");return}
   if(!input.files.length) return;
   const arq = input.files[0];
   const leitor = new FileReader();
-  
   leitor.onload = function(e){
     const img = document.getElementById('imgPreview');
     img.src = e.target.result;
@@ -331,21 +281,13 @@ async function lerTextoDaFoto(base64){
   status.classList.remove('hidden');
   status.className = 'leitura-status';
   status.textContent = "🔍 Lendo a foto...";
-  
   try{
     const resultado = await Tesseract.recognize(base64, 'por', {
-      logger: m => {
-        if(m.status === 'recognizing text'){
-          status.textContent = `🔍 Lendo... ${Math.round(m.progress * 100)}%`;
-        }
-      }
+      logger: m => {if(m.status === 'recognizing text') status.textContent = `🔍 Lendo... ${Math.round(m.progress * 100)}%`;}
     });
-    
     const texto = resultado.data.text.toUpperCase();
     status.textContent = "✅ Foto lida! Procurando morador...";
-    
     const encontrado = procuraMorador(texto);
-    
     if(encontrado){
       document.getElementById('inpNome').value = encontrado.nome;
       document.getElementById('inpApto').value = encontrado.apto;
@@ -364,13 +306,9 @@ async function lerTextoDaFoto(base64){
 
 function procuraMorador(texto){
   for(const m of moradores){
-    if(texto.includes(m.apto.toUpperCase())){
-      return {nome:m.nome,apto:m.apto,telefone:m.telefone};
-    }
+    if(texto.includes(m.apto.toUpperCase())) return {nome:m.nome,apto:m.apto,telefone:m.telefone};
     const partes = m.nome.toUpperCase().split(/\s+/).filter(p => p.length > 3);
-    if(partes.some(p => texto.includes(p))){
-      return {nome:m.nome,apto:m.apto,telefone:m.telefone};
-    }
+    if(partes.some(p => texto.includes(p))) return {nome:m.nome,apto:m.apto,telefone:m.telefone};
   }
   return null;
 }
@@ -385,36 +323,18 @@ function limparFoto(){
   document.getElementById('inpTelefone').value = '';
 }
 
-// ==============================================
-// ENVIAR ENCOMENDA — SÓ ADMIN
-// ==============================================
 function enviarEncomenda(){
   if(!ehAdmin){alert("Acesso negado!");return}
-  
   const nome = document.getElementById('inpNome').value.trim();
   const apto = document.getElementById('inpApto').value.trim();
   const bloco = document.getElementById('inpBloco').value.trim();
   const tel = document.getElementById('inpTelefone').value.trim();
-  
-  if(!nome || !apto){
-    alert("Preencha Nome e Apartamento!");
-    return;
-  }
-  if(!tel){
-    alert("Preencha o Telefone/WhatsApp!");
-    return;
-  }
-  
-  // SALVA NA LISTA DO MORADOR
+  if(!nome || !apto){alert("Preencha Nome e Apartamento!");return}
+  if(!tel){alert("Preencha o Telefone/WhatsApp!");return}
   const m = moradores.find(x => x.apto === apto);
   if(m){
-    m.encomendas.push({
-      data: new Date().toLocaleString('pt-BR'),
-      nome:nome,
-      apto:apto
-    });
+    m.encomendas.push({data: new Date().toLocaleString('pt-BR'),nome:nome,apto:apto});
   }
-  
   const msg = `📦 ENCOMENDA — Condomínio Ouro Preto e Sabará\n\nMorador: ${nome}\nApto: ${apto} — ${bloco}\n\nSua encomenda chegou! Pode retirar na portaria.`;
   const numero = tel.replace(/\D/g,'');
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -422,91 +342,39 @@ function enviarEncomenda(){
   limparFoto();
 }
 
-// ==============================================
-// MINHAS ENCOMENDAS — SÓ MORADOR
-// ==============================================
 function carregaMinhasEncomendas(){
   const m = usuarioLogado.dados;
   const div = document.getElementById('listaMinhas');
-  
   if(m.encomendas.length === 0){
     div.innerHTML = '<p style="text-align:center;color:#666;padding:20px">📭 Nenhuma encomenda registrada ainda.</p>';
     return;
   }
-  
-  div.innerHTML = m.encomendas.map(e => `
-    <div class="item-encomenda">
-      <strong>📦 Encomenda registrada</strong><br>
-      📅 ${e.data}<br>
-      🏠 Apto: ${e.apto}
-    </div>
-  `).join('');
+  div.innerHTML = m.encomendas.map(e => `<div class="item-encomenda"><strong>📦 Encomenda registrada</strong><br>📅 ${e.data}<br>🏠 Apto: ${e.apto}</div>`).join('');
 }
 
-// ==============================================
-// LISTA DE MORADORES — SÓ ADMIN
-// ==============================================
 function carregaListaMoradores(){
   if(!ehAdmin) return;
   const div = document.getElementById('listaMoradores');
-  div.innerHTML = moradores.map(m => `
-    <div style="padding:10px 0;border-bottom:1px solid #eee">
-      <strong>${m.apto}</strong> — ${m.nome}<br>
-      <small>Usuário: ${m.usuario} | Senha: ${m.senha} | Encomendas: ${m.encomendas.length}</small>
-    </div>
-  `).join('');
+  div.innerHTML = moradores.map(m => `<div style="padding:10px 0;border-bottom:1px solid #eee"><strong>${m.apto}</strong> — ${m.nome || '⚠️ PREENCHER NOME'}<br><small>Usuário: ${m.usuario} | Senha: ${m.senha} | Encomendas: ${m.encomendas.length}</small></div>`).join('');
 }
 
-// ==============================================
-// ALTERAR SENHA — TODOS
-// ==============================================
 function alterarSenha(){
   const atual = document.getElementById('senhaAtual').value.trim();
   const nova = document.getElementById('senhaNova').value.trim();
   const nova2 = document.getElementById('senhaNova2').value.trim();
   const msg = document.getElementById('msgSenha');
   msg.classList.add('hidden');
-  
-  if(!atual || !nova || !nova2){
-    msg.textContent = "Preencha todos os campos!";
-    msg.className = 'error';
-    msg.classList.remove('hidden');
-    return;
-  }
-  
-  if(nova !== nova2){
-    msg.textContent = "As senhas novas não são iguais!";
-    msg.className = 'error';
-    msg.classList.remove('hidden');
-    return;
-  }
-  
-  if(nova.length < 4){
-    msg.textContent = "A senha precisa ter pelo menos 4 caracteres!";
-    msg.className = 'error';
-    msg.classList.remove('hidden');
-    return;
-  }
-  
+  if(!atual || !nova || !nova2){msg.textContent = "Preencha todos os campos!";msg.className = 'error';msg.classList.remove('hidden');return}
+  if(nova !== nova2){msg.textContent = "As senhas novas não são iguais!";msg.className = 'error';msg.classList.remove('hidden');return}
+  if(nova.length < 4){msg.textContent = "A senha precisa ter pelo menos 4 caracteres!";msg.className = 'error';msg.classList.remove('hidden');return}
   if(ehAdmin){
-    if(atual !== admin.senha){
-      msg.textContent = "Senha atual incorreta!";
-      msg.className = 'error';
-      msg.classList.remove('hidden');
-      return;
-    }
+    if(atual !== admin.senha){msg.textContent = "Senha atual incorreta!";msg.className = 'error';msg.classList.remove('hidden');return}
     admin.senha = nova;
   }else{
     const m = usuarioLogado.dados;
-    if(atual !== m.senha){
-      msg.textContent = "Senha atual incorreta!";
-      msg.className = 'error';
-      msg.classList.remove('hidden');
-      return;
-    }
+    if(atual !== m.senha){msg.textContent = "Senha atual incorreta!";msg.className = 'error';msg.classList.remove('hidden');return}
     m.senha = nova;
   }
-  
   msg.textContent = "✅ Senha alterada com sucesso!";
   msg.className = 'success';
   msg.classList.remove('hidden');
@@ -515,26 +383,15 @@ function alterarSenha(){
   document.getElementById('senhaNova2').value = '';
 }
 
-// ==============================================
-// ALTERAR DADOS ADMIN — SÓ ADMIN
-// ==============================================
 function alterarDadosAdmin(){
   const nomeNovo = document.getElementById('nomeAdminAtual').value.trim();
   const usuarioNovo = document.getElementById('usuarioAdminNovo').value.trim();
   const msg = document.getElementById('msgAdminDados');
   msg.classList.add('hidden');
-  
-  if(!nomeNovo || !usuarioNovo){
-    msg.textContent = "Preencha todos os campos!";
-    msg.className = 'error';
-    msg.classList.remove('hidden');
-    return;
-  }
-  
+  if(!nomeNovo || !usuarioNovo){msg.textContent = "Preencha todos os campos!";msg.className = 'error';msg.classList.remove('hidden');return}
   admin.nome = nomeNovo;
   admin.usuario = usuarioNovo;
   document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
-  
   msg.textContent = "✅ Dados alterados com sucesso!";
   msg.className = 'success';
   msg.classList.remove('hidden');
