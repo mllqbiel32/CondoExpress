@@ -3,410 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CondoExpress — Encomendas</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231769e0' rx='16' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle'%3E📦%3C/text%3E%3C/svg%3E">
+<title>CondoExpress — Bloco A Ouro Preto</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231769e0' rx='16' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white'%3E📦%3C/text%3E%3C/svg%3E">
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#1f2937}
-header{background:#1769e0;color:white;padding:18px 20px;display:flex;justify-content:space-between;align-items:center}
-header h1{margin:0;font-size:21px}.container{max-width:1050px;margin:24px auto;padding:0 16px}
-nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
-button, a.whatsapp{border:0;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
-nav button{background:white;color:#1769e0;box-shadow:0 2px 8px #0001}
-nav button.active,button.primary{background:#1769e0;color:white}
-button.secondary{background:#e5e7eb;color:#374151}
-a.whatsapp{background:#25d366;color:white;width:100%;margin-top:8px}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f4f6f8;color:#1f2937;line-height:1.5}
+header{background:#1769e0;color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:20px}
+.container{max-width:1000px;margin:20px auto;padding:0 16px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+nav button{border:none;border-radius:10px;padding:12px 16px;background:white;color:#1769e0;box-shadow:0 2px 4px rgba(0,0,0,.08);cursor:pointer;font-weight:bold}
+nav button.active{background:#1769e0;color:white}
+.card{background:white;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 3px 15px rgba(0,0,0,.06)}
+h2{font-size:18px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+label{font-size:14px;font-weight:bold;display:block;margin:10px 0 4px}
+input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px}
+button{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer;font-size:15px}
 .btn-cam{background:#1769e0;color:white;width:100%;margin:6px 0}
 .btn-galeria{background:#6b7280;color:white;width:100%;margin:6px 0}
-.card{background:white;border-radius:16px;padding:20px;box-shadow:0 3px 15px #00000012;margin-bottom:18px}
-h2,h3{margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px;margin-top:10px}
-.input-group{position:relative;margin-bottom:12px}
-.input-group input{width:100%;padding:12px 44px 12px 12px;border:1px solid #d7dce2;border-radius:9px;font-size:15px}
-.eye-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:20px;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
-.hidden{display:none}.search{margin-bottom:15px;width:260px;max-width:100%}
-.package{border:1px solid #e2e6eb;border-radius:12px;padding:15px;margin:10px 0}
-.package-img{max-width:180px;border-radius:10px;margin:10px 0}
-.status{display:inline-block;padding:6px 12px;border-radius:20px;background:#fff3cd;color:#8a6500;font-size:14px;font-weight:bold;margin:8px 0}
-.small{color:#6b7280;font-size:13px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
-.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px}
-.stat{background:white;border-radius:14px;padding:18px;box-shadow:0 2px 10px #0001}.stat b{font-size:28px;display:block;margin-top:5px}
-.login-overlay{position:fixed;inset:0;background:#f4f6f8;display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
-.login-card{background:white;width:min(420px,100%);padding:28px;border-radius:18px;box-shadow:0 8px 30px #0002}
-.login-card h2{margin-top:0}.role-tabs{display:flex;gap:8px;margin-bottom:18px}
-.role-tabs button{flex:1;background:#eef2f7}.role-tabs button.active{background:#1769e0;color:white}
-.userbar{font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.logout{background:#ffffff22;color:white;padding:7px 10px}
-.whatsapp-msg{background:#dcfce7;border-radius:12px;padding:14px;margin:12px 0;border-left:4px solid #25d366}
-.forgot-link{color:#1769e0;cursor:pointer;font-size:14px;display:inline-block;margin:8px 0}
-.success{color:#16a34a;font-size:14px;margin:8px 0}
-.error{color:#dc2626;font-size:14px;margin:8px 0}
-.resident-item{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:12px;border-bottom:1px solid #eee}
-.optional{color:#6b7280;font-size:12px}
-.preview-area{margin:10px 0}
+.whatsapp{background:#25d366;color:white;width:100%;margin-top:10px}
+.primary{background:#1769e0;color:white}
+.secondary{background:#e5e7eb;color:#374151}
+.success{color:#16a34a;margin-top:8px}
+.error{color:#dc2626;margin-top:8px}
+.hidden{display:none !important}
+.morador-item{padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.btn-sm{padding:8px 12px;font-size:13px}
+.preview-img{max-width:180px;border-radius:10px;margin:10px 0}
+.form-edit{background:#f9fafb;padding:16px;border-radius:12px;margin:12px 0}
 </style>
 </head>
 <body>
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-card">
-    <h2>📦 CondoExpress</h2>
-    <p id="loginSubtitle">Entre para acessar o sistema.</p>
-    <div id="loginFormView">
-      <div class="role-tabs">
-        <button id="adminTab" class="active" onclick="setLoginRole('admin')">Portaria</button>
-        <button id="residentTab" onclick="setLoginRole('resident')">Morador</button>
-      </div>
-      <div id="adminLogin">
-        <div class="input-group"><label>Usuário</label><input id="loginUser" autocomplete="off"></div>
-        <div class="input-group"><label>Senha</label><input id="loginPass" type="password" autocomplete="new-password"><button type="button" class="eye-btn" onclick="togglePass('loginPass')">👁️</button></div>
-      </div>
-      <div id="residentLogin" class="hidden">
-        <div class="input-group"><label>Usuário do morador</label><input id="residentUser" autocomplete="off"></div>
-        <div class="input-group"><label>Senha</label><input id="residentPass" type="password" autocomplete="new-password"><button type="button" class="eye-btn" onclick="togglePass('residentPass')">👁️</button></div>
-        <span class="forgot-link" onclick="showForgot()">Esqueci minha senha</span>
-      </div>
-      <br><button class="primary" style="width:100%" onclick="doLogin()">Entrar</button>
-      <p id="loginError" class="error"></p>
-    </div>
-    <div id="forgotView" class="hidden">
-      <h3>🔑 Recuperar Senha</h3>
-      <p>Digite seu usuário para redefinir a senha:</p>
-      <div class="input-group"><label>Seu usuário</label><input id="forgotUser" autocomplete="off"></div>
-      <br><button class="primary" style="width:100%" onclick="sendReset()">Enviar instruções</button>
-      <button class="secondary" style="width:100%;margin-top:8px" onclick="backToLogin()">Voltar</button>
-      <p id="forgotMsg"></p>
-    </div>
+
+<div id="telaLogin" class="card" style="max-width:420px;margin:30px auto">
+  <h2 style="text-align:center">🔐 Acessar CondoExpress</h2>
+  <div>
+    <label>Usuário</label>
+    <input type="text" id="inpUsuario" placeholder="Digite seu usuário">
+    <label>Senha</label>
+    <input type="password" id="inpSenha" placeholder="Digite sua senha">
+    <button class="primary" style="width:100%;margin-top:12px" onclick="entrar()">Entrar</button>
+    <p id="msgErroLogin" class="error hidden"></p>
   </div>
 </div>
 
+<div id="sistema" class="hidden">
 <header>
-  <h1>📦 CondoExpress</h1>
-  <div class="userbar">
-    <span id="loggedUser">Portaria</span>
-    <button class="logout" onclick="show('profile')">⚙️ Perfil</button>
-    <button class="logout" onclick="logout()">Sair</button>
-  </div>
+  <h1>📦 CondoExpress — Bloco A Ouro Preto</h1>
+  <button class="secondary btn-sm" onclick="sair()">Sair</button>
 </header>
 
 <div class="container">
 <nav>
-<button class="active" onclick="show('home',this)">🏠 Início</button>
-<button class="adminOnly" onclick="show('residents',this)">👥 Moradores</button>
-<button class="adminOnly" onclick="show('register',this)">📦 Registrar Encomenda</button>
-<button onclick="show('search',this)">🔎 Procurar Encomenda</button>
-<button onclick="show('profile',this)">⚙️ Perfil</button>
+  <button class="active" onclick="mostrarAba('inicio')">🏠 Início</button>
+  <button onclick="mostrarAba('registrar')">📦 Registrar Encomenda</button>
+  <button onclick="mostrarAba('lista')">👥 Moradores</button>
 </nav>
 
-<section id="home">
-<div class="hero">
-<div class="stat">Encomendas hoje<b id="todayCount">0</b></div>
-<div class="stat">Aguardando retirada<b id="pendingCount">0</b></div>
-<div class="stat">Entregues<b id="deliveredCount">0</b></div>
-</div>
+<section id="aba-inicio" class="aba">
+  <div class="card">
+    <h2>Bem-vindo(a) ao CondoExpress! 🏠</h2>
+    <p style="margin:8px 0">Sistema de gestão de encomendas e cadastro — Bloco A · Ouro Preto</p>
+    <p style="color:#666;font-size:14px;margin-top:10px">Selecione uma opção acima para começar.</p>
+  </div>
+</section>
+
+<section id="aba-registrar" class="aba hidden">
 <div class="card">
-<h2>Bem-vindo 👋</h2>
-<p>Controle as encomendas do condomínio de forma simples.</p>
-<div class="actions">
-<button class="primary adminOnly" onclick="show('register',this)">📦 Registrar encomenda</button>
-<button onclick="show('search',this)">🔎 Pesquisar</button>
-</div>
+  <h2>📦 Registrar Encomenda</h2>
+
+  <button type="button" class="btn-cam" onclick="document.getElementById('inputCam').click()">
+    📷 Tirar Foto
+  </button>
+  <input type="file" id="inputCam" accept="image/*" capture="environment" style="display:none" onchange="processaFoto(this)">
+
+  <button type="button" class="btn-galeria" onclick="document.getElementById('inputGaleria').click()">
+    📁 Escolher da Galeria
+  </button>
+  <input type="file" id="inputGaleria" accept="image/*" style="display:none" onchange="processaFoto(this)">
+
+  <img id="imgPreview" class="preview-img hidden" alt="Foto da encomenda">
+  <button type="button" class="secondary hidden" id="btnNovaFoto" onclick="limparFoto()">🔄 Trocar Foto</button>
+  <input type="hidden" id="fotoBase64">
+
+  <div class="grid" style="margin-top:16px">
+    <div>
+      <label>Morador</label>
+      <select id="selMorador" onchange="preencheDados()">
+        <option value="">-- Selecione --</option>
+      </select>
+    </div>
+    <div>
+      <label>Apartamento</label>
+      <input type="text" id="inpApto" readonly placeholder="Apartamento">
+    </div>
+    <div>
+      <label>Bloco</label>
+      <input type="text" id="inpBloco" readonly value="A — Ouro Preto">
+    </div>
+    <div>
+      <label>Telefone / WhatsApp</label>
+      <input type="text" id="inpTelefone" placeholder="Com DDD">
+    </div>
+  </div>
+
+  <button class="whatsapp" onclick="enviarEncomenda()">✅ Registrar e Enviar no WhatsApp</button>
+  <p id="msgStatus" class="hidden" style="margin-top:10px"></p>
 </div>
 </section>
 
-<section id="residents" class="hidden">
+<section id="aba-lista" class="aba hidden">
 <div class="card">
-<h2>👥 Cadastro de Moradores</h2>
-<form id="residentForm">
-<div class="grid">
-<div><label>Nome completo</label><input id="rName" required></div>
-<div><label>Bloco</label><select id="rBlock"><option>A — Ouro Preto</option><option>B — Sabará</option></select></div>
-<div><label>Apartamento</label><input id="rApt" required></div>
-<div><label>Telefone (WhatsApp)</label><input id="rPhone" placeholder="(31) 9xxxx-xxxx" required></div>
-<div><label>Usuário de acesso</label><input id="rUser" required></div>
-<div class="input-group"><label>Senha inicial</label><input id="rPass" type="password" required><button type="button" class="eye-btn" onclick="togglePass('rPass')">👁️</button></div>
-</div><br>
-<button class="primary" type="submit">➕ Cadastrar morador</button>
-</form>
-</div>
-<div class="card"><h3>Moradores cadastrados</h3><div id="residentList"></div></div>
-</section>
-
-<section id="register" class="hidden">
-<div class="card">
-<h2>📦 Registrar Encomenda</h2>
-
-<!-- BOTÕES UM EMBAIXO DO OUTRO -->
-<button type="button" class="btn-cam" onclick="document.getElementById('inputCam').click()">
-  📷 Tirar Foto
-</button>
-<input type="file" id="inputCam" accept="image/*" capture="environment" style="display:none" onchange="processaFoto(this)">
-
-<button type="button" class="btn-galeria" onclick="document.getElementById('inputGaleria').click()">
-  📁 Escolher da Galeria
-</button>
-<input type="file" id="inputGaleria" accept="image/*" style="display:none" onchange="processaFoto(this)">
-
-<!-- PREVISÃO DA FOTO -->
-<div class="preview-area">
-  <img id="imgPreview" class="hidden package-img" alt="Foto da encomenda">
-  <button type="button" class="secondary hidden" id="btnNova" onclick="tirarNova()">🔄 Trocar Foto</button>
-</div>
-
-<input type="hidden" id="fotoBase64">
-
-<!-- CAMPOS DE PREENCHER -->
-<form id="packageForm">
-<div class="grid">
-<div><label>Nome do morador</label><input id="name" required></div>
-<div><label>Bloco</label><select id="block"><option>A — Ouro Preto</option><option>B — Sabará</option></select></div>
-<div><label>Apartamento</label><input id="apt" required></div>
-<div><label>Telefone WhatsApp</label><input id="phone" placeholder="(31) 9xxxx-xxxx" required></div>
-<div><label>Loja <span class="optional">(opcional)</span></label><input id="store"></div>
-<div><label>Código de rastreio <span class="optional">(opcional)</span></label><input id="tracking"></div>
-</div>
-<button class="whatsapp" type="submit">✅ Registrar e enviar no WhatsApp 🟢</button>
-</form>
+  <h2>👥 Moradores — Bloco A Ouro Preto</h2>
+  <div id="listaMoradores"></div>
 </div>
 </section>
 
-<section id="search" class="hidden">
-<div class="card">
-<h2>🔎 Procurar Encomenda</h2>
-<input class="search" id="searchInput" placeholder="Digite o nome, apartamento..." oninput="renderPackages()">
-<div id="packageList"></div>
 </div>
-</section>
-
-<section id="profile" class="hidden">
-<div class="card">
-<h2>⚙️ Meu Perfil</h2>
-<p><strong>Nome:</strong> <span id="pName"></span></p>
-<p><strong>Telefone:</strong> <span id="pPhone"></span></p>
-<p><strong>Usuário:</strong> <span id="pUser"></span></p>
-<p class="adminOnly"><strong>Função:</strong> Portaria</p>
-<p class="residentOnly hidden"><strong>Bloco/Apto:</strong> <span id="pLocal"></span></p>
-<hr style="margin:20px 0;border:none;border-top:1px solid #eee">
-<h3>🔑 Alterar Senha</h3>
-<div class="input-group residentOnly hidden"><label>Senha atual</label><input id="curPass" type="password"><button type="button" class="eye-btn" onclick="togglePass('curPass')">👁️</button></div>
-<div class="input-group"><label>Nova senha</label><input id="newPass" type="password"><button type="button" class="eye-btn" onclick="togglePass('newPass')">👁️</button></div>
-<div class="input-group"><label>Repetir nova senha</label><input id="confPass" type="password"><button type="button" class="eye-btn" onclick="togglePass('confPass')">👁️</button></div>
-<button class="primary" onclick="changePass()">Salvar senha</button>
-<p id="passMsg"></p>
-</div>
-<div class="card adminOnly">
-<h3>🔑 Redefinir Senha de Morador</h3>
-<div class="grid">
-<div><label>Usuário do morador</label><input id="resetUser"></div>
-<div class="input-group"><label>Nova senha</label><input id="resetNewPass" type="password"><button type="button" class="eye-btn" onclick="togglePass('resetNewPass')">👁️</button></div>
-</div>
-<button class="secondary" onclick="resetUserPass()">Redefinir</button>
-<p id="resetMsg"></p>
-</div>
-</section>
 </div>
 
 <script>
-let packages = JSON.parse(localStorage.getItem('packages') || '[]');
-let residents = JSON.parse(localStorage.getItem('residents') || '[]');
-let currentUser = null;
-
-if(!residents.length) {
-  residents = [
-    {user:'admin',pass:'1234',name:'Portaria',role:'admin',phone:'—'},
-    {user:'joao204',pass:'1234',name:'João',apt:'204',block:'B — Sabará',phone:'5531988881234'},
-    {user:'maria102',pass:'1234',name:'Maria',apt:'102',block:'A — Ouro Preto',phone:'5531977775678'}
-  ];
-  localStorage.setItem('residents', JSON.stringify(residents));
-}
-
-function limparTelefone(t) {
-  let n = t.replace(/\D/g,'');
-  if(n.length===11 && !n.startsWith('55')) n='55'+n;
-  if(n.length===10 && !n.startsWith('55')) n='55'+n;
-  return n;
-}
-
-function togglePass(id) {
-  const el=document.getElementById(id); el.type=el.type==='password'?'text':'password';
-}
-
-// FOTO — as duas opções
-function processaFoto(input) {
-  if(!input.files[0]) return;
-  const r = new FileReader();
-  r.onload = e => {
-    document.getElementById('fotoBase64').value = e.target.result;
-    document.getElementById('imgPreview').src = e.target.result;
-    document.getElementById('imgPreview').classList.remove('hidden');
-    document.getElementById('btnNova').classList.remove('hidden');
-  };
-  r.readAsDataURL(input.files[0]);
-}
-
-function tirarNova() {
-  document.getElementById('fotoBase64').value = '';
-  document.getElementById('imgPreview').classList.add('hidden');
-  document.getElementById('btnNova').classList.add('hidden');
-  document.getElementById('inputCam').value = '';
-  document.getElementById('inputGaleria').value = '';
-}
-
-function setLoginRole(r) {
-  document.getElementById('adminTab').classList.toggle('active',r==='admin');
-  document.getElementById('residentTab').classList.toggle('active',r==='resident');
-  document.getElementById('adminLogin').classList.toggle('hidden',r!=='admin');
-  document.getElementById('residentLogin').classList.toggle('hidden',r!=='resident');
-  document.getElementById('loginError').textContent='';
-}
-
-function showForgot() {
-  document.getElementById('loginFormView').classList.add('hidden');
-  document.getElementById('forgotView').classList.remove('hidden');
-}
-function backToLogin() {
-  document.getElementById('loginFormView').classList.remove('hidden');
-  document.getElementById('forgotView').classList.add('hidden');
-}
-function sendReset() {
-  const u=document.getElementById('forgotUser').value.trim();
-  const f=residents.find(r=>r.user===u&&r.role!=='admin');
-  if(!f) return document.getElementById('forgotMsg').innerHTML='<span class="error">Não encontrado</span>';
-  f.pass='1234'; localStorage.setItem('residents',JSON.stringify(residents));
-  document.getElementById('forgotMsg').innerHTML='<span class="success">Senha: 1234</span>';
-}
-function doLogin() {
-  let u,p;
-  if(document.getElementById('adminTab').classList.contains('active')) {
-    u=document.getElementById('loginUser').value.trim();
-    p=document.getElementById('loginPass').value;
-  } else {
-    u=document.getElementById('residentUser').value.trim();
-    p=document.getElementById('residentPass').value;
-  }
-  const f=residents.find(r=>r.user===u&&r.pass===p);
-  if(f) {
-    currentUser=f;
-    document.getElementById('loginOverlay').style.display='none';
-    document.getElementById('loggedUser').textContent=f.name;
-    applyAccess(); show('home');
-  } else {
-    document.getElementById('loginError').innerHTML='<span class="error">Usuário ou senha incorretos</span>';
-  }
-}
-function logout() {
-  currentUser=null;
-  document.getElementById('loginOverlay').style.display='flex';
-}
-function applyAccess() {
-  const adm=currentUser.role==='admin';
-  document.querySelectorAll('.adminOnly').forEach(x=>x.style.display=adm?'block':'none');
-  document.querySelectorAll('.residentOnly').forEach(x=>x.classList.toggle('hidden',adm));
-  updateStats(); renderPackages(); renderResidents(); fillProfile();
-}
-function fillProfile() {
-  document.getElementById('pName').textContent=currentUser.name;
-  document.getElementById('pUser').textContent=currentUser.user;
-  document.getElementById('pPhone').textContent=currentUser.phone;
-  if(currentUser.role!=='admin') document.getElementById('pLocal').textContent=`${currentUser.block} • Apto ${currentUser.apt}`;
-}
-function changePass() {
-  const novo=document.getElementById('newPass').value.trim();
-  const conf=document.getElementById('confPass').value.trim();
-  if(novo!==conf) return document.getElementById('passMsg').innerHTML='<span class="error">Senhas não conferem</span>';
-  if(novo.length<4) return;
-  const idx=residents.findIndex(r=>r.user===currentUser.user);
-  residents[idx].pass=novo; localStorage.setItem('residents',JSON.stringify(residents));
-  document.getElementById('passMsg').innerHTML='<span class="success">✅ Senha alterada!</span>';
-}
-function resetUserPass() {
-  const u=document.getElementById('resetUser').value.trim();
-  const nova=document.getElementById('resetNewPass').value.trim();
-  const idx=residents.findIndex(r=>r.user===u&&r.role!=='admin');
-  if(idx===-1) return;
-  residents[idx].pass=nova; localStorage.setItem('residents',JSON.stringify(residents));
-  document.getElementById('resetMsg').innerHTML='<span class="success">✅ Redefinida!</span>';
-}
-function show(id) {
-  document.querySelectorAll('section').forEach(x=>x.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-}
-function updateStats() {
-  const hj=new Date().toLocaleDateString('pt-BR');
-  document.getElementById('todayCount').textContent=packages.filter(p=>p.date.startsWith(hj)).length;
-  document.getElementById('pendingCount').textContent=packages.filter(p=>p.status!=='Entregue').length;
-  document.getElementById('deliveredCount').textContent=packages.filter(p=>p.status==='Entregue').length;
-}
-function montarMsg(nome,loja,apt) {
-  return encodeURIComponent(`Olá ${nome}! Chegou sua encomenda${loja?` da ${loja}`:''}! 📦 Apto ${apt} Pode retirar na portaria. — CondoExpress ✅`);
-}
-function renderPackages() {
-  let q=(document.getElementById('searchInput')?.value||'').toLowerCase();
-  if(currentUser&&currentUser.role!=='admin') q=(currentUser.name+' '+currentUser.apt).toLowerCase()+' '+q;
-  let l=packages.filter(p=>Object.values(p).join(' ').toLowerCase().includes(q));
-  if(currentUser&&currentUser.role!=='admin') l=l.filter(p=>p.name===currentUser.name&&p.apt===currentUser.apt);
-  document.getElementById('packageList').innerHTML=l.length?l.map(p=>{
-    const num=limparTelefone(p.phone);
-    return `<div class="package">
-      <div><b>${p.name}</b> — Apto ${p.apt} • ${p.block}<br>📦 ${p.store||'Não informada'}<br>📱 ${p.phone}<br><span class="small">${p.date}</span></div>
-      ${p.foto?`<img src="${p.foto}" class="package-img">`:''}
-      <span class="status">${p.status}</span>
-      <div class="actions">
-        ${currentUser&&currentUser.role==='admin'&&p.status!=='Entregue'&&num.length>=12?`<a class="whatsapp" href="https://wa.me/${num}?text=${montarMsg(p.name,p.store,p.apt)}" target="_blank">🟢 Enviar WhatsApp</a>`:''}
-        ${currentUser&&currentUser.role==='admin'&&p.status!=='Entregue'?`<button class="secondary" onclick="deliver(${p.id})">Marcar retirada</button>`:''}
-      </div>
-    </div>`;
-  }).join(''):'<p class="small">Nenhuma encomenda encontrada.</p>';
-}
-function renderResidents() {
-  document.getElementById('residentList').innerHTML=residents.filter(r=>r.role!=='admin').map(r=>`<div class="resident-item">
-    <div><b>${r.name}</b><br>🏢 ${r.block} • Apto ${r.apt}<br>📱 ${r.phone}<br><span class="small">Usuário: ${r.user}</span></div>
-    <button class="secondary" onclick="document.getElementById('resetUser').value='${r.user}';show('profile')">🔑 Redefinir</button>
-  </div>`).join('');
-}
-document.getElementById('packageForm').onsubmit=function(e) {
-  e.preventDefault();
-  const tel=limparTelefone(document.getElementById('phone').value);
-  if(tel.length<12) return alert('⚠️ Digite com DDD: (31) 98888-1234');
-  const p={
-    id:Date.now(),
-    name:document.getElementById('name').value,
-    block:document.getElementById('block').value,
-    apt:document.getElementById('apt').value,
-    phone:tel,
-    store:document.getElementById('store').value||'Não informada',
-    tracking:document.getElementById('tracking').value,
-    foto:document.getElementById('fotoBase64').value,
-    status:'Aguardando retirada',
-    date:new Date().toLocaleString('pt-BR')
-  };
-  packages.unshift(p); localStorage.setItem('packages',JSON.stringify(packages));
-  window.open(`https://wa.me/${tel}?text=${montarMsg(p.name,p.store,p.apt)}`,'_blank');
-  alert('✅ Encomenda registrada! WhatsApp abrindo...');
-  this.reset(); tirarNova(); show('search');
-};
-document.getElementById('residentForm').onsubmit=function(e) {
-  e.preventDefault();
-  const tel=limparTelefone(document.getElementById('rPhone').value);
-  if(tel.length<12) return alert('⚠️ Digite com DDD');
-  residents.push({
-    name:document.getElementById('rName').value,
-    block:document.getElementById('rBlock').value,
-    apt:document.getElementById('rApt').value,
-    phone:tel,
-    user:document.getElementById('rUser').value,
-    pass:document.getElementById('rPass').value
-  });
-  localStorage.setItem('residents',JSON.stringify(residents));
-  alert('✅ Cadastrado!'); this.reset(); renderResidents();
-};
-function deliver(id) {
-  const p=packages.find(x=>x.id==id);
-  if(!p) return;
-  p.status='Entregue';
-  p.withdrawnBy=prompt('Nome de quem retirou:');
-  localStorage.setItem('packages',JSON.stringify(packages));
-  renderPackages(); updateStats();
-}
-setLoginRole('admin');
-</script>
-</body>
-</html>
+// ==============================================
+// LISTA COMPLETA DE MORADORES — BLOCO A OURO PRETO
+// ==============================================
+const moradores =
