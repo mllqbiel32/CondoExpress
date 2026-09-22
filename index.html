@@ -325,16 +325,13 @@ function limparFoto(){
   document.getElementById('btnLimparFoto').classList.add('hidden');
 }
 
-function encontrarOuCriarMorador(nome, apto, email){
+function encontrarOuCriarMorador(apto){
   let m = moradores.find(x => x.apto === apto);
-  if(m){
-    if(nome && !m.nome) m.nome = nome;
-    if(email && !m.email) m.email = email;
-    return m;
+  if(!m){
+    m = {apto:apto,nome:'',email:'',bloco:"A — Ouro Preto",usuario:"",senha:"",encomendas:[]};
+    moradores.push(m);
   }
-  const novo = {apto:apto,nome:nome,email:email,bloco:"A — Ouro Preto",usuario:"",senha:"",encomendas:[]};
-  moradores.push(novo);
-  return novo;
+  return m;
 }
 
 async function enviarEncomenda(){
@@ -361,13 +358,23 @@ async function enviarEncomenda(){
   statusEl.className = 'status-envio enviando';
   statusEl.textContent = "Preparando mensagem...";
   
-  // Salva no cadastro do morador
-  const m = encontrarOuCriarMorador(nome, apto, email);
+  // ✅ AGORA ENCONTRA PELO APARTAMENTO E ADICIONA CERTINHO
+  const m = encontrarOuCriarMorador(apto);
+  if(nome && !m.nome) m.nome = nome;
+  if(email && !m.email) m.email = email;
+  
   const novaEncomenda = {
     id: Date.now(),
     data: new Date().toLocaleString('pt-BR'),
-    nome:nome, apto:apto, email:email, empresa:empresa, nota:nota, rastreio:rastreio
+    nome:nome,
+    apto:apto,
+    email:email,
+    empresa:empresa || 'Não informada',
+    nota:nota || 'Não informada',
+    rastreio:rastreio || 'Não informada'
   };
+  
+  // ✅ ADICIONA DIRETO NA LISTA DO MORADOR
   m.encomendas.push(novaEncomenda);
   
   // Envia e-mail
@@ -393,7 +400,7 @@ async function enviarEncomenda(){
     document.getElementById('inpRastreio').value = '';
     limparFoto();
     
-    // Atualiza lista de encomendas
+    // Atualiza lista
     carregaTodasEncomendas();
   })
   .catch(function(erro){
@@ -420,11 +427,10 @@ function carregaTodasEncomendas(){
     div.innerHTML = '<p class="sem-dados">📭 Nenhuma encomenda registrada ainda.</p>';
     return;
   }
-  // Mais recentes primeiro
   todas.reverse();
   div.innerHTML = todas.map((e, i) => `
     <div class="item-encomenda">
-      <strong>📦 ${e.moradorNome}</strong><br>
+      <strong>📦 ${e.moradorNome || e.nome}</strong><br>
       🏠 Apto: ${e.apto}<br>
       📅 Data: ${e.data}<br>
       ${e.empresa ? `🏬 Empresa: ${e.empresa}<br>` : ''}
@@ -451,12 +457,18 @@ function marcarRetirada(indiceLista){
 }
 
 function carregaMinhasEncomendas(){
+  if(!usuarioLogado || usuarioLogado.tipo !== 'morador') return;
   const m = usuarioLogado.dados;
   const div = document.getElementById('listaMinhas');
+  
+  // ✅ CONFIRMAÇÃO: mostra quantas encomendas tem
+  console.log("Morador:", m.nome, "Encomendas:", m.encomendas.length);
+  
   if(m.encomendas.length === 0){
     div.innerHTML = '<p class="sem-dados">📭 Nenhuma encomenda registrada no momento.</p>';
     return;
   }
+  
   div.innerHTML = m.encomendas.map(e => `
     <div class="item-encomenda nova-encomenda">
       <strong>📦 NOVA ENCOMENDA!</strong><br>
