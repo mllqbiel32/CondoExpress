@@ -17,16 +17,14 @@ input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;fon
 button{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer;font-size:15px;width:100%}
 .btn-cam{background:#1769e0;color:white;margin:6px 0}
 .btn-galeria{background:#6b7280;color:white;margin:6px 0}
-.whatsapp{background:#25d366;color:white;margin-top:12px}
+.email{background:#ea4335;color:white;margin-top:12px}
 .primary{background:#1769e0;color:white;margin-top:16px}
 .secondary{background:#e5e7eb;color:#374151;margin-top:8px}
-.editar{background:#facc15;color:#854d0e;margin:4px 0 0 8px;width:auto;display:inline-block;padding:6px 12px;font-size:13px}
+.editar{background:#facc15;color:#854d0e;margin:4px 0 0 8px;width:auto;display:inline-block;padding:8px 14px;font-size:14px;border:2px solid #eab308}
 .salvar{background:#16a34a;color:white;margin-top:12px}
 .cancelar{background:#e5e7eb;color:#374151;margin-top:8px}
-.perigo{background:#fee2e2;color:#b91c1c;margin-top:8px}
 .success{color:#16a34a;margin-top:10px}
 .error{color:#dc2626;margin-top:10px}
-.info{color:#4b5563;margin-top:10px;font-size:14px}
 .hidden{display:none !important}
 .preview-img{max-width:180px;border-radius:10px;margin:12px 0}
 .leitura-status{padding:10px 14px;background:#eef2ff;border-radius:8px;margin:12px 0;color:#1e40af;font-size:14px}
@@ -35,15 +33,14 @@ nav button{width:auto;box-shadow:0 2px 4px rgba(0,0,0,.08);background:white;colo
 nav button.active{background:#1769e0;color:white}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
 .item-encomenda{padding:14px;border-bottom:1px solid #eee}
-.item-morador{padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
-.area-senha{background:#f9fafb;padding:16px;border-radius:12px;margin-top:16px}
-.aviso{background:#fef3c7;padding:12px;border-radius:8px;color:#92400e;margin-bottom:16px}
-.form-editar{background:#eff6ff;padding:16px;border-radius:12px;margin:16px 0;border-left:4px solid #1769e0}
+.item-morador{padding:14px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.form-editar{background:#eff6ff;padding:20px;border-radius:12px;margin:20px 0;border-left:5px solid #1769e0}
+.form-editar h3{font-size:17px;margin-bottom:15px;color:#1769e0}
+.aviso-email{background:#dcfce7;padding:12px;border-radius:8px;color:#166534;margin:12px 0}
 </style>
 </head>
 <body>
 
-<!-- TELA DE LOGIN -->
 <div id="telaLogin" class="card">
   <h2>🔐 Acessar CondoExpress</h2>
   <label>Usuário</label>
@@ -54,7 +51,6 @@ nav button.active{background:#1769e0;color:white}
   <p id="msgErroLogin" class="error hidden" style="text-align:center"></p>
 </div>
 
-<!-- SISTEMA PRINCIPAL -->
 <div id="sistema" class="hidden">
   <h1 style="text-align:center;color:#1769e0;margin:10px 0">📦 CondoExpress — Bloco A Ouro Preto</h1>
   <p id="nomeLogado" style="text-align:center;color:#666;margin-bottom:15px"></p>
@@ -74,7 +70,7 @@ nav button.active{background:#1769e0;color:white}
   </nav>
 
   <section id="aba-inicio" class="aba card card-largo">
-    <h2 id="tituloInicio">Bem-vindo(a)! 🏠</h2>
+    <h2>Bem-vindo(a)! 🏠</h2>
     <p id="textoInicio" style="margin:8px 0"></p>
   </section>
 
@@ -88,13 +84,16 @@ nav button.active{background:#1769e0;color:white}
     <p id="statusLeitura" class="leitura-status hidden"></p>
     <button type="button" class="secondary hidden" id="btnLimparFoto" onclick="limparFoto()">❌ Trocar Foto</button>
     <input type="hidden" id="fotoBase64">
+    
     <div class="grid">
-      <div><label>Nome do Morador</label><input type="text" id="inpNome" placeholder="Nome — preenche automático"></div>
-      <div><label>Apartamento</label><input type="text" id="inpApto" placeholder="Ex: 012OP"></div>
-      <div><label>Bloco</label><input type="text" id="inpBloco" value="A — Ouro Preto" readonly></div>
-      <div><label>Telefone / WhatsApp</label><input type="text" id="inpTelefone" placeholder="Com DDD"></div>
+      <div><label>Nome do Morador</label><input type="text" id="inpNome" readonly style="background:#f9fafb"></div>
+      <div><label>Apartamento</label><input type="text" id="inpApto" readonly style="background:#f9fafb"></div>
+      <div><label>Bloco</label><input type="text" value="A — Ouro Preto" readonly style="background:#f9fafb"></div>
+      <div><label>E-mail</label><input type="email" id="inpEmail" readonly style="background:#f9fafb"></div>
     </div>
-    <button class="whatsapp" onclick="enviarEncomenda()">✅ Registrar e Enviar no WhatsApp</button>
+    
+    <p class="aviso-email">✅ E-mail carregado automático do cadastro!</p>
+    <button class="email" onclick="enviarEmail()">📧 Registrar e Enviar por E-mail</button>
     <p id="msgStatus" class="hidden"></p>
   </section>
 
@@ -106,15 +105,24 @@ nav button.active{background:#1769e0;color:white}
   <section id="aba-lista" class="aba hidden card card-largo">
     <h2>👥 Moradores — Bloco A Ouro Preto</h2>
     
-    <!-- FORMULÁRIO DE EDITAR MORADOR -->
+    <!-- TELA DE EDIÇÃO -- AGORA FUNCIONANDO! -->
     <div id="formEditarMorador" class="form-editar hidden">
-      <h3 style="font-size:16px;margin-bottom:12px">✏️ Editar Morador — <span id="editarAptoTitulo"></span></h3>
+      <h3>✏️ Editando Apartamento: <span id="editarAptoTitulo"></span></h3>
       <input type="hidden" id="indiceEditar">
-      <label>Nome Completo</label><input type="text" id="editarNome" placeholder="Digite o nome completo">
-      <label>Usuário de Acesso</label><input type="text" id="editarUsuario" placeholder="Ex: maria.123">
-      <label>Senha</label><input type="text" id="editarSenha" placeholder="Ex: op123">
-      <label>Telefone / WhatsApp</label><input type="text" id="editarTelefone" placeholder="Com DDD">
-      <button class="salvar" onclick="salvarEdicao()">💾 Salvar Alterações</button>
+      
+      <label>Nome Completo do Morador</label>
+      <input type="text" id="editarNome" placeholder="Digite o nome completo">
+      
+      <label>E-mail do Morador</label>
+      <input type="email" id="editarEmail" placeholder="email@exemplo.com">
+      
+      <label>Usuário de Acesso</label>
+      <input type="text" id="editarUsuario" placeholder="Ex: maria.123">
+      
+      <label>Senha de Acesso</label>
+      <input type="text" id="editarSenha" placeholder="Ex: op123">
+      
+      <button class="salvar" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
       <button class="cancelar" onclick="cancelarEdicao()">❌ Cancelar</button>
       <p id="msgEdicao" class="hidden"></p>
     </div>
@@ -123,20 +131,20 @@ nav button.active{background:#1769e0;color:white}
   </section>
 
   <section id="aba-config" class="aba hidden card card-largo">
-    <h2 id="tituloConfig">⚙️ Configurações</h2>
-    <div class="area-senha">
+    <h2>⚙️ Configurações</h2>
+    <div style="background:#f9fafb;padding:16px;border-radius:12px">
       <h3 style="font-size:16px;margin-bottom:12px">🔑 Alterar Senha</h3>
-      <label>Senha Atual</label><input type="password" id="senhaAtual" placeholder="Digite sua senha atual">
-      <label>Nova Senha</label><input type="password" id="senhaNova" placeholder="Digite a nova senha">
-      <label>Repetir Nova Senha</label><input type="password" id="senhaNova2" placeholder="Digite a nova senha de novo">
+      <label>Senha Atual</label><input type="password" id="senhaAtual">
+      <label>Nova Senha</label><input type="password" id="senhaNova">
+      <label>Repetir Nova Senha</label><input type="password" id="senhaNova2">
       <button class="primary" onclick="alterarSenha()">Salvar Nova Senha</button>
       <p id="msgSenha" class="hidden"></p>
     </div>
-    <div id="areaAdminConfig" class="hidden area-senha">
-      <h3 style="font-size:16px;margin:20px 0 12px">👤 Dados do Administrador</h3>
-      <label>Nome / Identificação</label><input type="text" id="nomeAdminAtual" value="Portaria — Administrador">
-      <label>Novo Usuário de Acesso</label><input type="text" id="usuarioAdminNovo" value="admin">
-      <button class="primary" onclick="alterarDadosAdmin()">Salvar Dados</button>
+    <div id="areaAdminConfig" class="hidden" style="background:#f9fafb;padding:16px;border-radius:12px;margin-top:16px">
+      <h3 style="font-size:16px;margin-bottom:12px">👤 Administrador</h3>
+      <label>Nome</label><input type="text" id="nomeAdminAtual" value="Portaria — Administrador">
+      <label>Usuário</label><input type="text" id="usuarioAdminNovo" value="admin">
+      <button class="primary" onclick="alterarDadosAdmin()">Salvar</button>
       <p id="msgAdminDados" class="hidden"></p>
     </div>
   </section>
@@ -144,109 +152,105 @@ nav button.active{background:#1769e0;color:white}
 
 <script>
 let moradores = [
-  {apto:"012OP",nome:"Claudete Conceição Rozas",bloco:"A — Ouro Preto",usuario:"claudete.012",senha:"op012",telefone:"",encomendas:[]},
-  {apto:"013OP",nome:"Cristina Filizola",bloco:"A — Ouro Preto",usuario:"cristina.013",senha:"op013",telefone:"",encomendas:[]},
-  {apto:"014OP",nome:"Urias Taques Junior",bloco:"A — Ouro Preto",usuario:"urias.014",senha:"op014",telefone:"",encomendas:[]},
-  {apto:"021OP",nome:"Pedro H. Chagas Rosseli",bloco:"A — Ouro Preto",usuario:"pedro.021",senha:"op021",telefone:"",encomendas:[]},
-  {apto:"022OP",nome:"Jorge Moreira Lima Neto / Sonia Mendes M. Lima",bloco:"A — Ouro Preto",usuario:"jorge.022",senha:"op022",telefone:"",encomendas:[]},
-  {apto:"023OP",nome:"Bonnie Marie Scannella e família",bloco:"A — Ouro Preto",usuario:"bonnie.023",senha:"op023",telefone:"",encomendas:[]},
-  {apto:"024OP",nome:"Katia Piccioni La Farina / Walter Signorini Junior",bloco:"A — Ouro Preto",usuario:"katia.024",senha:"op024",telefone:"",encomendas:[]},
-  {apto:"031OP",nome:"Arnaldo M. Camargo / Maria Lucia Camargo",bloco:"A — Ouro Preto",usuario:"arnaldo.031",senha:"op031",telefone:"",encomendas:[]},
-  {apto:"032OP",nome:"Jeanette Talib Heide",bloco:"A — Ouro Preto",usuario:"jeanette.032",senha:"op032",telefone:"",encomendas:[]},
-  {apto:"033OP",nome:"Renata R. Cunha Mesquita / Maria Antonia Mesquita",bloco:"A — Ouro Preto",usuario:"renata.033",senha:"op033",telefone:"",encomendas:[]},
-  {apto:"034OP",nome:"Luis Eduardo C. Pellon e família",bloco:"A — Ouro Preto",usuario:"luis.034",senha:"op034",telefone:"",encomendas:[]},
-  {apto:"041OP",nome:"Roberto Ferraz C. Noto / Jade Sagran Landgraf",bloco:"A — Ouro Preto",usuario:"roberto.041",senha:"op041",telefone:"",encomendas:[]},
-  {apto:"042OP",nome:"Marcelo Calvoso / Patricia M. Quintas Calvoso",bloco:"A — Ouro Preto",usuario:"marcelo.042",senha:"op042",telefone:"",encomendas:[]},
-  {apto:"043OP",nome:"Luiz Felipe Rodrigues Fay e família",bloco:"A — Ouro Preto",usuario:"luizf.043",senha:"op043",telefone:"",encomendas:[]},
-  {apto:"044OP",nome:"Heitor M. de Mendonça e família",bloco:"A — Ouro Preto",usuario:"heitor.044",senha:"op044",telefone:"",encomendas:[]},
-  {apto:"051OP",nome:"Ingo Schukze Blanck / Huguette Schulze Blanck",bloco:"A — Ouro Preto",usuario:"ingo.051",senha:"op051",telefone:"",encomendas:[]},
-  {apto:"052OP",nome:"Paulo Eugenio Weinberger / Roberta Riboni Weinberg",bloco:"A — Ouro Preto",usuario:"paulo.052",senha:"op052",telefone:"",encomendas:[]},
-  {apto:"053OP",nome:"Ana Paula dos R. Pirajá e família",bloco:"A — Ouro Preto",usuario:"anapaula.053",senha:"op053",telefone:"",encomendas:[]},
-  {apto:"054OP",nome:"Rachel M. Z. Salomão",bloco:"A — Ouro Preto",usuario:"rachel.054",senha:"op054",telefone:"",encomendas:[]},
-  {apto:"061OP",nome:"Claudia Paiva Aragão e família",bloco:"A — Ouro Preto",usuario:"claudia.061",senha:"op061",telefone:"",encomendas:[]},
-  {apto:"062OP",nome:"Caio Rafael Vernier e família",bloco:"A — Ouro Preto",usuario:"caio.062",senha:"op062",telefone:"",encomendas:[]},
-  {apto:"063OP",nome:"Maria Nazareth Gazzotti",bloco:"A — Ouro Preto",usuario:"maria.063",senha:"op063",telefone:"",encomendas:[]},
-  {apto:"064OP",nome:"Rodrigo Freire M. Artacho / Renata Semensin de Góes",bloco:"A — Ouro Preto",usuario:"rodrigo.064",senha:"op064",telefone:"",encomendas:[]},
-  {apto:"071OP",nome:"Heliana M. Talmon / Eduard M. Talmon",bloco:"A — Ouro Preto",usuario:"heliana.071",senha:"op071",telefone:"",encomendas:[]},
-  {apto:"072OP",nome:"Sebastião Costa Guedes / Claudete S. Guedes",bloco:"A — Ouro Preto",usuario:"sebastiao.072",senha:"op072",telefone:"",encomendas:[]},
-  {apto:"073OP",nome:"Tiago Maturana Loureiro e família",bloco:"A — Ouro Preto",usuario:"tiago.073",senha:"op073",telefone:"",encomendas:[]},
-  {apto:"074OP",nome:"Marcos S. Aranha e família",bloco:"A — Ouro Preto",usuario:"marcos.074",senha:"op074",telefone:"",encomendas:[]},
-  {apto:"081OP",nome:"Sergio Fisch / Paula D. Fisch",bloco:"A — Ouro Preto",usuario:"sergio.081",senha:"op081",telefone:"",encomendas:[]},
-  {apto:"082OP",nome:"Maria Antonieta G. Ronconi / Lucas Ronconi Raimundi",bloco:"A — Ouro Preto",usuario:"mariaa.082",senha:"op082",telefone:"",encomendas:[]},
-  {apto:"083OP",nome:"Elemer Lamberto S. Arassy e família",bloco:"A — Ouro Preto",usuario:"elemer.083",senha:"op083",telefone:"",encomendas:[]},
-  {apto:"084OP",nome:"Fernanda Braga / Fernando Braga",bloco:"A — Ouro Preto",usuario:"fernanda.084",senha:"op084",telefone:"",encomendas:[]},
-  {apto:"091OP",nome:"João Alberto Giannetti / Sergio Tadeu Lopes",bloco:"A — Ouro Preto",usuario:"joao.091",senha:"op091",telefone:"",encomendas:[]},
-  {apto:"092OP",nome:"",bloco:"A — Ouro Preto",usuario:"op.092",senha:"op092",telefone:"",encomendas:[]},
-  {apto:"093OP",nome:"Ricardo Dalge Lacerda / Thais Oliveira Timbó",bloco:"A — Ouro Preto",usuario:"ricardo.093",senha:"op093",telefone:"",encomendas:[]},
-  {apto:"094OP",nome:"Nilo Campion e família",bloco:"A — Ouro Preto",usuario:"nilo.094",senha:"op094",telefone:"",encomendas:[]},
-  {apto:"101OP",nome:"Paulo Cesar Mauro",bloco:"A — Ouro Preto",usuario:"pauloc.101",senha:"op101",telefone:"",encomendas:[]},
-  {apto:"103OP",nome:"Lauredo Ventura Bandeira / Elenilde Rezende Ventura",bloco:"A — Ouro Preto",usuario:"lauredo.103",senha:"op103",telefone:"",encomendas:[]},
-  {apto:"104OP",nome:"Umbelina Boges Bouabci",bloco:"A — Ouro Preto",usuario:"umbelina.104",senha:"op104",telefone:"",encomendas:[]},
-  {apto:"111OP",nome:"José Belfort Mattos / Tereza Belfort Mattos",bloco:"A — Ouro Preto",usuario:"joseb.111",senha:"op111",telefone:"",encomendas:[]},
-  {apto:"112OP",nome:"Peter Hemik Johansson e família",bloco:"A — Ouro Preto",usuario:"peter.112",senha:"op112",telefone:"",encomendas:[]},
-  {apto:"113OP",nome:"Fernando Blecher / Roberta A. Pretoni",bloco:"A — Ouro Preto",usuario:"fernando.113",senha:"op113",telefone:"",encomendas:[]},
-  {apto:"114OP",nome:"Felipe G. P. Trevisan e família",bloco:"A — Ouro Preto",usuario:"felipe.114",senha:"op114",telefone:"",encomendas:[]},
-  {apto:"121OP",nome:"Maria Cristina Lambert",bloco:"A — Ouro Preto",usuario:"mariac.121",senha:"op121",telefone:"",encomendas:[]},
-  {apto:"122OP",nome:"Eduardo Luiz Tiezzi Gomez e família",bloco:"A — Ouro Preto",usuario:"eduardot.122",senha:"op122",telefone:"",encomendas:[]},
-  {apto:"123OP",nome:"Marcos Istvan de Camargo / Simone Quintas",bloco:"A — Ouro Preto",usuario:"marcosic.123",senha:"op123",telefone:"",encomendas:[]},
-  {apto:"131OP",nome:"Lin Chin Ping e família",bloco:"A — Ouro Preto",usuario:"lin.131",senha:"op131",telefone:"",encomendas:[]},
-  {apto:"132OP",nome:"José Paulo S. Raoul / Arminda Raoul",bloco:"A — Ouro Preto",usuario:"josep.132",senha:"op132",telefone:"",encomendas:[]},
-  {apto:"133OP",nome:"Maria Aparecida Simões",bloco:"A — Ouro Preto",usuario:"mariaaps.133",senha:"op133",telefone:"",encomendas:[]},
-  {apto:"134OP",nome:"Frederico Grazzinelli Costa",bloco:"A — Ouro Preto",usuario:"frederico.134",senha:"op134",telefone:"",encomendas:[]},
-  {apto:"141OP",nome:"Cícero Nunes Domingos e família",bloco:"A — Ouro Preto",usuario:"cicero.141",senha:"op141",telefone:"",encomendas:[]},
-  {apto:"142OP",nome:"Alberto Esteves e família",bloco:"A — Ouro Preto",usuario:"alberto.142",senha:"op142",telefone:"",encomendas:[]},
-  {apto:"143OP",nome:"Wagner Ghirelli / Sonia Maria O. Ghirelli",bloco:"A — Ouro Preto",usuario:"wagner.143",senha:"op143",telefone:"",encomendas:[]},
-  {apto:"144OP",nome:"Ricardo Mader Rodrigues e família",bloco:"A — Ouro Preto",usuario:"ricardom.144",senha:"op144",telefone:"",encomendas:[]},
-  {apto:"151OP",nome:"Mario Eugenio Fruguele / Flavia Santin Fruguele",bloco:"A — Ouro Preto",usuario:"mario.151",senha:"op151",telefone:"",encomendas:[]},
-  {apto:"152OP",nome:"Sergio Tomas Atala / Maria José Torquato Janini",bloco:"A — Ouro Preto",usuario:"sergiot.152",senha:"op152",telefone:"",encomendas:[]},
-  {apto:"153OP",nome:"Rafael Moi de Andrade e família",bloco:"A — Ouro Preto",usuario:"rafael.153",senha:"op153",telefone:"",encomendas:[]},
-  {apto:"154OP",nome:"Marcus Vinicius Z. Campos / Juliana Spacca R. Zampar",bloco:"A — Ouro Preto",usuario:"marcus.154",senha:"op154",telefone:"",encomendas:[]},
-  {apto:"161OP",nome:"Newton Luciano e família",bloco:"A — Ouro Preto",usuario:"newton.161",senha:"op161",telefone:"",encomendas:[]},
-  {apto:"162OP",nome:"Leopoldo Francisco / Marilene Raimo",bloco:"A — Ouro Preto",usuario:"leopoldo.162",senha:"op162",telefone:"",encomendas:[]},
-  {apto:"163OP",nome:"Paulo Cezar Pratti / Matheus",bloco:"A — Ouro Preto",usuario:"paulop.163",senha:"op163",telefone:"",encomendas:[]},
-  {apto:"164OP",nome:"Luzia Leda Lima Calfat",bloco:"A — Ouro Preto",usuario:"op.164",senha:"op164",telefone:"",encomendas:[]},
-  {apto:"171OP",nome:"José Francisco R. Cavalcante / Mary Ann Cavalcante",bloco:"A — Ouro Preto",usuario:"op.171",senha:"op171",telefone:"",encomendas:[]},
-  {apto:"172OP",nome:"Michelle Priscilla P. Gallindo e família",bloco:"A — Ouro Preto",usuario:"op.172",senha:"op172",telefone:"",encomendas:[]},
-  {apto:"173OP",nome:"Marcos Aurélio Campos",bloco:"A — Ouro Preto",usuario:"op.173",senha:"op173",telefone:"",encomendas:[]},
-  {apto:"174OP",nome:"Argene Maria Coli Cruz",bloco:"A — Ouro Preto",usuario:"op.174",senha:"op174",telefone:"",encomendas:[]},
-  {apto:"181OP",nome:"Álvaro Archer de C. Andrade e família",bloco:"A — Ouro Preto",usuario:"op.181",senha:"op181",telefone:"",encomendas:[]},
-  {apto:"182OP",nome:"Renata Vasconcelos Emerson",bloco:"A — Ouro Preto",usuario:"op.182",senha:"op182",telefone:"",encomendas:[]},
-  {apto:"183OP",nome:"Daniele Marques Cotrim e família",bloco:"A — Ouro Preto",usuario:"op.183",senha:"op183",telefone:"",encomendas:[]},
-  {apto:"184OP",nome:"Aida A. de A. Perry Vidal e família",bloco:"A — Ouro Preto",usuario:"op.184",senha:"op184",telefone:"",encomendas:[]},
-  {apto:"191OP",nome:"Joseph A. Antich / Ana Maria Adam",bloco:"A — Ouro Preto",usuario:"op.191",senha:"op191",telefone:"",encomendas:[]},
-  {apto:"192OP",nome:"",bloco:"A — Ouro Preto",usuario:"op.192",senha:"op192",telefone:"",encomendas:[]},
-  {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia / Carolina Correia",bloco:"A — Ouro Preto",usuario:"op.193",senha:"op193",telefone:"",encomendas:[]},
-  {apto:"194OP",nome:"",bloco:"A — Ouro Preto",usuario:"op.194",senha:"op194",telefone:"",encomendas:[]}
+  {apto:"012OP",nome:"Claudete Conceição Rozas",email:"",bloco:"A — Ouro Preto",usuario:"claudete.012",senha:"op012",encomendas:[]},
+  {apto:"013OP",nome:"Cristina Filizola",email:"",bloco:"A — Ouro Preto",usuario:"cristina.013",senha:"op013",encomendas:[]},
+  {apto:"014OP",nome:"Urias Taques Junior",email:"",bloco:"A — Ouro Preto",usuario:"urias.014",senha:"op014",encomendas:[]},
+  {apto:"021OP",nome:"Pedro H. Chagas Rosseli",email:"",bloco:"A — Ouro Preto",usuario:"pedro.021",senha:"op021",encomendas:[]},
+  {apto:"022OP",nome:"Jorge Moreira Lima Neto / Sonia Mendes M. Lima",email:"",bloco:"A — Ouro Preto",usuario:"jorge.022",senha:"op022",encomendas:[]},
+  {apto:"023OP",nome:"Bonnie Marie Scannella e família",email:"",bloco:"A — Ouro Preto",usuario:"bonnie.023",senha:"op023",encomendas:[]},
+  {apto:"024OP",nome:"Katia Piccioni La Farina / Walter Signorini Junior",email:"",bloco:"A — Ouro Preto",usuario:"katia.024",senha:"op024",encomendas:[]},
+  {apto:"031OP",nome:"Arnaldo M. Camargo / Maria Lucia Camargo",email:"",bloco:"A — Ouro Preto",usuario:"arnaldo.031",senha:"op031",encomendas:[]},
+  {apto:"032OP",nome:"Jeanette Talib Heide",email:"",bloco:"A — Ouro Preto",usuario:"jeanette.032",senha:"op032",encomendas:[]},
+  {apto:"033OP",nome:"Renata R. Cunha Mesquita / Maria Antonia Mesquita",email:"",bloco:"A — Ouro Preto",usuario:"renata.033",senha:"op033",encomendas:[]},
+  {apto:"034OP",nome:"Luis Eduardo C. Pellon e família",email:"",bloco:"A — Ouro Preto",usuario:"luis.034",senha:"op034",encomendas:[]},
+  {apto:"041OP",nome:"Roberto Ferraz C. Noto / Jade Sagran Landgraf",email:"",bloco:"A — Ouro Preto",usuario:"roberto.041",senha:"op041",encomendas:[]},
+  {apto:"042OP",nome:"Marcelo Calvoso / Patricia M. Quintas Calvoso",email:"",bloco:"A — Ouro Preto",usuario:"marcelo.042",senha:"op042",encomendas:[]},
+  {apto:"043OP",nome:"Luiz Felipe Rodrigues Fay e família",email:"",bloco:"A — Ouro Preto",usuario:"luizf.043",senha:"op043",encomendas:[]},
+  {apto:"044OP",nome:"Heitor M. de Mendonça e família",email:"",bloco:"A — Ouro Preto",usuario:"heitor.044",senha:"op044",encomendas:[]},
+  {apto:"051OP",nome:"Ingo Schukze Blanck / Huguette Schulze Blanck",email:"",bloco:"A — Ouro Preto",usuario:"ingo.051",senha:"op051",encomendas:[]},
+  {apto:"052OP",nome:"Paulo Eugenio Weinberger / Roberta Riboni Weinberg",email:"",bloco:"A — Ouro Preto",usuario:"paulo.052",senha:"op052",encomendas:[]},
+  {apto:"053OP",nome:"Ana Paula dos R. Pirajá e família",email:"",bloco:"A — Ouro Preto",usuario:"anapaula.053",senha:"op053",encomendas:[]},
+  {apto:"054OP",nome:"Rachel M. Z. Salomão",email:"",bloco:"A — Ouro Preto",usuario:"rachel.054",senha:"op054",encomendas:[]},
+  {apto:"061OP",nome:"Claudia Paiva Aragão e família",email:"",bloco:"A — Ouro Preto",usuario:"claudia.061",senha:"op061",encomendas:[]},
+  {apto:"062OP",nome:"Caio Rafael Vernier e família",email:"",bloco:"A — Ouro Preto",usuario:"caio.062",senha:"op062",encomendas:[]},
+  {apto:"063OP",nome:"Maria Nazareth Gazzotti",email:"",bloco:"A — Ouro Preto",usuario:"maria.063",senha:"op063",encomendas:[]},
+  {apto:"064OP",nome:"Rodrigo Freire M. Artacho / Renata Semensin de Góes",email:"",bloco:"A — Ouro Preto",usuario:"rodrigo.064",senha:"op064",encomendas:[]},
+  {apto:"071OP",nome:"Heliana M. Talmon / Eduard M. Talmon",email:"",bloco:"A — Ouro Preto",usuario:"heliana.071",senha:"op071",encomendas:[]},
+  {apto:"072OP",nome:"Sebastião Costa Guedes / Claudete S. Guedes",email:"",bloco:"A — Ouro Preto",usuario:"sebastiao.072",senha:"op072",encomendas:[]},
+  {apto:"073OP",nome:"Tiago Maturana Loureiro e família",email:"",bloco:"A — Ouro Preto",usuario:"tiago.073",senha:"op073",encomendas:[]},
+  {apto:"074OP",nome:"Marcos S. Aranha e família",email:"",bloco:"A — Ouro Preto",usuario:"marcos.074",senha:"op074",encomendas:[]},
+  {apto:"081OP",nome:"Sergio Fisch / Paula D. Fisch",email:"",bloco:"A — Ouro Preto",usuario:"sergio.081",senha:"op081",encomendas:[]},
+  {apto:"082OP",nome:"Maria Antonieta G. Ronconi / Lucas Ronconi Raimundi",email:"",bloco:"A — Ouro Preto",usuario:"mariaa.082",senha:"op082",encomendas:[]},
+  {apto:"083OP",nome:"Elemer Lamberto S. Arassy e família",email:"",bloco:"A — Ouro Preto",usuario:"elemer.083",senha:"op083",encomendas:[]},
+  {apto:"084OP",nome:"Fernanda Braga / Fernando Braga",email:"",bloco:"A — Ouro Preto",usuario:"fernanda.084",senha:"op084",encomendas:[]},
+  {apto:"091OP",nome:"João Alberto Giannetti / Sergio Tadeu Lopes",email:"",bloco:"A — Ouro Preto",usuario:"joao.091",senha:"op091",encomendas:[]},
+  {apto:"092OP",nome:"",email:"",bloco:"A — Ouro Preto",usuario:"op.092",senha:"op092",encomendas:[]},
+  {apto:"093OP",nome:"Ricardo Dalge Lacerda / Thais Oliveira Timbó",email:"",bloco:"A — Ouro Preto",usuario:"ricardo.093",senha:"op093",encomendas:[]},
+  {apto:"094OP",nome:"Nilo Campion e família",email:"",bloco:"A — Ouro Preto",usuario:"nilo.094",senha:"op094",encomendas:[]},
+  {apto:"101OP",nome:"Paulo Cesar Mauro",email:"",bloco:"A — Ouro Preto",usuario:"pauloc.101",senha:"op101",encomendas:[]},
+  {apto:"103OP",nome:"Lauredo Ventura Bandeira / Elenilde Rezende Ventura",email:"",bloco:"A — Ouro Preto",usuario:"lauredo.103",senha:"op103",encomendas:[]},
+  {apto:"104OP",nome:"Umbelina Boges Bouabci",email:"",bloco:"A — Ouro Preto",usuario:"umbelina.104",senha:"op104",encomendas:[]},
+  {apto:"111OP",nome:"José Belfort Mattos / Tereza Belfort Mattos",email:"",bloco:"A — Ouro Preto",usuario:"joseb.111",senha:"op111",encomendas:[]},
+  {apto:"112OP",nome:"Peter Hemik Johansson e família",email:"",bloco:"A — Ouro Preto",usuario:"peter.112",senha:"op112",encomendas:[]},
+  {apto:"113OP",nome:"Fernando Blecher / Roberta A. Pretoni",email:"",bloco:"A — Ouro Preto",usuario:"fernando.113",senha:"op113",encomendas:[]},
+  {apto:"114OP",nome:"Felipe G. P. Trevisan e família",email:"",bloco:"A — Ouro Preto",usuario:"felipe.114",senha:"op114",encomendas:[]},
+  {apto:"121OP",nome:"Maria Cristina Lambert",email:"",bloco:"A — Ouro Preto",usuario:"mariac.121",senha:"op121",encomendas:[]},
+  {apto:"122OP",nome:"Eduardo Luiz Tiezzi Gomez e família",email:"",bloco:"A — Ouro Preto",usuario:"eduardot.122",senha:"op122",encomendas:[]},
+  {apto:"123OP",nome:"Marcos Istvan de Camargo / Simone Quintas",email:"",bloco:"A — Ouro Preto",usuario:"marcosic.123",senha:"op123",encomendas:[]},
+  {apto:"131OP",nome:"Lin Chin Ping e família",email:"",bloco:"A — Ouro Preto",usuario:"lin.131",senha:"op131",encomendas:[]},
+  {apto:"132OP",nome:"José Paulo S. Raoul / Arminda Raoul",email:"",bloco:"A — Ouro Preto",usuario:"josep.132",senha:"op132",encomendas:[]},
+  {apto:"133OP",nome:"Maria Aparecida Simões",email:"",bloco:"A — Ouro Preto",usuario:"mariaaps.133",senha:"op133",encomendas:[]},
+  {apto:"134OP",nome:"Frederico Grazzinelli Costa",email:"",bloco:"A — Ouro Preto",usuario:"frederico.134",senha:"op134",encomendas:[]},
+  {apto:"141OP",nome:"Cícero Nunes Domingos e família",email:"",bloco:"A — Ouro Preto",usuario:"cicero.141",senha:"op141",encomendas:[]},
+  {apto:"142OP",nome:"Alberto Esteves e família",email:"",bloco:"A — Ouro Preto",usuario:"alberto.142",senha:"op142",encomendas:[]},
+  {apto:"143OP",nome:"Wagner Ghirelli / Sonia Maria O. Ghirelli",email:"",bloco:"A — Ouro Preto",usuario:"wagner.143",senha:"op143",encomendas:[]},
+  {apto:"144OP",nome:"Ricardo Mader Rodrigues e família",email:"",bloco:"A — Ouro Preto",usuario:"ricardom.144",senha:"op144",encomendas:[]},
+  {apto:"151OP",nome:"Mario Eugenio Fruguele / Flavia Santin Fruguele",email:"",bloco:"A — Ouro Preto",usuario:"mario.151",senha:"op151",encomendas:[]},
+  {apto:"152OP",nome:"Sergio Tomas Atala / Maria José Torquato Janini",email:"",bloco:"A — Ouro Preto",usuario:"sergiot.152",senha:"op152",encomendas:[]},
+  {apto:"153OP",nome:"Rafael Moi de Andrade e família",email:"",bloco:"A — Ouro Preto",usuario:"rafael.153",senha:"op153",encomendas:[]},
+  {apto:"154OP",nome:"Marcus Vinicius Z. Campos / Juliana Spacca R. Zampar",email:"",bloco:"A — Ouro Preto",usuario:"marcus.154",senha:"op154",encomendas:[]},
+  {apto:"161OP",nome:"Newton Luciano e família",email:"",bloco:"A — Ouro Preto",usuario:"newton.161",senha:"op161",encomendas:[]},
+  {apto:"162OP",nome:"Leopoldo Francisco / Marilene Raimo",email:"",bloco:"A — Ouro Preto",usuario:"leopoldo.162",senha:"op162",encomendas:[]},
+  {apto:"163OP",nome:"Paulo Cezar Pratti / Matheus",email:"",bloco:"A — Ouro Preto",usuario:"paulop.163",senha:"op163",encomendas:[]},
+  {apto:"164OP",nome:"Luzia Leda Lima Calfat",email:"",bloco:"A — Ouro Preto",usuario:"op.164",senha:"op164",encomendas:[]},
+  {apto:"171OP",nome:"José Francisco R. Cavalcante / Mary Ann Cavalcante",email:"",bloco:"A — Ouro Preto",usuario:"op.171",senha:"op171",encomendas:[]},
+  {apto:"172OP",nome:"Michelle Priscilla P. Gallindo e família",email:"",bloco:"A — Ouro Preto",usuario:"op.172",senha:"op172",encomendas:[]},
+  {apto:"173OP",nome:"Marcos Aurélio Campos",email:"",bloco:"A — Ouro Preto",usuario:"op.173",senha:"op173",encomendas:[]},
+  {apto:"174OP",nome:"Argene Maria Coli Cruz",email:"",bloco:"A — Ouro Preto",usuario:"op.174",senha:"op174",encomendas:[]},
+  {apto:"181OP",nome:"Álvaro Archer de C. Andrade e família",email:"",bloco:"A — Ouro Preto",usuario:"op.181",senha:"op181",encomendas:[]},
+  {apto:"182OP",nome:"Renata Vasconcelos Emerson",email:"",bloco:"A — Ouro Preto",usuario:"op.182",senha:"op182",encomendas:[]},
+  {apto:"183OP",nome:"Daniele Marques Cotrim e família",email:"",bloco:"A — Ouro Preto",usuario:"op.183",senha:"op183",encomendas:[]},
+  {apto:"184OP",nome:"Aida A. de A. Perry Vidal e família",email:"",bloco:"A — Ouro Preto",usuario:"op.184",senha:"op184",encomendas:[]},
+  {apto:"191OP",nome:"Joseph A. Antich / Ana Maria Adam",email:"",bloco:"A — Ouro Preto",usuario:"op.191",senha:"op191",encomendas:[]},
+  {apto:"192OP",nome:"",email:"",bloco:"A — Ouro Preto",usuario:"op.192",senha:"op192",encomendas:[]},
+  {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia / Carolina Correia",email:"",bloco:"A — Ouro Preto",usuario:"op.193",senha:"op193",encomendas:[]},
+  {apto:"194OP",nome:"",email:"",bloco:"A — Ouro Preto",usuario:"op.194",senha:"op194",encomendas:[]}
 ];
 
 let admin = {usuario:"admin",senha:"condo2026",nome:"Portaria — Administrador"};
-let usuarioLogado = null;
-let ehAdmin = false;
+let usuarioLogado = null, ehAdmin = false, moradorAtual = null;
 
 function entrar(){
   const u = document.getElementById('inpUsuario').value.trim();
   const s = document.getElementById('inpSenha').value.trim();
   if(u === admin.usuario && s === admin.senha){
-    ehAdmin = true;
-    usuarioLogado = {tipo:'admin',nome:admin.nome};
+    ehAdmin = true; usuarioLogado = {tipo:'admin',nome:admin.nome};
     document.getElementById('telaLogin').classList.add('hidden');
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
     document.getElementById('areaAdminConfig').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo! Você tem acesso completo: registrar encomendas, ver/editar moradores e alterar configurações.";
-    carregaListaMoradores();
-    return;
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Você tem acesso completo.";
+    carregaListaMoradores(); return;
   }
   const m = moradores.find(x => x.usuario === u && x.senha === s);
   if(m){
-    ehAdmin = false;
-    usuarioLogado = {tipo:'morador',nome:m.nome,apto:m.apto,dados:m};
+    ehAdmin = false; usuarioLogado = {tipo:'morador',nome:m.nome,apto:m.apto,dados:m};
     document.getElementById('telaLogin').classList.add('hidden');
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${m.nome} — Apto ${m.apto}`;
     document.getElementById('menuMorador').classList.remove('hidden');
-    document.getElementById('textoInicio').innerHTML = `Bem-vindo(a)! Aqui você acompanha suas encomendas e pode alterar sua senha.<br><span style="color:red;font-size:13px">⚠️ Você não pode registrar encomendas — isso é feito pela portaria.</span>`;
+    document.getElementById('textoInicio').innerHTML = "Bem-vindo(a)! Acompanhe suas encomendas aqui.";
     return;
   }
   const e = document.getElementById('msgErroLogin');
@@ -255,7 +259,7 @@ function entrar(){
 }
 
 function sair(){
-  usuarioLogado = null; ehAdmin = false;
+  usuarioLogado = null; ehAdmin = false; moradorAtual = null;
   document.getElementById('sistema').classList.add('hidden');
   document.getElementById('telaLogin').classList.remove('hidden');
   document.getElementById('inpUsuario').value = '';
@@ -284,83 +288,90 @@ function mostrarAba(nome){
 function arquivoSelecionado(input){
   if(!ehAdmin){alert("Acesso negado!");return}
   if(!input.files.length) return;
-  const arq = input.files[0];
   const leitor = new FileReader();
-  leitor.onload = function(e){
-    const img = document.getElementById('imgPreview');
-    img.src = e.target.result;
-    img.classList.remove('hidden');
+  leitor.onload = e => {
+    document.getElementById('imgPreview').src = e.target.result;
+    document.getElementById('imgPreview').classList.remove('hidden');
     document.getElementById('fotoBase64').value = e.target.result;
     document.getElementById('btnLimparFoto').classList.remove('hidden');
     lerTextoDaFoto(e.target.result);
   };
-  leitor.readAsDataURL(arq);
+  leitor.readAsDataURL(input.files[0]);
   input.value = '';
 }
 
 async function lerTextoDaFoto(base64){
   const status = document.getElementById('statusLeitura');
   status.classList.remove('hidden');
-  status.className = 'leitura-status';
-  status.textContent = "🔍 Lendo a foto...";
+  status.textContent = "🔍 Lendo...";
   try{
-    const resultado = await Tesseract.recognize(base64, 'por', {
-      logger: m => {if(m.status === 'recognizing text') status.textContent = `🔍 Lendo... ${Math.round(m.progress * 100)}%`;}
+    const res = await Tesseract.recognize(base64, 'por', {
+      logger: m => {if(m.status === 'recognizing text') status.textContent = `🔍 Lendo... ${Math.round(m.progress*100)}%`;}
     });
-    const texto = resultado.data.text.toUpperCase();
-    status.textContent = "✅ Foto lida! Procurando morador...";
-    const encontrado = procuraMorador(texto);
-    if(encontrado){
-      document.getElementById('inpNome').value = encontrado.nome;
-      document.getElementById('inpApto').value = encontrado.apto;
-      document.getElementById('inpTelefone').value = encontrado.telefone || '';
-      status.textContent = `✅ Encontrado: ${encontrado.nome} — ${encontrado.apto}`;
-      status.classList.add('success');
+    const txt = res.data.text.toUpperCase();
+    const enc = procuraMorador(txt);
+    if(enc){
+      moradorAtual = enc;
+      document.getElementById('inpNome').value = enc.nome;
+      document.getElementById('inpApto').value = enc.apto;
+      document.getElementById('inpEmail').value = enc.email || '';
+      status.textContent = `✅ ${enc.nome} — ${enc.apto}`;
+      status.className = 'leitura-status success';
     }else{
-      status.textContent = "⚠️ Não encontrou. Preencha à mão.";
-      status.classList.add('error');
+      moradorAtual = null;
+      status.textContent = "⚠️ Não encontrou. Verifique cadastro.";
+      status.className = 'leitura-status error';
     }
-  }catch(erro){
-    status.textContent = "❌ Erro ao ler. Preencha à mão.";
-    status.classList.add('error');
+  }catch{
+    status.textContent = "❌ Erro na leitura.";
+    status.className = 'leitura-status error';
   }
 }
 
 function procuraMorador(texto){
   for(const m of moradores){
-    if(texto.includes(m.apto.toUpperCase())) return {nome:m.nome,apto:m.apto,telefone:m.telefone};
-    const partes = m.nome.toUpperCase().split(/\s+/).filter(p => p.length > 3);
-    if(partes.some(p => texto.includes(p))) return {nome:m.nome,apto:m.apto,telefone:m.telefone};
+    if(texto.includes(m.apto.toUpperCase())) return {nome:m.nome,apto:m.apto,email:m.email};
+    const ps = m.nome.toUpperCase().split(/\s+/).filter(p => p.length > 3);
+    if(ps.some(p => texto.includes(p))) return {nome:m.nome,apto:m.apto,email:m.email};
   }
   return null;
 }
 
 function limparFoto(){
+  moradorAtual = null;
   document.getElementById('imgPreview').classList.add('hidden');
   document.getElementById('statusLeitura').classList.add('hidden');
   document.getElementById('btnLimparFoto').classList.add('hidden');
   document.getElementById('fotoBase64').value = '';
   document.getElementById('inpNome').value = '';
   document.getElementById('inpApto').value = '';
-  document.getElementById('inpTelefone').value = '';
+  document.getElementById('inpEmail').value = '';
 }
 
-function enviarEncomenda(){
+function enviarEmail(){
   if(!ehAdmin){alert("Acesso negado!");return}
-  const nome = document.getElementById('inpNome').value.trim();
-  const apto = document.getElementById('inpApto').value.trim();
-  const bloco = document.getElementById('inpBloco').value.trim();
-  const tel = document.getElementById('inpTelefone').value.trim();
-  if(!nome || !apto){alert("Preencha Nome e Apartamento!");return}
-  if(!tel){alert("Preencha o Telefone/WhatsApp!");return}
-  const m = moradores.find(x => x.apto === apto);
-  if(m){
-    m.encomendas.push({data: new Date().toLocaleString('pt-BR'),nome:nome,apto:apto});
-  }
-  const msg = `📦 ENCOMENDA — Condomínio Ouro Preto e Sabará\n\nMorador: ${nome}\nApto: ${apto} — ${bloco}\n\nSua encomenda chegou! Pode retirar na portaria.`;
-  const numero = tel.replace(/\D/g,'');
-  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank');
-  alert("✅ Encomenda registrada! Mensagem aberta no WhatsApp!");
+  if(!moradorAtual){alert("Não encontrei o morador!");return}
+  if(!moradorAtual.email){alert("⚠️ Sem e-mail cadastrado! Vá em Moradores → Editar e preencha.");return}
+  
+  const m = moradores.find(x => x.apto === moradorAtual.apto);
+  if(m) m.encomendas.push({data: new Date().toLocaleString('pt-BR'),nome:moradorAtual.nome,apto:moradorAtual.apto});
+  
+  const assunto = encodeURIComponent("📦 Encomenda Chegou — Condomínio Ouro Preto");
+  const corpo = encodeURIComponent(
+`Olá ${moradorAtual.nome}!
+
+Temos uma encomenda esperando por você!
+
+🏠 Apartamento: ${moradorAtual.apto}
+📅 Data: ${new Date().toLocaleString('pt-BR')}
+
+Retire na portaria.
+
+Atenciosamente,
+Portaria — Condomínio Ouro Preto
+`);
+  window.location.href = `mailto:${moradorAtual.email}?subject=${assunto}&body=${corpo}`;
+  alert(`✅ Enviado para:\n${moradorAtual.email}`);
   limparFoto();
 }
 
@@ -368,111 +379,100 @@ function carregaMinhasEncomendas(){
   const m = usuarioLogado.dados;
   const div = document.getElementById('listaMinhas');
   if(m.encomendas.length === 0){
-    div.innerHTML = '<p style="text-align:center;color:#666;padding:20px">📭 Nenhuma encomenda registrada ainda.</p>';
+    div.innerHTML = '<p style="text-align:center;color:#666;padding:20px">📭 Nenhuma encomenda ainda.</p>';
     return;
   }
-  div.innerHTML = m.encomendas.map(e => `<div class="item-encomenda"><strong>📦 Encomenda registrada</strong><br>📅 ${e.data}<br>🏠 Apto: ${e.apto}</div>`).join('');
+  div.innerHTML = m.encomendas.map(e => `<div class="item-encomenda"><strong>📦 Encomenda</strong><br>📅 ${e.data}<br>🏠 ${e.apto}</div>`).join('');
 }
 
 function carregaListaMoradores(){
   if(!ehAdmin) return;
-  const div = document.getElementById('listaMoradores');
-  div.innerHTML = moradores.map((m, i) => `
+  document.getElementById('listaMoradores').innerHTML = moradores.map((m, i) => `
     <div class="item-morador">
       <div>
         <strong>${m.apto}</strong> — ${m.nome || '⚠️ PREENCHER NOME'}<br>
-        <small>Usuário: ${m.usuario} | Senha: ${m.senha} | Encomendas: ${m.encomendas.length}</small>
+        <small>📧 ${m.email || 'Sem e-mail'} | Encomendas: ${m.encomendas.length}</small>
       </div>
-      <button class="editar" onclick="abrirEdicao(${i})">✏️ Editar</button>
+      <button class="editar" onclick="abrirEdicao(${i})">✏️ EDITAR</button>
     </div>
   `).join('');
 }
 
+// ==== FUNÇÃO DE ABRIR EDIÇÃO — ARRUMADA! ====
 function abrirEdicao(indice){
+  console.log("Abrindo edição do índice:", indice); // Para testar
   const m = moradores[indice];
+  
+  // Preenche os campos
   document.getElementById('indiceEditar').value = indice;
   document.getElementById('editarAptoTitulo').textContent = m.apto;
   document.getElementById('editarNome').value = m.nome;
+  document.getElementById('editarEmail').value = m.email;
   document.getElementById('editarUsuario').value = m.usuario;
   document.getElementById('editarSenha').value = m.senha;
-  document.getElementById('editarTelefone').value = m.telefone;
+  
+  // MOSTRA a tela de edição — era isso que não estava funcionando!
   document.getElementById('formEditarMorador').classList.remove('hidden');
-  document.getElementById('msgEdicao').classList.add('hidden');
+  
+  // Rola a página pra cima pra pessoa ver a tela
+  document.getElementById('formEditarMorador').scrollIntoView({behavior:'smooth'});
 }
 
 function salvarEdicao(){
   const i = parseInt(document.getElementById('indiceEditar').value);
   const nome = document.getElementById('editarNome').value.trim();
+  const email = document.getElementById('editarEmail').value.trim();
   const usuario = document.getElementById('editarUsuario').value.trim();
   const senha = document.getElementById('editarSenha').value.trim();
-  const telefone = document.getElementById('editarTelefone').value.trim();
-  const msg = document.getElementById('msgEdicao');
-  msg.classList.add('hidden');
   
   if(!usuario || !senha){
-    msg.textContent = "Usuário e Senha não podem ficar vazios!";
-    msg.className = 'error';
-    msg.classList.remove('hidden');
+    alert("Usuário e senha não podem ficar vazios!");
     return;
   }
   
   moradores[i].nome = nome;
+  moradores[i].email = email;
   moradores[i].usuario = usuario;
   moradores[i].senha = senha;
-  moradores[i].telefone = telefone;
   
-  msg.textContent = "✅ Dados salvos com sucesso!";
-  msg.className = 'success';
-  msg.classList.remove('hidden');
-  
-  setTimeout(() => {
-    document.getElementById('formEditarMorador').classList.add('hidden');
-    carregaListaMoradores();
-  }, 1200);
+  alert("✅ Salvo com sucesso!");
+  document.getElementById('formEditarMorador').classList.add('hidden');
+  carregaListaMoradores();
 }
 
 function cancelarEdicao(){
   document.getElementById('formEditarMorador').classList.add('hidden');
-  document.getElementById('msgEdicao').classList.add('hidden');
 }
 
 function alterarSenha(){
-  const atual = document.getElementById('senhaAtual').value.trim();
-  const nova = document.getElementById('senhaNova').value.trim();
-  const nova2 = document.getElementById('senhaNova2').value.trim();
-  const msg = document.getElementById('msgSenha');
-  msg.classList.add('hidden');
-  if(!atual || !nova || !nova2){msg.textContent = "Preencha todos os campos!";msg.className = 'error';msg.classList.remove('hidden');return}
-  if(nova !== nova2){msg.textContent = "As senhas novas não são iguais!";msg.className = 'error';msg.classList.remove('hidden');return}
-  if(nova.length < 4){msg.textContent = "A senha precisa ter pelo menos 4 caracteres!";msg.className = 'error';msg.classList.remove('hidden');return}
+  const at = document.getElementById('senhaAtual').value.trim();
+  const n1 = document.getElementById('senhaNova').value.trim();
+  const n2 = document.getElementById('senhaNova2').value.trim();
+  if(!at || !n1 || !n2){alert("Preencha tudo!");return}
+  if(n1 !== n2){alert("Senhas novas não batem!");return}
+  if(n1.length < 4){alert("Mínimo 4 caracteres!");return}
   if(ehAdmin){
-    if(atual !== admin.senha){msg.textContent = "Senha atual incorreta!";msg.className = 'error';msg.classList.remove('hidden');return}
-    admin.senha = nova;
+    if(at !== admin.senha){alert("Senha atual errada!");return}
+    admin.senha = n1;
   }else{
     const m = usuarioLogado.dados;
-    if(atual !== m.senha){msg.textContent = "Senha atual incorreta!";msg.className = 'error';msg.classList.remove('hidden');return}
-    m.senha = nova;
+    if(at !== m.senha){alert("Senha atual errada!");return}
+    m.senha = n1;
   }
-  msg.textContent = "✅ Senha alterada com sucesso!";
-  msg.className = 'success';
-  msg.classList.remove('hidden');
+  alert("✅ Senha alterada!");
   document.getElementById('senhaAtual').value = '';
   document.getElementById('senhaNova').value = '';
   document.getElementById('senhaNova2').value = '';
 }
 
 function alterarDadosAdmin(){
-  const nomeNovo = document.getElementById('nomeAdminAtual').value.trim();
-  const usuarioNovo = document.getElementById('usuarioAdminNovo').value.trim();
-  const msg = document.getElementById('msgAdminDados');
-  msg.classList.add('hidden');
-  if(!nomeNovo || !usuarioNovo){msg.textContent = "Preencha todos os campos!";msg.className = 'error';msg.classList.remove('hidden');return}
-  admin.nome = nomeNovo;
-  admin.usuario = usuarioNovo;
-  document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
-  msg.textContent = "✅ Dados alterados com sucesso!";
-  msg.className = 'success';
-  msg.classList.remove('hidden');
+  const nome = document.getElementById('nomeAdminAtual').value.trim();
+  const usuario = document.getElementById('usuarioAdminNovo').value.trim();
+  if(!nome || !usuario){alert("Preencha tudo!");return}
+  admin.nome = nome;
+  admin.usuario = usuario;
+  document.getElementById('nomeLogado').textContent = `👤 ${nome}`;
+  alert("✅ Salvo!");
 }
 </script>
 </body>
