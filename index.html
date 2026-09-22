@@ -49,6 +49,7 @@ nav button.active{background:#1769e0;color:white}
 .botoes-foto button{flex:1}
 .camera{background:#f97316;color:white}
 .arquivo{background:#6366f1;color:white}
+.foto-encomenda{max-width:100%;max-height:180px;border-radius:8px;margin:10px 0;border:1px solid #ddd}
 </style>
 </head>
 <body>
@@ -134,15 +135,14 @@ nav button.active{background:#1769e0;color:white}
       </div>
     </div>
 
-    <!-- 📷 FOTO — CÂMERA E ARQUIVO — SÓ ISSO ADICIONEI -->
     <label>📷 Foto da Encomenda</label>
     <div class="botoes-foto">
-      <button type="button" class="camera" onclick="document.getElementById('fotoArquivo').click()">📁 Galeria</button>
-      <button type="button" class="arquivo" onclick="document.getElementById('fotoCamera').click()">📷 Câmera</button>
+      <button type="button" class="arquivo" onclick="document.getElementById('fotoArquivo').click()">📁 Galeria</button>
+      <button type="button" class="camera" onclick="document.getElementById('fotoCamera').click()">📷 Câmera</button>
     </div>
     <input type="file" id="fotoArquivo" accept="image/*" style="display:none" onchange="mostrarFoto(this)">
     <input type="file" id="fotoCamera" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this)">
-    <img id="previewFoto" class="foto-preview hidden" alt="Foto da encomenda">
+    <img id="previewFoto" class="foto-preview hidden" alt="Pré-visualização da foto">
     
     <p id="avisoSemEmail" class="aviso hidden">⚠️ Sem e-mail — a encomenda fica registrada! Cadastre o e-mail depois na lista de moradores.</p>
     <button class="enviar" id="btnEnviar" onclick="enviarEncomenda()">✅ REGISTRAR ENCOMENDA</button>
@@ -171,10 +171,10 @@ nav button.active{background:#1769e0;color:white}
       <label>E-mail <span style="color:#1769e0">✏️ Pode alterar</span></label>
       <input type="email" id="editarEmail">
       
-      <label>Usuário</label>
+      <label>Usuário <span style="color:#1769e0">✏️ Pode alterar</span></label>
       <input type="text" id="editarUsuario">
       
-      <label>Senha</label>
+      <label>Senha <span style="color:#1769e0">✏️ Pode alterar</span></label>
       <input type="text" id="editarSenha">
       
       <button class="salvar" onclick="salvarEdicao()">💾 SALVAR</button>
@@ -305,14 +305,9 @@ function preencherDadosMorador(){
   }
   
   const m = moradores[indiceSelecionado];
-  
-  // ✅ NOME E APTO = FIXOS — não mudam nunca
   document.getElementById('inpNome').value = m.nome || '';
   document.getElementById('inpApto').value = m.apto;
-  
-  // ✅ E-MAIL = editável livre
   document.getElementById('inpEmail').value = m.email || '';
-  
   document.getElementById('infoApto').textContent = m.apto;
   document.getElementById('infoNome').textContent = m.nome || 'Sem nome';
   
@@ -328,7 +323,6 @@ function preencherDadosMorador(){
   divInfo.classList.remove('hidden');
 }
 
-// 📷 MOSTRAR FOTO — só isso adicionei
 function mostrarFoto(input){
   if(input.files && input.files[0]){
     const leitor = new FileReader();
@@ -352,7 +346,7 @@ function entrar(){
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo! Nome sempre FIXO — só altere e-mail e tire foto quando precisar!";
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Nome FIXO ✅ Edita dados ✅ Foto aparece para morador ✅";
     carregarListaApartamentos();
     carregaListaMoradores();
     carregaTodasEncomendas();
@@ -366,7 +360,7 @@ function entrar(){
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${m.nome} — Apto ${m.apto}`;
     document.getElementById('menuMorador').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo(a)! Veja suas encomendas em '📦 Minhas Encomendas'.";
+    document.getElementById('textoInicio').textContent = "Bem-vindo(a)! Veja suas encomendas e fotos em '📦 Minhas Encomendas'.";
     return;
   }
   
@@ -414,7 +408,6 @@ async function enviarEncomenda(){
   const nota = document.getElementById('inpNota').value.trim();
   const rastreio = document.getElementById('inpRastreio').value.trim();
   
-  // ✅ SÓ atualiza e-mail — NOME NÃO MUDA
   if(email) m.email = email;
   
   const btn = document.getElementById('btnEnviar');
@@ -449,21 +442,20 @@ async function enviarEncomenda(){
         data: novaEncomenda.data
       });
       statusEl.className = 'status-envio enviado';
-      statusEl.innerHTML = `✅ REGISTRADO + E-MAIL ENVIADO!<br>${m.nome} — Apto ${m.apto}<br><small>Nome FIXO ✅ Foto salva ✅</small>`;
+      statusEl.innerHTML = `✅ REGISTRADO + E-MAIL ENVIADO!<br>${m.nome} — Apto ${m.apto}`;
     }catch{
       statusEl.className = 'status-envio falha';
-      statusEl.innerHTML = `⚠️ Registrado, e-mail não enviado.<br>Nome FIXO ✅ Foto salva ✅`;
+      statusEl.innerHTML = `⚠️ Registrado, e-mail não enviado.`;
     }
   }else{
     statusEl.className = 'status-envio enviado';
-    statusEl.innerHTML = `✅ REGISTRADO!<br>Sem e-mail.<br>Nome FIXO ✅ Foto salva ✅`;
+    statusEl.innerHTML = `✅ REGISTRADO! Sem e-mail.`;
   }
   
   setTimeout(() => statusEl.classList.add('hidden'), 6000);
   btn.disabled = false;
   btn.textContent = "✅ REGISTRAR ENCOMENDA";
   
-  // Limpa tudo — Nome continua fixo
   indiceSelecionado = null; fotoBase64 = null;
   document.getElementById('selApto').value = '';
   document.getElementById('dadosMoradorSelecionado').classList.add('hidden');
@@ -496,7 +488,7 @@ function carregaTodasEncomendas(){
       🏠 Apto: ${e.apto}<br>
       📅 Data: ${e.data}<br>
       ${e.empresa!=='Não informada'?`🏬 Empresa: ${e.empresa}<br>`:''}
-      ${e.foto?`<img src="${e.foto}" style="max-width:100%;max-height:150px;border-radius:6px;margin:8px 0">`:'📷 Sem foto'}<br>
+      ${e.foto?`<img src="${e.foto}" class="foto-encomenda" alt="Foto da encomenda">`:'📷 Sem foto'}<br>
       <button class="excluir" onclick="marcarRetirada(${i})">🗑️ Marcar Retirada</button>
     </div>
   `).join('');
@@ -531,7 +523,7 @@ function carregaMinhasEncomendas(){
       📅 ${e.data}<br>
       🏠 Apartamento: ${e.apto}<br>
       ${e.empresa!=='Não informada'?`🏬 Empresa: ${e.empresa}<br>`:''}
-      ${e.foto?`<img src="${e.foto}" style="max-width:100%;max-height:150px;border-radius:6px;margin:8px 0">`:'📷 Sem foto'}<br>
+      ${e.foto?`<img src="${e.foto}" class="foto-encomenda" alt="Foto da encomenda">`:'📷 Sem foto'}<br>
       <em>Retire na portaria!</em>
     </div>
   `).reverse().join('');
@@ -545,7 +537,7 @@ function carregaListaMoradores(){
         <strong>${m.apto}</strong> — ${m.nome || '⚠️ SEM NOME'} ✅ FIXO<br>
         <small>📧 ${m.email || '⚠️ Sem e-mail'} | Encomendas: ${m.encomendas.length}</small>
       </div>
-      <button class="editar" onclick="abrirEdicao(${i})">✏️ ALTERAR E-MAIL</button>
+      <button class="editar" onclick="abrirEdicao(${i})">✏️ EDITAR DADOS</button>
     </div>
   `).join('');
 }
@@ -554,18 +546,15 @@ function abrirEdicao(indice){
   const m = moradores[indice];
   document.getElementById('indiceEditar').value = indice;
   document.getElementById('editarAptoTitulo').textContent = m.apto;
-  // ✅ Nome = fixo, não muda
   document.getElementById('editarNome').value = m.nome;
-  // ✅ E-mail = editável
-  document.getElementById('editarEmail').value = m.email;
-  document.getElementById('editarUsuario').value = m.usuario;
-  document.getElementById('editarSenha').value = m.senha;
+  document.getElementById('editarEmail').value = m.email || '';
+  document.getElementById('editarUsuario').value = m.usuario || '';
+  document.getElementById('editarSenha').value = m.senha || '';
   document.getElementById('formEditarMorador').classList.remove('hidden');
 }
 
 function salvarEdicao(){
   const i = parseInt(document.getElementById('indiceEditar').value);
-  // ✅ SÓ ALTERA e-mail, usuário e senha — NOME NÃO É TOCADO
   moradores[i].email = document.getElementById('editarEmail').value.trim();
   moradores[i].usuario = document.getElementById('editarUsuario').value.trim();
   moradores[i].senha = document.getElementById('editarSenha').value.trim();
