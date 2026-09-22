@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CondoExpress — Bloco A Ouro Preto</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231769e0' rx='16' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white'%3E📦%3C/text%3E%3C/svg%3E">
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 body{background:#f4f6f8;color:#1f2937;line-height:1.5;padding:16px}
@@ -17,7 +16,7 @@ input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;fon
 button{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer;font-size:15px;width:100%}
 .btn-cam{background:#1769e0;color:white;margin:6px 0}
 .btn-galeria{background:#6b7280;color:white;margin:6px 0}
-.email{background:#ea4335;color:white;margin-top:12px}
+.email{background:#ea4335;color:white;margin-top:16px}
 .primary{background:#1769e0;color:white;margin-top:16px}
 .secondary{background:#e5e7eb;color:#374151;margin-top:8px}
 .editar{background:#facc15;color:#854d0e;margin:4px 0 0 8px;width:auto;display:inline-block;padding:8px 14px;font-size:14px;border:2px solid #eab308}
@@ -27,7 +26,6 @@ button{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:
 .error{color:#dc2626;margin-top:10px}
 .hidden{display:none !important}
 .preview-img{max-width:180px;border-radius:10px;margin:12px 0}
-.leitura-status{padding:10px 14px;background:#eef2ff;border-radius:8px;margin:12px 0;color:#1e40af;font-size:14px}
 nav{display:flex;flex-wrap:wrap;gap:8px;margin:20px auto;max-width:900px}
 nav button{width:auto;box-shadow:0 2px 4px rgba(0,0,0,.08);background:white;color:#1769e0}
 nav button.active{background:#1769e0;color:white}
@@ -76,23 +74,26 @@ nav button.active{background:#1769e0;color:white}
 
   <section id="aba-registrar" class="aba hidden card card-largo">
     <h2>📦 Registrar Encomenda</h2>
-    <button type="button" class="btn-cam" onclick="document.getElementById('inputCam').click()">📷 Tirar Foto</button>
-    <input type="file" id="inputCam" accept="image/*" capture="environment" style="display:none" onchange="arquivoSelecionado(this)">
-    <button type="button" class="btn-galeria" onclick="document.getElementById('inputGaleria').click()">📁 Escolher da Galeria</button>
-    <input type="file" id="inputGaleria" accept="image/*" style="display:none" onchange="arquivoSelecionado(this)">
-    <img id="imgPreview" class="preview-img hidden" alt="Foto carregada">
-    <p id="statusLeitura" class="leitura-status hidden"></p>
-    <button type="button" class="secondary hidden" id="btnLimparFoto" onclick="limparFoto()">❌ Trocar Foto</button>
-    <input type="hidden" id="fotoBase64">
     
+    <!-- FOTO — OPCIONAL, NÃO PREENCHE MAIS NADA -->
+    <button type="button" class="btn-cam" onclick="document.getElementById('inputCam').click()">📷 Tirar Foto (opcional)</button>
+    <input type="file" id="inputCam" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this)">
+    <button type="button" class="btn-galeria" onclick="document.getElementById('inputGaleria').click()">📁 Escolher da Galeria (opcional)</button>
+    <input type="file" id="inputGaleria" accept="image/*" style="display:none" onchange="mostrarFoto(this)">
+    <img id="imgPreview" class="preview-img hidden" alt="Foto carregada">
+    <button type="button" class="secondary hidden" id="btnLimparFoto" onclick="limparFoto()">❌ Remover Foto</button>
+
+    <p style="margin:16px 0 8px;color:#1769e0;font-weight:bold">📝 Preencha os dados abaixo:</p>
+    
+    <!-- CAMPOS EDITÁVEIS — VOCÊ DIGITA TUDO -->
     <div class="grid">
-      <div><label>Nome do Morador</label><input type="text" id="inpNome" readonly style="background:#f9fafb"></div>
-      <div><label>Apartamento</label><input type="text" id="inpApto" readonly style="background:#f9fafb"></div>
+      <div><label>Nome do Morador</label><input type="text" id="inpNome" placeholder="Digite o nome"></div>
+      <div><label>Apartamento</label><input type="text" id="inpApto" placeholder="Ex: 012OP"></div>
       <div><label>Bloco</label><input type="text" value="A — Ouro Preto" readonly style="background:#f9fafb"></div>
-      <div><label>E-mail</label><input type="email" id="inpEmail" readonly style="background:#f9fafb"></div>
+      <div><label>E-mail</label><input type="email" id="inpEmail" placeholder="email@exemplo.com"></div>
     </div>
     
-    <p class="aviso-email">✅ E-mail carregado automático do cadastro!</p>
+    <p class="aviso-email">💡 Dica: o e-mail já fica salvo na lista de moradores depois do primeiro envio!</p>
     <button class="email" onclick="enviarEmail()">📧 Registrar e Enviar por E-mail</button>
     <p id="msgStatus" class="hidden"></p>
   </section>
@@ -105,7 +106,6 @@ nav button.active{background:#1769e0;color:white}
   <section id="aba-lista" class="aba hidden card card-largo">
     <h2>👥 Moradores — Bloco A Ouro Preto</h2>
     
-    <!-- TELA DE EDIÇÃO -- AGORA FUNCIONANDO! -->
     <div id="formEditarMorador" class="form-editar hidden">
       <h3>✏️ Editando Apartamento: <span id="editarAptoTitulo"></span></h3>
       <input type="hidden" id="indiceEditar">
@@ -124,7 +124,6 @@ nav button.active{background:#1769e0;color:white}
       
       <button class="salvar" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
       <button class="cancelar" onclick="cancelarEdicao()">❌ Cancelar</button>
-      <p id="msgEdicao" class="hidden"></p>
     </div>
 
     <div id="listaMoradores"></div>
@@ -138,14 +137,12 @@ nav button.active{background:#1769e0;color:white}
       <label>Nova Senha</label><input type="password" id="senhaNova">
       <label>Repetir Nova Senha</label><input type="password" id="senhaNova2">
       <button class="primary" onclick="alterarSenha()">Salvar Nova Senha</button>
-      <p id="msgSenha" class="hidden"></p>
     </div>
     <div id="areaAdminConfig" class="hidden" style="background:#f9fafb;padding:16px;border-radius:12px;margin-top:16px">
       <h3 style="font-size:16px;margin-bottom:12px">👤 Administrador</h3>
       <label>Nome</label><input type="text" id="nomeAdminAtual" value="Portaria — Administrador">
       <label>Usuário</label><input type="text" id="usuarioAdminNovo" value="admin">
       <button class="primary" onclick="alterarDadosAdmin()">Salvar</button>
-      <p id="msgAdminDados" class="hidden"></p>
     </div>
   </section>
 </div>
@@ -228,7 +225,7 @@ let moradores = [
 ];
 
 let admin = {usuario:"admin",senha:"condo2026",nome:"Portaria — Administrador"};
-let usuarioLogado = null, ehAdmin = false, moradorAtual = null;
+let usuarioLogado = null, ehAdmin = false;
 
 function entrar(){
   const u = document.getElementById('inpUsuario').value.trim();
@@ -240,7 +237,7 @@ function entrar(){
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
     document.getElementById('areaAdminConfig').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo! Você tem acesso completo.";
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Preencha os dados manualmente e envie.";
     carregaListaMoradores(); return;
   }
   const m = moradores.find(x => x.usuario === u && x.senha === s);
@@ -250,7 +247,7 @@ function entrar(){
     document.getElementById('sistema').classList.remove('hidden');
     document.getElementById('nomeLogado').textContent = `👤 ${m.nome} — Apto ${m.apto}`;
     document.getElementById('menuMorador').classList.remove('hidden');
-    document.getElementById('textoInicio').innerHTML = "Bem-vindo(a)! Acompanhe suas encomendas aqui.";
+    document.getElementById('textoInicio').textContent = "Bem-vindo(a)! Veja suas encomendas abaixo.";
     return;
   }
   const e = document.getElementById('msgErroLogin');
@@ -259,7 +256,7 @@ function entrar(){
 }
 
 function sair(){
-  usuarioLogado = null; ehAdmin = false; moradorAtual = null;
+  usuarioLogado = null; ehAdmin = false;
   document.getElementById('sistema').classList.add('hidden');
   document.getElementById('telaLogin').classList.remove('hidden');
   document.getElementById('inpUsuario').value = '';
@@ -285,84 +282,55 @@ function mostrarAba(nome){
   }
 }
 
-function arquivoSelecionado(input){
-  if(!ehAdmin){alert("Acesso negado!");return}
+function mostrarFoto(input){
   if(!input.files.length) return;
   const leitor = new FileReader();
   leitor.onload = e => {
     document.getElementById('imgPreview').src = e.target.result;
     document.getElementById('imgPreview').classList.remove('hidden');
-    document.getElementById('fotoBase64').value = e.target.result;
     document.getElementById('btnLimparFoto').classList.remove('hidden');
-    lerTextoDaFoto(e.target.result);
   };
   leitor.readAsDataURL(input.files[0]);
   input.value = '';
 }
 
-async function lerTextoDaFoto(base64){
-  const status = document.getElementById('statusLeitura');
-  status.classList.remove('hidden');
-  status.textContent = "🔍 Lendo...";
-  try{
-    const res = await Tesseract.recognize(base64, 'por', {
-      logger: m => {if(m.status === 'recognizing text') status.textContent = `🔍 Lendo... ${Math.round(m.progress*100)}%`;}
-    });
-    const txt = res.data.text.toUpperCase();
-    const enc = procuraMorador(txt);
-    if(enc){
-      moradorAtual = enc;
-      document.getElementById('inpNome').value = enc.nome;
-      document.getElementById('inpApto').value = enc.apto;
-      document.getElementById('inpEmail').value = enc.email || '';
-      status.textContent = `✅ ${enc.nome} — ${enc.apto}`;
-      status.className = 'leitura-status success';
-    }else{
-      moradorAtual = null;
-      status.textContent = "⚠️ Não encontrou. Verifique cadastro.";
-      status.className = 'leitura-status error';
-    }
-  }catch{
-    status.textContent = "❌ Erro na leitura.";
-    status.className = 'leitura-status error';
-  }
-}
-
-function procuraMorador(texto){
-  for(const m of moradores){
-    if(texto.includes(m.apto.toUpperCase())) return {nome:m.nome,apto:m.apto,email:m.email};
-    const ps = m.nome.toUpperCase().split(/\s+/).filter(p => p.length > 3);
-    if(ps.some(p => texto.includes(p))) return {nome:m.nome,apto:m.apto,email:m.email};
-  }
-  return null;
-}
-
 function limparFoto(){
-  moradorAtual = null;
   document.getElementById('imgPreview').classList.add('hidden');
-  document.getElementById('statusLeitura').classList.add('hidden');
   document.getElementById('btnLimparFoto').classList.add('hidden');
-  document.getElementById('fotoBase64').value = '';
-  document.getElementById('inpNome').value = '';
-  document.getElementById('inpApto').value = '';
-  document.getElementById('inpEmail').value = '';
+}
+
+function encontrarOuCriarMorador(nome, apto, email){
+  let m = moradores.find(x => x.apto === apto);
+  if(m){
+    if(nome && !m.nome) m.nome = nome;
+    if(email && !m.email) m.email = email;
+    return m;
+  }
+  const novo = {apto:apto,nome:nome,email:email,bloco:"A — Ouro Preto",usuario:"",senha:"",encomendas:[]};
+  moradores.push(novo);
+  return novo;
 }
 
 function enviarEmail(){
   if(!ehAdmin){alert("Acesso negado!");return}
-  if(!moradorAtual){alert("Não encontrei o morador!");return}
-  if(!moradorAtual.email){alert("⚠️ Sem e-mail cadastrado! Vá em Moradores → Editar e preencha.");return}
   
-  const m = moradores.find(x => x.apto === moradorAtual.apto);
-  if(m) m.encomendas.push({data: new Date().toLocaleString('pt-BR'),nome:moradorAtual.nome,apto:moradorAtual.apto});
+  const nome = document.getElementById('inpNome').value.trim();
+  const apto = document.getElementById('inpApto').value.trim();
+  const email = document.getElementById('inpEmail').value.trim();
+  
+  if(!nome || !apto){alert("Preencha Nome e Apartamento!");return}
+  if(!email){alert("Preencha o E-mail!");return}
+  
+  const m = encontrarOuCriarMorador(nome, apto, email);
+  m.encomendas.push({data: new Date().toLocaleString('pt-BR'),nome:nome,apto:apto});
   
   const assunto = encodeURIComponent("📦 Encomenda Chegou — Condomínio Ouro Preto");
   const corpo = encodeURIComponent(
-`Olá ${moradorAtual.nome}!
+`Olá ${nome}!
 
 Temos uma encomenda esperando por você!
 
-🏠 Apartamento: ${moradorAtual.apto}
+🏠 Apartamento: ${apto}
 📅 Data: ${new Date().toLocaleString('pt-BR')}
 
 Retire na portaria.
@@ -370,8 +338,13 @@ Retire na portaria.
 Atenciosamente,
 Portaria — Condomínio Ouro Preto
 `);
-  window.location.href = `mailto:${moradorAtual.email}?subject=${assunto}&body=${corpo}`;
-  alert(`✅ Enviado para:\n${moradorAtual.email}`);
+  window.location.href = `mailto:${email}?subject=${assunto}&body=${corpo}`;
+  alert(`✅ Enviado para:\n${email}`);
+  
+  // Limpa os campos para próximo registro
+  document.getElementById('inpNome').value = '';
+  document.getElementById('inpApto').value = '';
+  document.getElementById('inpEmail').value = '';
   limparFoto();
 }
 
@@ -390,7 +363,7 @@ function carregaListaMoradores(){
   document.getElementById('listaMoradores').innerHTML = moradores.map((m, i) => `
     <div class="item-morador">
       <div>
-        <strong>${m.apto}</strong> — ${m.nome || '⚠️ PREENCHER NOME'}<br>
+        <strong>${m.apto}</strong> — ${m.nome || '⚠️ SEM NOME'}<br>
         <small>📧 ${m.email || 'Sem e-mail'} | Encomendas: ${m.encomendas.length}</small>
       </div>
       <button class="editar" onclick="abrirEdicao(${i})">✏️ EDITAR</button>
@@ -398,44 +371,25 @@ function carregaListaMoradores(){
   `).join('');
 }
 
-// ==== FUNÇÃO DE ABRIR EDIÇÃO — ARRUMADA! ====
 function abrirEdicao(indice){
-  console.log("Abrindo edição do índice:", indice); // Para testar
   const m = moradores[indice];
-  
-  // Preenche os campos
   document.getElementById('indiceEditar').value = indice;
   document.getElementById('editarAptoTitulo').textContent = m.apto;
   document.getElementById('editarNome').value = m.nome;
   document.getElementById('editarEmail').value = m.email;
   document.getElementById('editarUsuario').value = m.usuario;
   document.getElementById('editarSenha').value = m.senha;
-  
-  // MOSTRA a tela de edição — era isso que não estava funcionando!
   document.getElementById('formEditarMorador').classList.remove('hidden');
-  
-  // Rola a página pra cima pra pessoa ver a tela
   document.getElementById('formEditarMorador').scrollIntoView({behavior:'smooth'});
 }
 
 function salvarEdicao(){
   const i = parseInt(document.getElementById('indiceEditar').value);
-  const nome = document.getElementById('editarNome').value.trim();
-  const email = document.getElementById('editarEmail').value.trim();
-  const usuario = document.getElementById('editarUsuario').value.trim();
-  const senha = document.getElementById('editarSenha').value.trim();
-  
-  if(!usuario || !senha){
-    alert("Usuário e senha não podem ficar vazios!");
-    return;
-  }
-  
-  moradores[i].nome = nome;
-  moradores[i].email = email;
-  moradores[i].usuario = usuario;
-  moradores[i].senha = senha;
-  
-  alert("✅ Salvo com sucesso!");
+  moradores[i].nome = document.getElementById('editarNome').value.trim();
+  moradores[i].email = document.getElementById('editarEmail').value.trim();
+  moradores[i].usuario = document.getElementById('editarUsuario').value.trim();
+  moradores[i].senha = document.getElementById('editarSenha').value.trim();
+  alert("✅ Salvo!");
   document.getElementById('formEditarMorador').classList.add('hidden');
   carregaListaMoradores();
 }
@@ -449,7 +403,7 @@ function alterarSenha(){
   const n1 = document.getElementById('senhaNova').value.trim();
   const n2 = document.getElementById('senhaNova2').value.trim();
   if(!at || !n1 || !n2){alert("Preencha tudo!");return}
-  if(n1 !== n2){alert("Senhas novas não batem!");return}
+  if(n1 !== n2){alert("Senhas não batem!");return}
   if(n1.length < 4){alert("Mínimo 4 caracteres!");return}
   if(ehAdmin){
     if(at !== admin.senha){alert("Senha atual errada!");return}
@@ -466,12 +420,10 @@ function alterarSenha(){
 }
 
 function alterarDadosAdmin(){
-  const nome = document.getElementById('nomeAdminAtual').value.trim();
-  const usuario = document.getElementById('usuarioAdminNovo').value.trim();
-  if(!nome || !usuario){alert("Preencha tudo!");return}
-  admin.nome = nome;
-  admin.usuario = usuario;
-  document.getElementById('nomeLogado').textContent = `👤 ${nome}`;
+  admin.nome = document.getElementById('nomeAdminAtual').value.trim();
+  admin.usuario = document.getElementById('usuarioAdminNovo').value.trim();
+  if(!admin.nome || !admin.usuario){alert("Preencha tudo!");return}
+  document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
   alert("✅ Salvo!");
 }
 </script>
