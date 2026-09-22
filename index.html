@@ -15,16 +15,17 @@ nav button{background:white;color:#1769e0;box-shadow:0 2px 8px #0001}
 nav button.active,button.primary{background:#1769e0;color:white}
 button.secondary{background:#e5e7eb;color:#374151}
 a.whatsapp{background:#25d366;color:white;width:100%;margin-top:8px}
-button.cam{background:#f97316;color:white;padding:10px 14px;font-size:15px}
+.btn-cam{background:#1769e0;color:white;width:100%;margin:6px 0}
+.btn-galeria{background:#6b7280;color:white;width:100%;margin:6px 0}
 .card{background:white;border-radius:16px;padding:20px;box-shadow:0 3px 15px #00000012;margin-bottom:18px}
 h2,h3{margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
+label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px;margin-top:10px}
 .input-group{position:relative;margin-bottom:12px}
 .input-group input{width:100%;padding:12px 44px 12px 12px;border:1px solid #d7dce2;border-radius:9px;font-size:15px}
 .eye-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:20px;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
 .hidden{display:none}.search{margin-bottom:15px;width:260px;max-width:100%}
 .package{border:1px solid #e2e6eb;border-radius:12px;padding:15px;margin:10px 0}
-.package-img{max-width:200px;border-radius:10px;margin:10px 0}
+.package-img{max-width:180px;border-radius:10px;margin:10px 0}
 .status{display:inline-block;padding:6px 12px;border-radius:20px;background:#fff3cd;color:#8a6500;font-size:14px;font-weight:bold;margin:8px 0}
 .small{color:#6b7280;font-size:13px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
 .hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px}
@@ -41,7 +42,7 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 .error{color:#dc2626;font-size:14px;margin:8px 0}
 .resident-item{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:12px;border-bottom:1px solid #eee}
 .optional{color:#6b7280;font-size:12px}
-.foto-area{margin:10px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.preview-area{margin:10px 0}
 </style>
 </head>
 <body>
@@ -133,14 +134,26 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <div class="card">
 <h2>📦 Registrar Encomenda</h2>
 
-<div class="foto-area">
-  <button type="button" class="cam" id="btnFoto" onclick="document.getElementById('inputFoto').click()">📷 Tirar Foto</button>
-  <input type="file" id="inputFoto" accept="image/*" capture="environment" style="display:none" onchange="verFoto(this)">
-  <img id="imgPreview" class="hidden package-img" alt="Foto">
-  <button type="button" class="secondary hidden" id="btnTirarNova" onclick="tirarNova()">🔄</button>
-  <input type="hidden" id="fotoBase64">
+<!-- BOTÕES UM EMBAIXO DO OUTRO -->
+<button type="button" class="btn-cam" onclick="document.getElementById('inputCam').click()">
+  📷 Tirar Foto
+</button>
+<input type="file" id="inputCam" accept="image/*" capture="environment" style="display:none" onchange="processaFoto(this)">
+
+<button type="button" class="btn-galeria" onclick="document.getElementById('inputGaleria').click()">
+  📁 Escolher da Galeria
+</button>
+<input type="file" id="inputGaleria" accept="image/*" style="display:none" onchange="processaFoto(this)">
+
+<!-- PREVISÃO DA FOTO -->
+<div class="preview-area">
+  <img id="imgPreview" class="hidden package-img" alt="Foto da encomenda">
+  <button type="button" class="secondary hidden" id="btnNova" onclick="tirarNova()">🔄 Trocar Foto</button>
 </div>
 
+<input type="hidden" id="fotoBase64">
+
+<!-- CAMPOS DE PREENCHER -->
 <form id="packageForm">
 <div class="grid">
 <div><label>Nome do morador</label><input id="name" required></div>
@@ -148,7 +161,7 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <div><label>Apartamento</label><input id="apt" required></div>
 <div><label>Telefone WhatsApp</label><input id="phone" placeholder="(31) 9xxxx-xxxx" required></div>
 <div><label>Loja <span class="optional">(opcional)</span></label><input id="store"></div>
-<div><label>Rastreio <span class="optional">(opcional)</span></label><input id="tracking"></div>
+<div><label>Código de rastreio <span class="optional">(opcional)</span></label><input id="tracking"></div>
 </div>
 <button class="whatsapp" type="submit">✅ Registrar e enviar no WhatsApp 🟢</button>
 </form>
@@ -195,7 +208,6 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 let packages = JSON.parse(localStorage.getItem('packages') || '[]');
 let residents = JSON.parse(localStorage.getItem('residents') || '[]');
 let currentUser = null;
-let selectedPackageId = null;
 
 if(!residents.length) {
   residents = [
@@ -217,16 +229,15 @@ function togglePass(id) {
   const el=document.getElementById(id); el.type=el.type==='password'?'text':'password';
 }
 
-// FOTO SIMPLES
-function verFoto(input) {
+// FOTO — as duas opções
+function processaFoto(input) {
   if(!input.files[0]) return;
   const r = new FileReader();
   r.onload = e => {
     document.getElementById('fotoBase64').value = e.target.result;
     document.getElementById('imgPreview').src = e.target.result;
     document.getElementById('imgPreview').classList.remove('hidden');
-    document.getElementById('btnTirarNova').classList.remove('hidden');
-    document.getElementById('btnFoto').style.display = 'none';
+    document.getElementById('btnNova').classList.remove('hidden');
   };
   r.readAsDataURL(input.files[0]);
 }
@@ -234,9 +245,9 @@ function verFoto(input) {
 function tirarNova() {
   document.getElementById('fotoBase64').value = '';
   document.getElementById('imgPreview').classList.add('hidden');
-  document.getElementById('btnTirarNova').classList.add('hidden');
-  document.getElementById('btnFoto').style.display = 'inline-block';
-  document.getElementById('inputFoto').value = '';
+  document.getElementById('btnNova').classList.add('hidden');
+  document.getElementById('inputCam').value = '';
+  document.getElementById('inputGaleria').value = '';
 }
 
 function setLoginRole(r) {
@@ -278,7 +289,7 @@ function doLogin() {
     document.getElementById('loggedUser').textContent=f.name;
     applyAccess(); show('home');
   } else {
-    document.getElementById('loginError').innerHTML='<span class="error">Erro no login</span>';
+    document.getElementById('loginError').innerHTML='<span class="error">Usuário ou senha incorretos</span>';
   }
 }
 function logout() {
@@ -300,11 +311,11 @@ function fillProfile() {
 function changePass() {
   const novo=document.getElementById('newPass').value.trim();
   const conf=document.getElementById('confPass').value.trim();
-  if(novo!==conf) return document.getElementById('passMsg').innerHTML='<span class="error">Não confere</span>';
+  if(novo!==conf) return document.getElementById('passMsg').innerHTML='<span class="error">Senhas não conferem</span>';
   if(novo.length<4) return;
   const idx=residents.findIndex(r=>r.user===currentUser.user);
   residents[idx].pass=novo; localStorage.setItem('residents',JSON.stringify(residents));
-  document.getElementById('passMsg').innerHTML='<span class="success">✅ Alterada</span>';
+  document.getElementById('passMsg').innerHTML='<span class="success">✅ Senha alterada!</span>';
 }
 function resetUserPass() {
   const u=document.getElementById('resetUser').value.trim();
@@ -312,12 +323,11 @@ function resetUserPass() {
   const idx=residents.findIndex(r=>r.user===u&&r.role!=='admin');
   if(idx===-1) return;
   residents[idx].pass=nova; localStorage.setItem('residents',JSON.stringify(residents));
-  document.getElementById('resetMsg').innerHTML='<span class="success">✅ Redefinida</span>';
+  document.getElementById('resetMsg').innerHTML='<span class="success">✅ Redefinida!</span>';
 }
-function show(id,btn) {
+function show(id) {
   document.querySelectorAll('section').forEach(x=>x.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
-  if(btn) document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'))&&btn.classList.add('active');
 }
 function updateStats() {
   const hj=new Date().toLocaleDateString('pt-BR');
@@ -335,17 +345,16 @@ function renderPackages() {
   if(currentUser&&currentUser.role!=='admin') l=l.filter(p=>p.name===currentUser.name&&p.apt===currentUser.apt);
   document.getElementById('packageList').innerHTML=l.length?l.map(p=>{
     const num=limparTelefone(p.phone);
-    const tem=num.length>=12;
     return `<div class="package">
       <div><b>${p.name}</b> — Apto ${p.apt} • ${p.block}<br>📦 ${p.store||'Não informada'}<br>📱 ${p.phone}<br><span class="small">${p.date}</span></div>
       ${p.foto?`<img src="${p.foto}" class="package-img">`:''}
       <span class="status">${p.status}</span>
       <div class="actions">
-        ${currentUser&&currentUser.role==='admin'&&p.status!=='Entregue'&&tem?`<a class="whatsapp" href="https://wa.me/${num}?text=${montarMsg(p.name,p.store,p.apt)}" target="_blank">🟢 Enviar WhatsApp</a>`:''}
+        ${currentUser&&currentUser.role==='admin'&&p.status!=='Entregue'&&num.length>=12?`<a class="whatsapp" href="https://wa.me/${num}?text=${montarMsg(p.name,p.store,p.apt)}" target="_blank">🟢 Enviar WhatsApp</a>`:''}
         ${currentUser&&currentUser.role==='admin'&&p.status!=='Entregue'?`<button class="secondary" onclick="deliver(${p.id})">Marcar retirada</button>`:''}
       </div>
     </div>`;
-  }).join(''):'<p class="small">Nenhuma encontrada.</p>';
+  }).join(''):'<p class="small">Nenhuma encomenda encontrada.</p>';
 }
 function renderResidents() {
   document.getElementById('residentList').innerHTML=residents.filter(r=>r.role!=='admin').map(r=>`<div class="resident-item">
@@ -371,7 +380,7 @@ document.getElementById('packageForm').onsubmit=function(e) {
   };
   packages.unshift(p); localStorage.setItem('packages',JSON.stringify(packages));
   window.open(`https://wa.me/${tel}?text=${montarMsg(p.name,p.store,p.apt)}`,'_blank');
-  alert('✅ Registrada! WhatsApp abrindo...');
+  alert('✅ Encomenda registrada! WhatsApp abrindo...');
   this.reset(); tirarNova(); show('search');
 };
 document.getElementById('residentForm').onsubmit=function(e) {
