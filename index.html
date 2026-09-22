@@ -12,7 +12,7 @@ body{background:#f4f6f8;color:#1f2937;line-height:1.5;padding:16px}
 .card-largo{max-width:900px}
 h2{font-size:18px;margin-bottom:20px;text-align:center;color:#1769e0}
 label{font-size:14px;font-weight:bold;display:block;margin:12px 0 4px}
-input,select,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px}
+input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px}
 button{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer;font-size:15px;width:100%}
 .btn-cam{background:#1769e0;color:white;margin:6px 0}
 .btn-galeria{background:#6b7280;color:white;margin:6px 0}
@@ -34,11 +34,11 @@ nav button.active{background:#1769e0;color:white}
 .item-morador{padding:14px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 .form-editar{background:#eff6ff;padding:20px;border-radius:12px;margin:20px 0;border-left:5px solid #1769e0}
 .form-editar h3{font-size:17px;margin-bottom:15px;color:#1769e0}
-.aviso-email{background:#dcfce7;padding:12px;border-radius:8px;color:#166534;margin:12px 0}
-.status-envio{padding:12px;border-radius:8px;margin:12px 0;font-weight:bold}
+.status-envio{padding:16px;border-radius:10px;margin:16px 0;font-weight:bold;text-align:center}
 .enviando{background:#fef3c7;color:#92400e}
 .enviado{background:#dcfce7;color:#166534}
 .falha{background:#fee2e2;color:#b91c1c}
+.aviso{background:#eff6ff;padding:12px;border-radius:8px;color:#1e40af;margin:12px 0}
 </style>
 </head>
 <body>
@@ -89,33 +89,22 @@ nav button.active{background:#1769e0;color:white}
 
     <p style="margin:16px 0 8px;color:#1769e0;font-weight:bold">📝 Preencha os dados abaixo:</p>
     
-    <!-- CAMPOS COMPLETOS -->
+    <!-- TODOS CAMPOS LIVRES — VOCÊ DIGITA TUDO -->
     <div class="grid">
       <div><label>Nome do Morador</label><input type="text" id="inpNome" placeholder="Digite o nome"></div>
-      <div><label>Apartamento</label><input type="text" id="inpApto" placeholder="Ex: 012OP"></div>
+      <div><label>Apartamento</label><input type="text" id="inpApto" placeholder="Ex: 112"></div>
       <div><label>Bloco</label><input type="text" value="A — Ouro Preto" readonly style="background:#f9fafb"></div>
       <div><label>E-mail do Morador</label><input type="email" id="inpEmail" placeholder="email@exemplo.com"></div>
-      <div>
-        <label>Empresa / Loja</label>
-        <select id="inpEmpresa">
-          <option value="">Selecione...</option>
-          <option value="Mercado Livre">🛒 Mercado Livre</option>
-          <option value="Shopee">🛍️ Shopee</option>
-          <option value="TikTok Shop">📱 TikTok Shop</option>
-          <option value="Amazon">📦 Amazon</option>
-          <option value="Kwai">▶️ Kwai</option>
-          <option value="Outros">📋 Outros</option>
-        </select>
-      </div>
-      <div><label>Número da Nota Fiscal</label><input type="text" id="inpNota" placeholder="Ex: 123456789"></div>
-      <div><label>Código de Rastreio</label><input type="text" id="inpRastreio" placeholder="Ex: BR123456789"></div>
+      <div><label>Empresa / Loja</label><input type="text" id="inpEmpresa" placeholder="Ex: Shopee, Mercado Livre, TikTok..."></div>
+      <div><label>Número da Nota Fiscal</label><input type="text" id="inpNota" placeholder="Digite o número"></div>
+      <div><label>Código de Rastreio</label><input type="text" id="inpRastreio" placeholder="Digite o código"></div>
     </div>
     
-    <p class="aviso-email">💡 Preencha tudo → aperte Enviar → o e-mail vai sozinho, não precisa sair daqui!</p>
+    <p class="aviso">💅 Tudo preenchido → aperte Enviar → confirma e pronto! Não sai daqui!</p>
     
-    <button class="enviar" onclick="enviarEncomenda()">✅ REGISTRAR E ENVIAR E-MAIL</button>
+    <button class="enviar" onclick="enviarEncomenda()">✅ REGISTRAR E ENVIAR</button>
     
-    <!-- Status do envio -->
+    <!-- Mensagem de confirmação NA MESMA TELA -->
     <div id="statusEnvio" class="status-envio hidden"></div>
   </section>
 
@@ -258,7 +247,7 @@ function entrar(){
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
     document.getElementById('areaAdminConfig').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo! Preencha os dados e envie — tudo direto daqui!";
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Preencha tudo, envie direto daqui, não sai da tela!";
     carregaListaMoradores(); return;
   }
   const m = moradores.find(x => x.usuario === u && x.senha === s);
@@ -338,7 +327,7 @@ async function enviarEncomenda(){
   const nome = document.getElementById('inpNome').value.trim();
   const apto = document.getElementById('inpApto').value.trim();
   const email = document.getElementById('inpEmail').value.trim();
-  const empresa = document.getElementById('inpEmpresa').value;
+  const empresa = document.getElementById('inpEmpresa').value.trim();
   const nota = document.getElementById('inpNota').value.trim();
   const rastreio = document.getElementById('inpRastreio').value.trim();
   
@@ -350,7 +339,7 @@ async function enviarEncomenda(){
   const statusEl = document.getElementById('statusEnvio');
   statusEl.classList.remove('hidden','enviado','falha');
   statusEl.className = 'status-envio enviando';
-  statusEl.textContent = "⏳ Enviando e-mail... aguarde!";
+  statusEl.textContent = "⏳ Preparando...";
   
   // Salva no cadastro
   const m = encontrarOuCriarMorador(nome, apto, email);
@@ -359,7 +348,7 @@ async function enviarEncomenda(){
     nome:nome, apto:apto, empresa:empresa, nota:nota, rastreio:rastreio
   });
   
-  // Monta mensagem completa
+  // Monta mensagem
   const mensagem = `Olá ${nome}!
 
 Temos uma encomenda esperando por você! 📦
@@ -376,38 +365,42 @@ Atenciosamente,
 Portaria — Condomínio Ouro Preto
 `;
 
-  try {
-    // MÉTODO DIRETO — abre o envio sem sair da tela
-    const assunto = encodeURIComponent("📦 Encomenda Chegou — Condomínio Ouro Preto");
-    const corpo = encodeURIComponent(mensagem);
-    
-    // Tenta enviar via API do navegador primeiro
-    if ('mailto' in window || navigator.userAgent.includes('Android') || navigator.userAgent.includes('iPhone')) {
-      window.location.href = `mailto:${email}?subject=${assunto}&body=${corpo}`;
-    } else {
-      window.open(`mailto:${email}?subject=${assunto}&body=${corpo}`, '_self');
-    }
-    
-    // Mostra mensagem de sucesso
-    statusEl.className = 'status-envio enviado';
-    statusEl.textContent = `✅ E-mail pronto para envio! Confira se abriu acima.`;
-    
-  } catch (erro) {
-    statusEl.className = 'status-envio falha';
-    statusEl.textContent = `⚠️ Se não abriu, copie abaixo e envie manualmente:`;
-    alert(`Copie e cole no seu e-mail:\n\nPara: ${email}\nAssunto: Encomenda Chegou\n\n${mensagem}`);
-  }
+  const assunto = encodeURIComponent("📦 Encomenda Chegou — Condomínio Ouro Preto");
+  const corpo = encodeURIComponent(mensagem);
+  const destino = `mailto:${email}?subject=${assunto}&body=${corpo}`;
   
-  // Limpa os campos depois de enviar
-  setTimeout(() => {
-    document.getElementById('inpNome').value = '';
-    document.getElementById('inpApto').value = '';
-    document.getElementById('inpEmail').value = '';
-    document.getElementById('inpEmpresa').value = '';
-    document.getElementById('inpNota').value = '';
-    document.getElementById('inpRastreio').value = '';
-    limparFoto();
-  }, 1500);
+  // Pergunta e abre direto — NÃO SAI DA TELA
+  if(confirm(`✅ Confirmar envio para:\n${email}\n\nEmpresa: ${empresa || 'Não informada'}\nNota: ${nota || 'Não informada'}\nRastreio: ${rastreio || 'Não informada'}`)){
+    
+    statusEl.className = 'status-envio enviando';
+    statusEl.textContent = "📤 Abrindo envio...";
+    
+    // Abre o envio SEM sair da tela
+    window.location.href = destino;
+    
+    // Confirmação na MESMA TELA
+    setTimeout(() => {
+      statusEl.className = 'status-envio enviado';
+      statusEl.innerHTML = `✅ <strong>PRONTO!</strong><br>E-mail pronto para envio!<br>Confirme no botão Enviar que apareceu.`;
+      
+      // Limpa tudo sozinho
+      document.getElementById('inpNome').value = '';
+      document.getElementById('inpApto').value = '';
+      document.getElementById('inpEmail').value = '';
+      document.getElementById('inpEmpresa').value = '';
+      document.getElementById('inpNota').value = '';
+      document.getElementById('inpRastreio').value = '';
+      limparFoto();
+      
+      // Esconde a mensagem depois de 5 segundos
+      setTimeout(() => statusEl.classList.add('hidden'), 5000);
+    }, 800);
+    
+  } else {
+    statusEl.textContent = "❌ Cancelado";
+    statusEl.className = 'status-envio falha';
+    setTimeout(() => statusEl.classList.add('hidden'), 3000);
+  }
 }
 
 function carregaMinhasEncomendas(){
