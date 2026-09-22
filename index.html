@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CondoExpress — Bloco A & B</title>
+<title>CondoExpress — Bloco A Ouro Preto</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231769e0' rx='16' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white'%3E📦%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -53,34 +53,22 @@ nav button.active{background:#1769e0;color:white}
 .camera{background:#f97316;color:white}
 .arquivo{background:#6366f1;color:white}
 .sincronizado{background:#dcfce7;color:#166534;padding:6px 10px;border-radius:20px;font-size:12px;display:inline-block;margin-left:8px}
-.bloco-seletor{display:flex;gap:12px;justify-content:center;margin-bottom:20px}
-.bloco-btn{max-width:180px}
-.bloco-btn.ativo{transform:scale(1.05);box-shadow:0 0 0 2px #1769e0}
 </style>
 </head>
 <body>
 
-<div id="telaEscolhaBloco" class="card">
-  <h2>🏢 Escolha o Bloco</h2>
-  <div class="bloco-seletor">
-    <button class="primary bloco-btn" onclick="escolherBloco('A')">🏆 Bloco A<br>Ouro Preto</button>
-    <button class="primary bloco-btn" onclick="escolherBloco('B')">🏆 Bloco B<br>Sabará</button>
-  </div>
-</div>
-
-<div id="telaLogin" class="card hidden">
-  <h2>🔐 Acessar CondoExpress — Bloco <span id="nomeBloco"></span></h2>
+<div id="telaLogin" class="card">
+  <h2>🔐 Acessar CondoExpress</h2>
   <label>Usuário</label>
   <input type="text" id="inpUsuario" placeholder="Digite seu usuário">
   <label>Senha</label>
   <input type="password" id="inpSenha" placeholder="Digite sua senha">
   <button class="primary" onclick="entrar()">Entrar</button>
-  <button class="secondary" onclick="voltarBloco()">⬅️ Voltar</button>
   <p id="msgErroLogin" class="error hidden" style="text-align:center"></p>
 </div>
 
 <div id="sistema" class="hidden">
-  <h1 style="text-align:center;color:#1769e0;margin:10px 0">📦 CondoExpress — Bloco <span id="cabecalhoBloco"></span> <span id="statusSinc" class="sincronizado">✅ Sincronizado</span></h1>
+  <h1 style="text-align:center;color:#1769e0;margin:10px 0">📦 CondoExpress — Bloco A Ouro Preto <span id="statusSinc" class="sincronizado">✅ Sincronizado</span></h1>
   <p id="nomeLogado" style="text-align:center;color:#666;margin-bottom:15px"></p>
   <button class="secondary" style="max-width:200px;margin:0 auto 20px;display:block" onclick="sair()">Sair</button>
 
@@ -130,7 +118,7 @@ nav button.active{background:#1769e0;color:white}
       </div>
       <div>
         <label>Bloco <span class="texto-fixo">✅ FIXO</span></label>
-        <input type="text" id="inpBloco" readonly>
+        <input type="text" value="A — Ouro Preto" readonly>
       </div>
       <div>
         <label>E-mail <span style="color:#1769e0">✏️ EDITÁVEL</span></label>
@@ -165,7 +153,7 @@ nav button.active{background:#1769e0;color:white}
   </section>
 
   <section id="aba-encomendas" class="aba hidden card card-largo">
-    <h2>📋 Todas as Encomendas — Bloco <span id="blocoEncomendas"></span></h2>
+    <h2>📋 Todas as Encomendas — Atualizado em TODOS os aparelhos</h2>
     <div id="listaTodasEncomendas" class="sem-dados">Carregando...</div>
   </section>
 
@@ -175,7 +163,7 @@ nav button.active{background:#1769e0;color:white}
   </section>
 
   <section id="aba-lista" class="aba hidden card card-largo">
-    <h2>👥 Moradores — Bloco <span id="blocoLista"></span></h2>
+    <h2>👥 Moradores — Bloco A Ouro Preto</h2>
     <div id="formEditarMorador" class="form-editar hidden">
       <h3>✏️ Editar: <span id="editarAptoTitulo"></span></h3>
       <input type="hidden" id="indiceEditar">
@@ -206,6 +194,7 @@ nav button.active{background:#1769e0;color:white}
 </div>
 
 <script>
+// 🔗 BANCO DE DADOS NA INTERNET — TUDO JUNTO
 const firebaseConfig = {
   apiKey: "AIzaSyC6O2RfB8nXqkD9hBZ9Xz9Y8bKtR7qXz9Y",
   authDomain: "condoexpress-bd.firebaseapp.com",
@@ -217,8 +206,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ===== LISTA DO BLOCO A — OURO PRETO =====
-const moradoresBlocoA = [
+// DADOS INICIAIS — NOMES FIXOS, NÃO MUDA
+const moradoresPadrao = [
   {apto:"012OP",nome:"Claudete Conceição Rozas",email:"",usuario:"claudete.012",senha:"op012"},
   {apto:"013OP",nome:"Cristina Filizola",email:"",usuario:"cristina.013",senha:"op013"},
   {apto:"014OP",nome:"Urias Taques Junior",email:"",usuario:"urias.014",senha:"op014"},
@@ -294,134 +283,43 @@ const moradoresBlocoA = [
   {apto:"194OP",nome:"",email:"",usuario:"op.194",senha:"op194"}
 ];
 
-// ===== LISTA DO BLOCO B — SABARÁ =====
-const moradoresBlocoB = [
-  {apto:"011SAB",nome:"Carlos E. Simões Duarte / Patricia Luciano",email:"",usuario:"sab.011",senha:"sb011"},
-  {apto:"012SAB",nome:"Joseph Gross",email:"",usuario:"sab.012",senha:"sb012"},
-  {apto:"013SAB",nome:"Patricia Natrielli Gerhardt / Pedro, Isabel",email:"",usuario:"sab.013",senha:"sb013"},
-  {apto:"014SAB",nome:"Thamy Galupo Hugueney / Victoria Hugueney",email:"",usuario:"sab.014",senha:"sb014"},
-  {apto:"021SAB",nome:"Ivone Marques Lantieri / Delaide de S Malta - Emp",email:"",usuario:"sab.021",senha:"sb021"},
-  {apto:"022SAB",nome:"Diego Quast / Alesaandra Isola Quast",email:"",usuario:"sab.022",senha:"sb022"},
-  {apto:"023SAB",nome:"Marcia Vidal / Jordana (filha)",email:"",usuario:"sab.023",senha:"sb023"},
-  {apto:"024SAB",nome:"Marco Aurelio P. Lima / Maricy Regis",email:"",usuario:"sab.024",senha:"sb024"},
-  {apto:"031SAB",nome:"Dalva Lucia Maffia",email:"",usuario:"sab.031",senha:"sb031"},
-  {apto:"032SAB",nome:"Mariza Ribeiro Sozzi / Orlando Sozzi Filho",email:"",usuario:"sab.032",senha:"sb032"},
-  {apto:"034SAB",nome:"Renata Ferraz Castelloti / Rodrigo F. Castelloti",email:"",usuario:"sab.034",senha:"sb034"},
-  {apto:"041SAB",nome:"Marianne Erps Fleming / Mathilde Lianc Erps",email:"",usuario:"sab.041",senha:"sb041"},
-  {apto:"042SAB",nome:"Aurea Silva",email:"",usuario:"sab.042",senha:"sb042"},
-  {apto:"043SAB",nome:"Celso Sampaio A. Neto / Terezinha Garret Sampaio / Andreia, Cecilia",email:"",usuario:"sab.043",senha:"sb043"},
-  {apto:"044SAB",nome:"Marcio R.C. Ribeiro / Ana Marta B. Ribeiro / José Roberto (Beto)",email:"",usuario:"sab.044",senha:"sb044"},
-  {apto:"051SAB",nome:"Eric Rebouças / Poliana Fernandes / Nathan, Clara",email:"",usuario:"sab.051",senha:"sb051"},
-  {apto:"052SAB",nome:"Andrea Dantas / Marcos Rosa / Bernardo, Ana Luiza",email:"",usuario:"sab.052",senha:"sb052"},
-  {apto:"053SAB",nome:"Janaina A.C. Proença / Matheus, Alice",email:"",usuario:"sab.053",senha:"sb053"},
-  {apto:"054SAB",nome:"Danigly Ferreira / Roberto Ferreira / Wanei Ferreira / Rodrigo Ferreira",email:"",usuario:"sab.054",senha:"sb054"},
-  {apto:"061SAB",nome:"Gabriel Mancini Lima / Marcela de Freitas Moraes / Miguel, Ma. Júlia, Thiago",email:"",usuario:"sab.061",senha:"sb061"},
-  {apto:"062SAB",nome:"Juracy Parente / Edna Parente",email:"",usuario:"sab.062",senha:"sb062"},
-  {apto:"063SAB",nome:"Carlos Eduardo J. Valencia / Cesar Augusto O. Fonseca",email:"",usuario:"sab.063",senha:"sb063"},
-  {apto:"064SAB",nome:"Selma Rosa T. Garbin",email:"",usuario:"sab.064",senha:"sb064"},
-  {apto:"071SAB",nome:"Phillip Samping Sommer / Fabiana Pedrosa Sommer",email:"",usuario:"sab.071",senha:"sb071"},
-  {apto:"072SAB",nome:"Geert Matnijs Albers / Thomas / Mirian Leitão",email:"",usuario:"sab.072",senha:"sb072"},
-  {apto:"073SAB",nome:"Pedro Paulo A. Gomes",email:"",usuario:"sab.073",senha:"sb073"},
-  {apto:"074SAB",nome:"Carlos Alexandre Brazolin / Glaucia Brazolin / Pietra Brazolin",email:"",usuario:"sab.074",senha:"sb074"},
-  {apto:"081SAB",nome:"Antonio Carlos F. Reis / Ma. De Lourdes F. Reis / Manoela Melo Reis",email:"",usuario:"sab.081",senha:"sb081"},
-  {apto:"082SAB",nome:"Jeanette A. Maman / Renato, Fernanda, Monica",email:"",usuario:"sab.082",senha:"sb082"},
-  {apto:"083SAB",nome:"Camila Cintra / M. Valentina Mangione / Luca Mangione",email:"",usuario:"sab.083",senha:"sb083"},
-  {apto:"084SAB",nome:"Clemente Dias da Rocha / Stephanie Eche",email:"",usuario:"sab.084",senha:"sb084"},
-  {apto:"091SAB",nome:"Antonio Donizete B. Passos / Nilza Amodio Passos / Caroline Amodio Passos",email:"",usuario:"sab.091",senha:"sb091"},
-  {apto:"092SAB",nome:"Oswaldo M.G. do Amaral / Lucila Cerro Rupp",email:"",usuario:"sab.092",senha:"sb092"},
-  {apto:"093SAB",nome:"Igor Hoffman da S. Urbano / Natalia G. Urbano / Enzo Gonçalves",email:"",usuario:"sab.093",senha:"sb093"},
-  {apto:"094SAB",nome:"Luis Barreto / Glicia Barreto / Alice / Felipe",email:"",usuario:"sab.094",senha:"sb094"},
-  {apto:"101SAB",nome:"",email:"",usuario:"sab.101",senha:"sb101"},
-  {apto:"102SAB",nome:"Suzana Maria Petry / Wagner Petry Soares / Rafaela Soares",email:"",usuario:"sab.102",senha:"sb102"},
-  {apto:"103SAB",nome:"José Roberto P.C. Santos / Maria Camila X. Castro Santo",email:"",usuario:"sab.103",senha:"sb103"},
-  {apto:"104SAB",nome:"Renner Luiz Ferreira / Mariane Vitoria B. Ferreira / Silvana F. Bastos / Willames Bastos Xavier",email:"",usuario:"sab.104",senha:"sb104"},
-  {apto:"111SAB",nome:"Raul Cruz Lima Neto / Jacqueline Sampaio Guimarães",email:"",usuario:"sab.111",senha:"sb111"},
-  {apto:"112SAB",nome:"Marcelo Jacob Bomarc / Karen Lisa Bormac",email:"",usuario:"sab.112",senha:"sb112"},
-  {apto:"113SAB",nome:"Luiz Antonio Sampaio / Malva Geane Pereira Sampaio / Illa Pereira Sampaio / Nino Pereira Sampaio",email:"",usuario:"sab.113",senha:"sb113"},
-  {apto:"114SAB",nome:"",email:"",usuario:"sab.114",senha:"sb114"},
-  {apto:"121SAB",nome:"Graziela Elizabeth / Gustavo, Felipe",email:"",usuario:"sab.121",senha:"sb121"},
-  {apto:"122SAB",nome:"Icaro de Carvalho Neto / Priscila Tavares Q. Carvalho / Neide Pratero Gonçalves",email:"",usuario:"sab.122",senha:"sb122"},
-  {apto:"123SAB",nome:"Daniel Eugenio do A. Halasz / Fernando Halasz",email:"",usuario:"sab.123",senha:"sb123"},
-  {apto:"124SAB",nome:"Liliane de Nobrega",email:"",usuario:"sab.124",senha:"sb124"},
-  {apto:"131SAB",nome:"Dulce Casarsa",email:"",usuario:"sab.131",senha:"sb131"},
-  {apto:"132SAB",nome:"Odair Nigosky / Yara Lidia de M. Santos / Guilherme M. de Souza",email:"",usuario:"sab.132",senha:"sb132"},
-  {apto:"133SAB",nome:"",email:"",usuario:"sab.133",senha:"sb133"},
-  {apto:"134SAB",nome:"Eliana Sampaio de Abreu",email:"",usuario:"sab.134",senha:"sb134"},
-  {apto:"141SAB",nome:"Eduardo Sergio P. Antunes / Ma. Antonieta de Antunes",email:"",usuario:"sab.141",senha:"sb141"},
-  {apto:"142SAB",nome:"",email:"",usuario:"sab.142",senha:"sb142"},
-  {apto:"143SAB",nome:"Eduardo I. Fonseca / Thais Sozi Fonseca",email:"",usuario:"sab.143",senha:"sb143"},
-  {apto:"144SAB",nome:"Flavia Pagotti Silva / Pedro Pagotti S. Leme",email:"",usuario:"sab.144",senha:"sb144"},
-  {apto:"151SAB",nome:"Norma Montagna Braga",email:"",usuario:"sab.151",senha:"sb151"},
-  {apto:"152SAB",nome:"Henrique Navarro / Patricia Navarro / Alice Navarro",email:"",usuario:"sab.152",senha:"sb152"},
-  {apto:"153SAB",nome:"Sonia Beli Walquria de Aquino / Mauricio Filho de Aquino / Lucas Aquino Souza",email:"",usuario:"sab.153",senha:"sb153"},
-  {apto:"154SAB",nome:"Ana Lucia Carlier",email:"",usuario:"sab.154",senha:"sb154"},
-  {apto:"161SAB",nome:"Thiago Lira Fernandes / Lilian / Ma. Clara / Maria Beatriz / Lucas",email:"",usuario:"sab.161",senha:"sb161"},
-  {apto:"162SAB",nome:"Harvey James Wattengel / Estela Wattengel / Adriana Wattengel / Christopher Wattengel",email:"",usuario:"sab.162",senha:"sb162"},
-  {apto:"163SAB",nome:"Tatiana M.K. Shibuya / Stefan O.S. Johansson / Pedro S. Bizzaro",email:"",usuario:"sab.163",senha:"sb163"},
-  {apto:"171SAB",nome:"José Luis Soiser / Patricia C. Carradas / Izac, Lorena",email:"",usuario:"sab.171",senha:"sb171"},
-  {apto:"172SAB",nome:"Lindaci de Melo Soares / Julia (filha)",email:"",usuario:"sab.172",senha:"sb172"},
-  {apto:"173SAB",nome:"Ricardo Mair Anaffe / Ana Luiza Liarte",email:"",usuario:"sab.173",senha:"sb173"},
-  {apto:"174SAB",nome:"Ivana Veltri",email:"",usuario:"sab.174",senha:"sb174"},
-  {apto:"181SAB",nome:"Paolo Cutrona",email:"",usuario:"sab.181",senha:"sb181"},
-  {apto:"182SAB",nome:"Fabiola Belfort Mattos / Eduardo Belfort / Giovana Belfort",email:"",usuario:"sab.182",senha:"sb182"},
-  {apto:"183SAB",nome:"Flavio Batista Salles / Sandra",email:"",usuario:"sab.183",senha:"sb183"},
-  {apto:"184SAB",nome:"Fabio de Oliveira Bonfim / Ana Carolina Matoso / Francisco Ayrton",email:"",usuario:"sab.184",senha:"sb184"},
-  {apto:"191SAB",nome:"Ma. Aparecida Gusmão",email:"",usuario:"sab.191",senha:"sb191"},
-  {apto:"192SAB",nome:"Jean Hendriks / Adelina Hendriks",email:"",usuario:"sab.192",senha:"sb192"},
-  {apto:"193SAB",nome:"Renata Salvo Vendramelli / Bruno Salvo Vendramelli / João Pedro S. Vendramelli",email:"",usuario:"sab.193",senha:"sb193"},
-  {apto:"194SAB",nome:"",email:"",usuario:"sab.194",senha:"sb194"}
-];
-
 const admin = {usuario:"admin",senha:"condo2026",nome:"Portaria — Administrador"};
-let blocoAtual = null;
 let usuarioLogado = null, ehAdmin = false;
 let indiceSelecionado = null, fotoBase64 = null;
 let moradoresCarregados = [];
 let encomendasCarregadas = [];
 
-function escolherBloco(b){
-  blocoAtual = b;
-  document.getElementById("telaEscolhaBloco").classList.add("hidden");
-  document.getElementById("telaLogin").classList.remove("hidden");
-  document.getElementById("nomeBloco").textContent = b === "A" ? "A — Ouro Preto" : "B — Sabará";
-  document.getElementById("cabecalhoBloco").textContent = b === "A" ? "A — Ouro Preto" : "B — Sabará";
-}
-
-function voltarBloco(){
-  blocoAtual = null;
-  document.getElementById("telaEscolhaBloco").classList.remove("hidden");
-  document.getElementById("telaLogin").classList.add("hidden");
-  document.getElementById("msgErroLogin").classList.add("hidden");
-  document.getElementById("inpUsuario").value = "";
-  document.getElementById("inpSenha").value = "";
-}
-
+// Inicializar banco
 async function inicializarBanco(){
-  const colecaoMoradores = blocoAtual === "A" ? "moradoresA" : "moradoresB";
-  const snap = await db.collection('config').doc(`inicializado_${blocoAtual}`).get();
+  const snap = await db.collection('config').doc('inicializado').get();
   if(!snap.exists){
-    const lista = blocoAtual === "A" ? moradoresBlocoA : moradoresBlocoB;
-    for(const m of lista) await db.collection(colecaoMoradores).add({...m});
-    await db.collection('config').doc(`inicializado_${blocoAtual}`).set({feito:true,em:new Date()});
+    for(const m of moradoresPadrao){
+      await db.collection('moradores').add({...m});
+    }
+    await db.collection('config').doc('inicializado').set({feito:true,em:new Date()});
+    console.log("✅ Dados padrão carregados!");
   }
   await carregarMoradores();
   await carregarEncomendas();
 }
 
 async function carregarMoradores(){
-  const colecao = blocoAtual === "A" ? "moradoresA" : "moradoresB";
-  const snap = await db.collection(colecao).get();
+  const snap = await db.collection('moradores').get();
   moradoresCarregados = snap.docs.map(d => ({id:d.id, ...d.data()}));
   carregarListaApartamentos();
   carregaListaMoradores();
 }
 
 async function carregarEncomendas(){
-  const snap = await db.collection(`encomendas${blocoAtual}`).orderBy('data','desc').get();
+  const snap = await db.collection('encomendas').orderBy('data','desc').get();
   encomendasCarregadas = snap.docs.map(d => ({id:d.id, ...d.data()}));
   carregaTodasEncomendas();
   if(usuarioLogado && !ehAdmin) carregaMinhasEncomendas();
 }
+
+// Atualiza em tempo real TODOS os aparelhos
+db.collection('encomendas').onSnapshot(() => carregarEncomendas());
+db.collection('moradores').onSnapshot(() => carregarMoradores());
 
 function carregarListaApartamentos(){
   const sel = document.getElementById('selApto');
@@ -446,7 +344,6 @@ function preencherDadosMorador(){
     avisoEmail.classList.add('hidden');
     document.getElementById('inpNome').value = '';
     document.getElementById('inpApto').value = '';
-    document.getElementById('inpBloco').value = '';
     document.getElementById('inpEmail').value = '';
     return;
   }
@@ -454,6 +351,274 @@ function preencherDadosMorador(){
   const m = moradoresCarregados[indiceSelecionado];
   document.getElementById('inpNome').value = m.nome || '';
   document.getElementById('inpApto').value = m.apto;
-  document.getElementById('inpBloco').value = blocoAtual === "A" ? "A — Ouro Preto" : "B — Sabará";
   document.getElementById('inpEmail').value = m.email || '';
-  document.getElementById('infoApt
+  document.getElementById('infoApto').textContent = m.apto;
+  document.getElementById('infoNome').textContent = m.nome || 'Sem nome';
+  
+  if(m.email){
+    document.getElementById('infoEmail').textContent = m.email;
+    divInfo.classList.remove('sem-email');
+    avisoEmail.classList.add('hidden');
+  }else{
+    document.getElementById('infoEmail').textContent = '⚠️ NÃO CADASTRADO';
+    divInfo.classList.add('sem-email');
+    avisoEmail.classList.remove('hidden');
+  }
+  divInfo.classList.remove('hidden');
+}
+
+function mostrarFoto(input){
+  if(input.files && input.files[0]){
+    const leitor = new FileReader();
+    leitor.onload = function(e){
+      fotoBase64 = e.target.result;
+      const img = document.getElementById('previewFoto');
+      img.src = fotoBase64;
+      img.classList.remove('hidden');
+    };
+    leitor.readAsDataURL(input.files[0]);
+  }
+}
+
+function entrar(){
+  const u = document.getElementById('inpUsuario').value.trim();
+  const s = document.getElementById('inpSenha').value.trim();
+  
+  if(u === admin.usuario && s === admin.senha){
+    ehAdmin = true; usuarioLogado = {tipo:'admin',nome:admin.nome};
+    document.getElementById('telaLogin').classList.add('hidden');
+    document.getElementById('sistema').classList.remove('hidden');
+    document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
+    document.getElementById('menuAdmin').classList.remove('hidden');
+    return;
+  }
+  
+  const m = moradoresCarregados.find(x => x.usuario === u && x.senha === s);
+  if(m){
+    ehAdmin = false; usuarioLogado = {tipo:'morador',nome:m.nome,apto:m.apto,dados:m};
+    document.getElementById('telaLogin').classList.add('hidden');
+    document.getElementById('sistema').classList.remove('hidden');
+    document.getElementById('nomeLogado').textContent = `👤 ${m.nome} — Apto ${m.apto}`;
+    document.getElementById('menuMorador').classList.remove('hidden');
+    return;
+  }
+  
+  const e = document.getElementById('msgErroLogin');
+  e.textContent = "Usuário ou senha incorretos!";
+  e.classList.remove('hidden');
+}
+
+function sair(){
+  usuarioLogado = null; ehAdmin = false; indiceSelecionado = null; fotoBase64 = null;
+  document.getElementById('previewFoto').classList.add('hidden');
+  document.getElementById('sistema').classList.add('hidden');
+  document.getElementById('telaLogin').classList.remove('hidden');
+  document.getElementById('inpUsuario').value = '';
+  document.getElementById('inpSenha').value = '';
+  document.getElementById('msgErroLogin').classList.add('hidden');
+  document.getElementById('menuAdmin').classList.add('hidden');
+  document.getElementById('menuMorador').classList.add('hidden');
+  document.querySelectorAll('.aba').forEach(a => a.classList.add('hidden'));
+}
+
+function mostrarAba(nome){
+  document.querySelectorAll('.aba').forEach(a => a.classList.add('hidden'));
+  document.getElementById(`aba-${nome}`).classList.remove('hidden');
+  if(ehAdmin){
+    document.querySelectorAll('#menuAdmin button').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+  }else{
+    document.querySelectorAll('#menuMorador button').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+}
+
+async function enviarEncomenda(){
+  if(!ehAdmin){alert("Acesso negado!");return}
+  if(!indiceSelecionado){alert("⚠️ Escolha o apartamento!");return}
+  
+  const m = moradoresCarregados[indiceSelecionado];
+  const email = document.getElementById('inpEmail').value.trim();
+  const empresa = document.getElementById('inpEmpresa').value.trim();
+  const nota = document.getElementById('inpNota').value.trim();
+  const rastreio = document.getElementById('inpRastreio').value.trim();
+  
+  if(email && m.email !== email){
+    await db.collection('moradores').doc(m.id).update({email:email});
+  }
+  
+  const btn = document.getElementById('btnEnviar');
+  const statusEl = document.getElementById('statusEnvio');
+  
+  btn.disabled = true;
+  btn.textContent = "⏳ Salvando na nuvem...";
+  statusEl.classList.remove('hidden','enviado','falha');
+  statusEl.className = 'status-envio enviando';
+  
+  const novaEncomenda = {
+    data: new Date().toLocaleString('pt-BR'),
+    nome: m.nome,
+    apto: m.apto,
+    email: email,
+    empresa: empresa || 'Não informada',
+    nota: nota || 'Não informada',
+    rastreio: rastreio || 'Não informada',
+    foto: fotoBase64 || null
+  };
+  
+  await db.collection('encomendas').add(novaEncomenda);
+  
+  if(email){
+    try{
+      await emailjs.send('service_t2de096', 'template_axu51ce', {
+        name: m.nome, email: email, apartamento: m.apto,
+        empresa: empresa || 'Não informada',
+        notafiscal: nota || 'Não informada',
+        rastreio: rastreio || 'Não informada',
+        data: novaEncomenda.data
+      });
+      statusEl.className = 'status-envio enviado';
+      statusEl.innerHTML = `✅ SALVO NA NUVEM! Aparece em todos os aparelhos ✅<br>${m.nome} — Apto ${m.apto}`;
+    }catch{
+      statusEl.className = 'status-envio falha';
+      statusEl.innerHTML = `✅ SALVO! Aparece em todos aparelhos ✅<br>(e-mail não enviado)`;
+    }
+  }else{
+    statusEl.className = 'status-envio enviado';
+    statusEl.innerHTML = `✅ SALVO NA NUVEM! Aparece em todos aparelhos ✅`;
+  }
+  
+  setTimeout(() => statusEl.classList.add('hidden'), 5000);
+  btn.disabled = false;
+  btn.textContent = "✅ REGISTRAR ENCOMENDA";
+  
+  indiceSelecionado = null; fotoBase64 = null;
+  document.getElementById('selApto').value = '';
+  document.getElementById('dadosMoradorSelecionado').classList.add('hidden');
+  document.getElementById('avisoSemEmail').classList.add('hidden');
+  document.getElementById('previewFoto').classList.add('hidden');
+  document.getElementById('inpNome').value = '';
+  document.getElementById('inpApto').value = '';
+  document.getElementById('inpEmail').value = '';
+  document.getElementById('inpEmpresa').value = '';
+  document.getElementById('inpNota').value = '';
+  document.getElementById('inpRastreio').value = '';
+}
+
+function carregaTodasEncomendas(){
+  const div = document.getElementById('listaTodasEncomendas');
+  if(encomendasCarregadas.length === 0){
+    div.innerHTML = '<p class="sem-dados">📭 Nenhuma encomenda registrada ainda.</p>';
+    return;
+  }
+  div.innerHTML = encomendasCarregadas.map(e => `
+    <div class="item-encomenda">
+      <strong>📦 ${e.nome}</strong><br>
+      🏠 Apto: ${e.apto}<br>
+      📅 Data: ${e.data}<br>
+      ${e.empresa!=='Não informada'?`🏬 Empresa: ${e.empresa}<br>`:''}
+      ${e.foto?`<img src="${e.foto}" class="foto-encomenda" alt="Foto">`:'📷 Sem foto'}<br>
+      <button class="excluir" onclick="marcarRetirada('${e.id}')">🗑️ Marcar Retirada</button>
+    </div>
+  `).join('');
+}
+
+async function marcarRetirada(id){
+  if(confirm('Marcar como retirada?')){
+    await db.collection('encomendas').doc(id).delete();
+  }
+}
+
+function carregaMinhasEncomendas(){
+  if(!usuarioLogado || usuarioLogado.tipo !== 'morador') return;
+  const meuApto = usuarioLogado.dados.apto;
+  const minhas = encomendasCarregadas.filter(e => e.apto === meuApto);
+  const div = document.getElementById('listaMinhas');
+  if(minhas.length === 0){
+    div.innerHTML = '<p class="sem-dados">📭 Nenhuma encomenda no momento.</p>';
+    return;
+  }
+  div.innerHTML = minhas.map(e => `
+    <div class="item-encomenda" style="background:#fffbeb;border-left:4px solid #f59e0b;padding:12px;border-radius:6px;margin:8px 0">
+      <strong>📦 NOVA ENCOMENDA!</strong><br>
+      📅 ${e.data}<br>
+      🏠 Apartamento: ${e.apto}<br>
+      ${e.empresa!=='Não informada'?`🏬 Empresa: ${e.empresa}<br>`:''}
+      ${e.foto?`<img src="${e.foto}" class="foto-encomenda" alt="Foto da encomenda">`:'📷 Sem foto'}<br>
+      <em>Retire na portaria!</em>
+    </div>
+  `).join('');
+}
+
+function carregaListaMoradores(){
+  if(!ehAdmin) return;
+  document.getElementById('listaMoradores').innerHTML = moradoresCarregados.map((m, i) => `
+    <div class="item-morador">
+      <div>
+        <strong>${m.apto}</strong> — ${m.nome || '⚠️ SEM NOME'} ✅ FIXO<br>
+        <small>📧 ${m.email || '⚠️ Sem e-mail'}</small>
+      </div>
+      <button class="editar" onclick="abrirEdicao(${i}, '${m.id}')">✏️ EDITAR</button>
+    </div>
+  `).join('');
+}
+
+let idEdicaoAtual = null;
+function abrirEdicao(indice, docId){
+  idEdicaoAtual = docId;
+  const m = moradoresCarregados[indice];
+  document.getElementById('indiceEditar').value = indice;
+  document.getElementById('editarAptoTitulo').textContent = m.apto;
+  document.getElementById('editarNome').value = m.nome;
+  document.getElementById('editarEmail').value = m.email || '';
+  document.getElementById('editarUsuario').value = m.usuario || '';
+  document.getElementById('editarSenha').value = m.senha || '';
+  document.getElementById('formEditarMorador').classList.remove('hidden');
+}
+
+async function salvarEdicao(){
+  if(!idEdicaoAtual){alert("Erro! Tente de novo.");return}
+  await db.collection('moradores').doc(idEdicaoAtual).update({
+    email: document.getElementById('editarEmail').value.trim(),
+    usuario: document.getElementById('editarUsuario').value.trim(),
+    senha: document.getElementById('editarSenha').value.trim()
+  });
+  alert("✅ Salvo na nuvem! Aparece em todos aparelhos ✅");
+  document.getElementById('formEditarMorador').classList.add('hidden');
+  idEdicaoAtual = null;
+}
+
+function cancelarEdicao(){
+  document.getElementById('formEditarMorador').classList.add('hidden');
+  idEdicaoAtual = null;
+}
+
+async function alterarSenha(){
+  const at = document.getElementById('senhaAtual').value.trim();
+  const n1 = document.getElementById('senhaNova').value.trim();
+  const n2 = document.getElementById('senhaNova2').value.trim();
+  if(!at || !n1 || !n2){alert("Preencha tudo!");return}
+  if(n1 !== n2){alert("Senhas não batem!");return}
+  if(n1.length < 4){alert("Mínimo 4 caracteres!");return}
+  
+  if(ehAdmin){
+    if(at !== admin.senha){alert("Senha atual errada!");return}
+    admin.senha = n1;
+    alert("✅ Senha alterada!");
+  }else{
+    const m = moradoresCarregados.find(x => x.usuario === usuarioLogado.dados.usuario);
+    if(at !== m.senha){alert("Senha atual errada!");return}
+    await db.collection('moradores').doc(m.id).update({senha:n1});
+    alert("✅ Senha alterada!");
+  }
+  document.getElementById('senhaAtual').value = '';
+  document.getElementById('senhaNova').value = '';
+  document.getElementById('senhaNova2').value = '';
+}
+
+// Iniciar tudo
+inicializarBanco();
+</script>
+
+</body>
+</html>
