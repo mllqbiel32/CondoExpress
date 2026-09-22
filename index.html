@@ -14,8 +14,8 @@ button, a.whatsapp{border:0;border-radius:10px;padding:12px 16px;font-weight:bol
 nav button{background:white;color:#1769e0;box-shadow:0 2px 8px #0001}
 nav button.active,button.primary{background:#1769e0;color:white}
 button.secondary{background:#e5e7eb;color:#374151}
-a.whatsapp{background:#25d366;color:white}
-button.cam{background:#f97316;color:white}
+a.whatsapp{background:#25d366;color:white;width:100%;margin-top:8px}
+button.cam{background:#f97316;color:white;padding:10px 14px;font-size:15px}
 .card{background:white;border-radius:16px;padding:20px;box-shadow:0 3px 15px #00000012;margin-bottom:18px}
 h2,h3{margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
@@ -24,7 +24,7 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 .eye-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:20px;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
 .hidden{display:none}.search{margin-bottom:15px;width:260px;max-width:100%}
 .package{border:1px solid #e2e6eb;border-radius:12px;padding:15px;margin:10px 0}
-.package-img{max-width:100%;border-radius:10px;margin:10px 0}
+.package-img{max-width:200px;border-radius:10px;margin:10px 0}
 .status{display:inline-block;padding:6px 12px;border-radius:20px;background:#fff3cd;color:#8a6500;font-size:14px;font-weight:bold;margin:8px 0}
 .small{color:#6b7280;font-size:13px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
 .hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px}
@@ -40,11 +40,8 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 .success{color:#16a34a;font-size:14px;margin:8px 0}
 .error{color:#dc2626;font-size:14px;margin:8px 0}
 .resident-item{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:12px;border-bottom:1px solid #eee}
-.note{background:#fffbeb;border-radius:8px;padding:10px;margin:10px 0;font-size:13px}
-.cam-area{background:#1f2937;border-radius:12px;padding:15px;margin:10px 0;text-align:center}
-.cam-area video{max-width:100%;border-radius:8px}
-.cam-area img{max-width:100%;border-radius:8px;margin-top:10px}
 .optional{color:#6b7280;font-size:12px}
+.foto-area{margin:10px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -52,51 +49,28 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
   <div class="login-card">
     <h2>📦 CondoExpress</h2>
     <p id="loginSubtitle">Entre para acessar o sistema.</p>
-    
     <div id="loginFormView">
       <div class="role-tabs">
         <button id="adminTab" class="active" onclick="setLoginRole('admin')">Portaria</button>
         <button id="residentTab" onclick="setLoginRole('resident')">Morador</button>
       </div>
-      
       <div id="adminLogin">
-        <div class="input-group">
-          <label>Usuário</label>
-          <input id="loginUser" autocomplete="off">
-        </div>
-        <div class="input-group">
-          <label>Senha</label>
-          <input id="loginPass" type="password" autocomplete="new-password">
-          <button type="button" class="eye-btn" onclick="togglePass('loginPass')">👁️</button>
-        </div>
+        <div class="input-group"><label>Usuário</label><input id="loginUser" autocomplete="off"></div>
+        <div class="input-group"><label>Senha</label><input id="loginPass" type="password" autocomplete="new-password"><button type="button" class="eye-btn" onclick="togglePass('loginPass')">👁️</button></div>
       </div>
-      
       <div id="residentLogin" class="hidden">
-        <div class="input-group">
-          <label>Usuário do morador</label>
-          <input id="residentUser" autocomplete="off">
-        </div>
-        <div class="input-group">
-          <label>Senha</label>
-          <input id="residentPass" type="password" autocomplete="new-password">
-          <button type="button" class="eye-btn" onclick="togglePass('residentPass')">👁️</button>
-        </div>
+        <div class="input-group"><label>Usuário do morador</label><input id="residentUser" autocomplete="off"></div>
+        <div class="input-group"><label>Senha</label><input id="residentPass" type="password" autocomplete="new-password"><button type="button" class="eye-btn" onclick="togglePass('residentPass')">👁️</button></div>
         <span class="forgot-link" onclick="showForgot()">Esqueci minha senha</span>
       </div>
-      
       <br><button class="primary" style="width:100%" onclick="doLogin()">Entrar</button>
       <p id="loginError" class="error"></p>
     </div>
-    
     <div id="forgotView" class="hidden">
       <h3>🔑 Recuperar Senha</h3>
       <p>Digite seu usuário para redefinir a senha:</p>
-      <div class="input-group">
-        <label>Seu usuário</label>
-        <input id="forgotUser" autocomplete="off">
-      </div>
-      <br>
-      <button class="primary" style="width:100%" onclick="sendReset()">Enviar instruções</button>
+      <div class="input-group"><label>Seu usuário</label><input id="forgotUser" autocomplete="off"></div>
+      <br><button class="primary" style="width:100%" onclick="sendReset()">Enviar instruções</button>
       <button class="secondary" style="width:100%;margin-top:8px" onclick="backToLogin()">Voltar</button>
       <p id="forgotMsg"></p>
     </div>
@@ -140,7 +114,6 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <section id="residents" class="hidden">
 <div class="card">
 <h2>👥 Cadastro de Moradores</h2>
-<div class="note">📱 Digite o telefone com DDD, exemplo: <strong>(31) 98888-1234</strong></div>
 <form id="residentForm">
 <div class="grid">
 <div><label>Nome completo</label><input id="rName" required></div>
@@ -148,37 +121,24 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <div><label>Apartamento</label><input id="rApt" required></div>
 <div><label>Telefone (WhatsApp)</label><input id="rPhone" placeholder="(31) 9xxxx-xxxx" required></div>
 <div><label>Usuário de acesso</label><input id="rUser" required></div>
-<div class="input-group">
-  <label>Senha inicial</label>
-  <input id="rPass" type="password" required>
-  <button type="button" class="eye-btn" onclick="togglePass('rPass')">👁️</button>
-</div>
+<div class="input-group"><label>Senha inicial</label><input id="rPass" type="password" required><button type="button" class="eye-btn" onclick="togglePass('rPass')">👁️</button></div>
 </div><br>
 <button class="primary" type="submit">➕ Cadastrar morador</button>
 </form>
 </div>
-<div class="card">
-<h3>Moradores cadastrados</h3>
-<div id="residentList"></div>
-</div>
+<div class="card"><h3>Moradores cadastrados</h3><div id="residentList"></div></div>
 </section>
 
 <section id="register" class="hidden">
 <div class="card">
 <h2>📦 Registrar Encomenda</h2>
-<div class="note">📸 Tira a foto e preenche os dados — pode fazer rápido!</div>
 
-<!-- CÂMERA -->
-<div class="cam-area">
-  <h3 style="color:white;margin-top:0">📸 Foto da Encomenda</h3>
-  <video id="camera" autoplay playsinline class="hidden"></video>
-  <img id="fotoPreview" class="hidden" alt="Foto tirada">
-  <div style="margin-top:10px">
-    <button type="button" class="cam" onclick="ligarCamera()">📷 Ligar Câmera</button>
-    <button type="button" class="primary hidden" id="btnTirarFoto" onclick="tirarFoto()">📸 Tirar Foto</button>
-    <button type="button" class="secondary hidden" id="btnNovaFoto" onclick="novaFoto()">🔄 Nova Foto</button>
-    <input type="hidden" id="fotoBase64">
-  </div>
+<div class="foto-area">
+  <button type="button" class="cam" id="btnFoto" onclick="document.getElementById('inputFoto').click()">📷 Tirar Foto</button>
+  <input type="file" id="inputFoto" accept="image/*" capture="environment" style="display:none" onchange="verFoto(this)">
+  <img id="imgPreview" class="hidden package-img" alt="Foto">
+  <button type="button" class="secondary hidden" id="btnTirarNova" onclick="tirarNova()">🔄</button>
+  <input type="hidden" id="fotoBase64">
 </div>
 
 <form id="packageForm">
@@ -187,10 +147,9 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <div><label>Bloco</label><select id="block"><option>A — Ouro Preto</option><option>B — Sabará</option></select></div>
 <div><label>Apartamento</label><input id="apt" required></div>
 <div><label>Telefone WhatsApp</label><input id="phone" placeholder="(31) 9xxxx-xxxx" required></div>
-<div><label>Loja / Transportadora <span class="optional">(opcional)</span></label><input id="store" placeholder="Ex: Shopee, Correios..."></div>
-<div><label>Código de rastreio <span class="optional">(opcional)</span></label><input id="tracking" placeholder="Se tiver..."></div>
+<div><label>Loja <span class="optional">(opcional)</span></label><input id="store"></div>
+<div><label>Rastreio <span class="optional">(opcional)</span></label><input id="tracking"></div>
 </div>
-<br>
 <button class="whatsapp" type="submit">✅ Registrar e enviar no WhatsApp 🟢</button>
 </form>
 </div>
@@ -208,52 +167,25 @@ label{font-size:13px;font-weight:bold;display:block;margin-bottom:6px}
 <div class="card">
 <h2>⚙️ Meu Perfil</h2>
 <p><strong>Nome:</strong> <span id="pName"></span></p>
-<p><strong>Telefone WhatsApp:</strong> <span id="pPhone"></span></p>
+<p><strong>Telefone:</strong> <span id="pPhone"></span></p>
 <p><strong>Usuário:</strong> <span id="pUser"></span></p>
-<p class="adminOnly"><strong>Função:</strong> Portaria (Administrador)</p>
+<p class="adminOnly"><strong>Função:</strong> Portaria</p>
 <p class="residentOnly hidden"><strong>Bloco/Apto:</strong> <span id="pLocal"></span></p>
-
 <hr style="margin:20px 0;border:none;border-top:1px solid #eee">
-<h3>🔑 Alterar Minha Senha</h3>
-<p class="small">Preencha para trocar sua senha de acesso.</p>
-
-<div class="input-group residentOnly hidden">
-  <label>Senha atual</label>
-  <input id="curPass" type="password">
-  <button type="button" class="eye-btn" onclick="togglePass('curPass')">👁️</button>
-</div>
-
-<div class="input-group">
-  <label>Nova senha</label>
-  <input id="newPass" type="password">
-  <button type="button" class="eye-btn" onclick="togglePass('newPass')">👁️</button>
-</div>
-
-<div class="input-group">
-  <label>Repetir nova senha</label>
-  <input id="confPass" type="password">
-  <button type="button" class="eye-btn" onclick="togglePass('confPass')">👁️</button>
-</div>
-
-<button class="primary" onclick="changePass()">Salvar nova senha</button>
+<h3>🔑 Alterar Senha</h3>
+<div class="input-group residentOnly hidden"><label>Senha atual</label><input id="curPass" type="password"><button type="button" class="eye-btn" onclick="togglePass('curPass')">👁️</button></div>
+<div class="input-group"><label>Nova senha</label><input id="newPass" type="password"><button type="button" class="eye-btn" onclick="togglePass('newPass')">👁️</button></div>
+<div class="input-group"><label>Repetir nova senha</label><input id="confPass" type="password"><button type="button" class="eye-btn" onclick="togglePass('confPass')">👁️</button></div>
+<button class="primary" onclick="changePass()">Salvar senha</button>
 <p id="passMsg"></p>
 </div>
-
 <div class="card adminOnly">
 <h3>🔑 Redefinir Senha de Morador</h3>
-<p class="small">Portaria pode redefinir a senha de qualquer morador.</p>
 <div class="grid">
-<div>
-  <label>Usuário do morador</label>
-  <input id="resetUser" placeholder="ex: maria102">
+<div><label>Usuário do morador</label><input id="resetUser"></div>
+<div class="input-group"><label>Nova senha</label><input id="resetNewPass" type="password"><button type="button" class="eye-btn" onclick="togglePass('resetNewPass')">👁️</button></div>
 </div>
-<div class="input-group">
-  <label>Nova senha</label>
-  <input id="resetNewPass" type="password">
-  <button type="button" class="eye-btn" onclick="togglePass('resetNewPass')">👁️</button>
-</div>
-</div>
-<button class="secondary" onclick="resetUserPass()">Redefinir senha</button>
+<button class="secondary" onclick="resetUserPass()">Redefinir</button>
 <p id="resetMsg"></p>
 </div>
 </section>
@@ -264,7 +196,6 @@ let packages = JSON.parse(localStorage.getItem('packages') || '[]');
 let residents = JSON.parse(localStorage.getItem('residents') || '[]');
 let currentUser = null;
 let selectedPackageId = null;
-let streamCamera = null;
 
 if(!residents.length) {
   residents = [
@@ -275,380 +206,197 @@ if(!residents.length) {
   localStorage.setItem('residents', JSON.stringify(residents));
 }
 
-function limparTelefone(texto) {
-  let num = texto.replace(/\D/g, '');
-  if(num.length === 11 && !num.startsWith('55')) num = '55' + num;
-  if(num.length === 10 && !num.startsWith('55')) num = '55' + num;
-  return num;
+function limparTelefone(t) {
+  let n = t.replace(/\D/g,'');
+  if(n.length===11 && !n.startsWith('55')) n='55'+n;
+  if(n.length===10 && !n.startsWith('55')) n='55'+n;
+  return n;
 }
 
 function togglePass(id) {
-  const el = document.getElementById(id);
-  el.type = el.type === 'password' ? 'text' : 'password';
+  const el=document.getElementById(id); el.type=el.type==='password'?'text':'password';
 }
 
-// ========== FUNÇÕES DA CÂMERA ==========
-async function ligarCamera() {
-  try {
-    streamCamera = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: 'environment', width: {ideal:1280}, height: {ideal:720} } 
-    });
-    const video = document.getElementById('camera');
-    video.srcObject = streamCamera;
-    video.classList.remove('hidden');
-    document.getElementById('btnTirarFoto').classList.remove('hidden');
-    this.style.display = 'none';
-  } catch(erro) {
-    alert('⚠️ Não conseguiu abrir a câmera.\nVerifique as permissões do navegador.');
-  }
+// FOTO SIMPLES
+function verFoto(input) {
+  if(!input.files[0]) return;
+  const r = new FileReader();
+  r.onload = e => {
+    document.getElementById('fotoBase64').value = e.target.result;
+    document.getElementById('imgPreview').src = e.target.result;
+    document.getElementById('imgPreview').classList.remove('hidden');
+    document.getElementById('btnTirarNova').classList.remove('hidden');
+    document.getElementById('btnFoto').style.display = 'none';
+  };
+  r.readAsDataURL(input.files[0]);
 }
 
-function tirarFoto() {
-  const video = document.getElementById('camera');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0);
-  
-  const fotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
-  document.getElementById('fotoBase64').value = fotoBase64;
-  
-  const img = document.getElementById('fotoPreview');
-  img.src = fotoBase64;
-  img.classList.remove('hidden');
-  
-  document.getElementById('btnTirarFoto').classList.add('hidden');
-  document.getElementById('btnNovaFoto').classList.remove('hidden');
-  
-  if(streamCamera) {
-    streamCamera.getTracks().forEach(t => t.stop());
-    streamCamera = null;
-  }
-  video.classList.add('hidden');
-}
-
-function novaFoto() {
-  document.getElementById('fotoPreview').classList.add('hidden');
+function tirarNova() {
   document.getElementById('fotoBase64').value = '';
-  document.getElementById('btnNovaFoto').classList.add('hidden');
-  document.querySelector('.cam .cam').style.display = 'inline-block';
-  ligarCamera();
+  document.getElementById('imgPreview').classList.add('hidden');
+  document.getElementById('btnTirarNova').classList.add('hidden');
+  document.getElementById('btnFoto').style.display = 'inline-block';
+  document.getElementById('inputFoto').value = '';
 }
-// =======================================
 
-function setLoginRole(role) {
-  document.getElementById('adminTab').classList.toggle('active', role==='admin');
-  document.getElementById('residentTab').classList.toggle('active', role==='resident');
-  document.getElementById('adminLogin').classList.toggle('hidden', role!=='admin');
-  document.getElementById('residentLogin').classList.toggle('hidden', role!=='resident');
-  document.getElementById('loginError').textContent = '';
+function setLoginRole(r) {
+  document.getElementById('adminTab').classList.toggle('active',r==='admin');
+  document.getElementById('residentTab').classList.toggle('active',r==='resident');
+  document.getElementById('adminLogin').classList.toggle('hidden',r!=='admin');
+  document.getElementById('residentLogin').classList.toggle('hidden',r!=='resident');
+  document.getElementById('loginError').textContent='';
 }
 
 function showForgot() {
   document.getElementById('loginFormView').classList.add('hidden');
   document.getElementById('forgotView').classList.remove('hidden');
-  document.getElementById('forgotMsg').textContent = '';
 }
-
 function backToLogin() {
   document.getElementById('loginFormView').classList.remove('hidden');
   document.getElementById('forgotView').classList.add('hidden');
-  document.getElementById('forgotUser').value = '';
 }
-
 function sendReset() {
-  const user = document.getElementById('forgotUser').value.trim();
-  if(!user) return alert('Digite seu usuário');
-  const found = residents.find(r => r.user === user && r.role !== 'admin');
-  if(!found) {
-    document.getElementById('forgotMsg').innerHTML = '<span class="error">Usuário não encontrado.</span>';
-    return;
-  }
-  const tempPass = '1234';
-  found.pass = tempPass;
-  localStorage.setItem('residents', JSON.stringify(residents));
-  document.getElementById('forgotMsg').innerHTML = `<span class="success">Senha redefinida! Use: ${tempPass} — depois troque no seu Perfil.</span>`;
+  const u=document.getElementById('forgotUser').value.trim();
+  const f=residents.find(r=>r.user===u&&r.role!=='admin');
+  if(!f) return document.getElementById('forgotMsg').innerHTML='<span class="error">Não encontrado</span>';
+  f.pass='1234'; localStorage.setItem('residents',JSON.stringify(residents));
+  document.getElementById('forgotMsg').innerHTML='<span class="success">Senha: 1234</span>';
 }
-
 function doLogin() {
-  let user, pass;
+  let u,p;
   if(document.getElementById('adminTab').classList.contains('active')) {
-    user = document.getElementById('loginUser').value.trim();
-    pass = document.getElementById('loginPass').value;
+    u=document.getElementById('loginUser').value.trim();
+    p=document.getElementById('loginPass').value;
   } else {
-    user = document.getElementById('residentUser').value.trim();
-    pass = document.getElementById('residentPass').value;
+    u=document.getElementById('residentUser').value.trim();
+    p=document.getElementById('residentPass').value;
   }
-  
-  const found = residents.find(r => r.user === user && r.pass === pass);
-  if(found) {
-    currentUser = found;
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('loggedUser').textContent = found.name;
-    applyAccess();
-    show('home', document.querySelector('nav button'));
+  const f=residents.find(r=>r.user===u&&r.pass===p);
+  if(f) {
+    currentUser=f;
+    document.getElementById('loginOverlay').style.display='none';
+    document.getElementById('loggedUser').textContent=f.name;
+    applyAccess(); show('home');
   } else {
-    document.getElementById('loginError').innerHTML = '<span class="error">Usuário ou senha incorretos.</span>';
+    document.getElementById('loginError').innerHTML='<span class="error">Erro no login</span>';
   }
 }
-
 function logout() {
-  currentUser = null;
-  document.getElementById('loginOverlay').style.display = 'flex';
-  document.getElementById('loginUser').value = '';
-  document.getElementById('loginPass').value = '';
-  document.getElementById('residentUser').value = '';
-  document.getElementById('residentPass').value = '';
+  currentUser=null;
+  document.getElementById('loginOverlay').style.display='flex';
 }
-
 function applyAccess() {
-  const isAdmin = currentUser.role === 'admin';
-  document.querySelectorAll('.adminOnly').forEach(x => x.style.display = isAdmin ? 'block' : 'none');
-  document.querySelectorAll('.residentOnly').forEach(x => x.classList.toggle('hidden', isAdmin));
+  const adm=currentUser.role==='admin';
+  document.querySelectorAll('.adminOnly').forEach(x=>x.style.display=adm?'block':'none');
+  document.querySelectorAll('.residentOnly').forEach(x=>x.classList.toggle('hidden',adm));
   updateStats(); renderPackages(); renderResidents(); fillProfile();
 }
-
 function fillProfile() {
-  document.getElementById('pName').textContent = currentUser.name;
-  document.getElementById('pUser').textContent = currentUser.user;
-  document.getElementById('pPhone').textContent = currentUser.phone;
-  if(currentUser.role !== 'admin') {
-    document.getElementById('pLocal').textContent = `${currentUser.block} • Apto ${currentUser.apt}`;
-  }
+  document.getElementById('pName').textContent=currentUser.name;
+  document.getElementById('pUser').textContent=currentUser.user;
+  document.getElementById('pPhone').textContent=currentUser.phone;
+  if(currentUser.role!=='admin') document.getElementById('pLocal').textContent=`${currentUser.block} • Apto ${currentUser.apt}`;
 }
-
 function changePass() {
-  const isAdmin = currentUser.role === 'admin';
-  const curPass = document.getElementById('curPass').value;
-  const newPass = document.getElementById('newPass').value.trim();
-  const confPass = document.getElementById('confPass').value.trim();
-  const msgEl = document.getElementById('passMsg');
-  
-  if(!newPass || !confPass) {
-    msgEl.innerHTML = '<span class="error">Preencha os campos de nova senha.</span>';
-    return;
-  }
-  if(newPass !== confPass) {
-    msgEl.innerHTML = '<span class="error">Nova senha não confere.</span>';
-    return;
-  }
-  if(newPass.length < 4) {
-    msgEl.innerHTML = '<span class="error">Use pelo menos 4 caracteres.</span>';
-    return;
-  }
-  if(!isAdmin && curPass !== currentUser.pass) {
-    msgEl.innerHTML = '<span class="error">Senha atual incorreta.</span>';
-    return;
-  }
-  
-  const idx = residents.findIndex(r => r.user === currentUser.user);
-  residents[idx].pass = newPass;
-  localStorage.setItem('residents', JSON.stringify(residents));
-  
-  document.getElementById('newPass').value = '';
-  document.getElementById('confPass').value = '';
-  document.getElementById('curPass').value = '';
-  msgEl.innerHTML = '<span class="success">✅ Senha alterada com sucesso!</span>';
+  const novo=document.getElementById('newPass').value.trim();
+  const conf=document.getElementById('confPass').value.trim();
+  if(novo!==conf) return document.getElementById('passMsg').innerHTML='<span class="error">Não confere</span>';
+  if(novo.length<4) return;
+  const idx=residents.findIndex(r=>r.user===currentUser.user);
+  residents[idx].pass=novo; localStorage.setItem('residents',JSON.stringify(residents));
+  document.getElementById('passMsg').innerHTML='<span class="success">✅ Alterada</span>';
 }
-
 function resetUserPass() {
-  const u = document.getElementById('resetUser').value.trim();
-  const newPass = document.getElementById('resetNewPass').value.trim();
-  const msgEl = document.getElementById('resetMsg');
-  
-  if(!u || !newPass) {
-    msgEl.innerHTML = '<span class="error">Preencha o usuário e a nova senha.</span>';
-    return;
-  }
-  if(newPass.length < 4) {
-    msgEl.innerHTML = '<span class="error">Use pelo menos 4 caracteres.</span>';
-    return;
-  }
-  
-  const idx = residents.findIndex(r => r.user === u && r.role !== 'admin');
-  if(idx === -1) {
-    msgEl.innerHTML = '<span class="error">Usuário não encontrado.</span>';
-    return;
-  }
-  
-  residents[idx].pass = newPass;
-  localStorage.setItem('residents', JSON.stringify(residents));
-  document.getElementById('resetNewPass').value = '';
-  msgEl.innerHTML = '<span class="success">✅ Senha redefinida!</span>';
+  const u=document.getElementById('resetUser').value.trim();
+  const nova=document.getElementById('resetNewPass').value.trim();
+  const idx=residents.findIndex(r=>r.user===u&&r.role!=='admin');
+  if(idx===-1) return;
+  residents[idx].pass=nova; localStorage.setItem('residents',JSON.stringify(residents));
+  document.getElementById('resetMsg').innerHTML='<span class="success">✅ Redefinida</span>';
 }
-
-function show(id, btn) {
-  document.querySelectorAll('section').forEach(x => x.classList.add('hidden'));
+function show(id,btn) {
+  document.querySelectorAll('section').forEach(x=>x.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
-  document.querySelectorAll('nav button').forEach(x => x.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  if(id === 'profile') fillProfile();
+  if(btn) document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'))&&btn.classList.add('active');
 }
-
 function updateStats() {
-  const today = new Date().toLocaleDateString('pt-BR');
-  document.getElementById('todayCount').textContent = packages.filter(p => p.date.startsWith(today)).length;
-  document.getElementById('pendingCount').textContent = packages.filter(p => p.status !== 'Entregue').length;
-  document.getElementById('deliveredCount').textContent = packages.filter(p => p.status === 'Entregue').length;
+  const hj=new Date().toLocaleDateString('pt-BR');
+  document.getElementById('todayCount').textContent=packages.filter(p=>p.date.startsWith(hj)).length;
+  document.getElementById('pendingCount').textContent=packages.filter(p=>p.status!=='Entregue').length;
+  document.getElementById('deliveredCount').textContent=packages.filter(p=>p.status==='Entregue').length;
 }
-
-function openRecord(id) {
-  selectedPackageId = id;
-  renderPackages();
+function montarMsg(nome,loja,apt) {
+  return encodeURIComponent(`Olá ${nome}! Chegou sua encomenda${loja?` da ${loja}`:''}! 📦 Apto ${apt} Pode retirar na portaria. — CondoExpress ✅`);
 }
-
-function montarMsg(nome, loja, apt) {
-  return encodeURIComponent(
-    `Olá ${nome}! Tudo bem?\n\n` +
-    `Chegou sua encomenda${loja ? ` da ${loja}` : ''}! 📦\n` +
-    `Apto ${apt}\n` +
-    `Pode retirar na portaria quando quiser.\n\n` +
-    `— CondoExpress ✅`
-  );
-}
-
 function renderPackages() {
-  let q = (document.getElementById('searchInput')?.value || '').toLowerCase();
-  if(currentUser && currentUser.role !== 'admin') {
-    q = (currentUser.name + ' ' + currentUser.apt).toLowerCase() + ' ' + q;
-  }
-  let list = packages.filter(p => Object.values(p).join(' ').toLowerCase().includes(q));
-  if(currentUser && currentUser.role !== 'admin') {
-    list = list.filter(p => p.name === currentUser.name && p.apt === currentUser.apt);
-  }
-  
-  document.getElementById('packageList').innerHTML = list.length ? list.map(p => {
-    const isSelected = selectedPackageId === p.id;
-    const numLimpo = p.phone ? limparTelefone(p.phone) : '';
-    const temNumero = numLimpo && numLimpo.length >= 12;
-    
-    return `
-    <div class="package">
-      <div>
-        <b>${p.name}</b> — Apto ${p.apt} • ${p.block}<br>
-        📦 ${p.store || 'Não informado'}<br>
-        📱 WhatsApp: ${p.phone || 'Não cadastrado'}<br>
-        <span class="small">Recebida: ${p.date}</span>
-      </div>
-      ${p.foto ? `<img src="${p.foto}" class="package-img" alt="Foto da encomenda">` : ''}
+  let q=(document.getElementById('searchInput')?.value||'').toLowerCase();
+  if(currentUser&&currentUser.role!=='admin') q=(currentUser.name+' '+currentUser.apt).toLowerCase()+' '+q;
+  let l=packages.filter(p=>Object.values(p).join(' ').toLowerCase().includes(q));
+  if(currentUser&&currentUser.role!=='admin') l=l.filter(p=>p.name===currentUser.name&&p.apt===currentUser.apt);
+  document.getElementById('packageList').innerHTML=l.length?l.map(p=>{
+    const num=limparTelefone(p.phone);
+    const tem=num.length>=12;
+    return `<div class="package">
+      <div><b>${p.name}</b> — Apto ${p.apt} • ${p.block}<br>📦 ${p.store||'Não informada'}<br>📱 ${p.phone}<br><span class="small">${p.date}</span></div>
+      ${p.foto?`<img src="${p.foto}" class="package-img">`:''}
       <span class="status">${p.status}</span>
       <div class="actions">
-        ${!isSelected ? `<button class="primary" onclick="openRecord(${p.id})">📄 Ver detalhes</button>` : ''}
-        ${currentUser && currentUser.role==='admin' && p.status!=='Entregue' && temNumero ? 
-          `<a class="whatsapp" href="https://wa.me/${numLimpo}?text=${montarMsg(p.name, p.store, p.apt)}" target="_blank">🟢 Enviar WhatsApp</a>` : ''}
-        ${currentUser && currentUser.role==='admin' && p.status!=='Entregue' && !temNumero ? 
-          `<span class="error">⚠️ Telefone inválido</span>` : ''}
-        ${currentUser && currentUser.role==='admin' && p.status!=='Entregue' ? 
-          `<button class="secondary" onclick="deliver(${p.id})">Marcar retirada</button>` : ''}
+        ${currentUser&&currentUser.role==='admin'&&p.status!=='Entregue'&&tem?`<a class="whatsapp" href="https://wa.me/${num}?text=${montarMsg(p.name,p.store,p.apt)}" target="_blank">🟢 Enviar WhatsApp</a>`:''}
+        ${currentUser&&currentUser.role==='admin'&&p.status!=='Entregue'?`<button class="secondary" onclick="deliver(${p.id})">Marcar retirada</button>`:''}
       </div>
-      
-      ${isSelected ? `
-      <div class="whatsapp-msg">
-        <h3>📄 Detalhes da Encomenda</h3>
-        ${p.foto ? `<img src="${p.foto}" class="package-img" alt="Foto da encomenda">` : ''}
-        <p><strong>Morador:</strong> ${p.name} • Apto ${p.apt} • ${p.block}<br>
-        <strong>Telefone:</strong> 📱 ${p.phone || 'Não informado'}<br>
-        <strong>Loja:</strong> ${p.store || 'Não informada'}<br>
-        <strong>Rastreio:</strong> ${p.tracking || '-'}</p>
-      </div>
-      ` : ''}
-    </div>
-  `}).join('') : '<p class="small">Nenhuma encomenda encontrada.</p>';
+    </div>`;
+  }).join(''):'<p class="small">Nenhuma encontrada.</p>';
 }
-
 function renderResidents() {
-  document.getElementById('residentList').innerHTML = residents.filter(r => r.role !== 'admin').map(r => `
-    <div class="resident-item">
-      <div>
-        <b>${r.name}</b><br>
-        🏢 ${r.block} • Apto ${r.apt}<br>
-        📱 ${r.phone}<br>
-        <span class="small">Usuário: ${r.user}</span>
-      </div>
-      <button class="secondary" onclick="document.getElementById('resetUser').value='${r.user}';show('profile')">🔑 Redefinir senha</button>
-    </div>
-  `).join('');
+  document.getElementById('residentList').innerHTML=residents.filter(r=>r.role!=='admin').map(r=>`<div class="resident-item">
+    <div><b>${r.name}</b><br>🏢 ${r.block} • Apto ${r.apt}<br>📱 ${r.phone}<br><span class="small">Usuário: ${r.user}</span></div>
+    <button class="secondary" onclick="document.getElementById('resetUser').value='${r.user}';show('profile')">🔑 Redefinir</button>
+  </div>`).join('');
 }
-
-document.getElementById('packageForm').onsubmit = function(e) {
+document.getElementById('packageForm').onsubmit=function(e) {
   e.preventDefault();
-  
-  const nome = document.getElementById('name').value;
-  const bloco = document.getElementById('block').value;
-  const apt = document.getElementById('apt').value;
-  const telefoneBruto = document.getElementById('phone').value;
-  const telefoneLimpo = limparTelefone(telefoneBruto);
-  const loja = document.getElementById('store').value || 'Não informada';
-  const rastreio = document.getElementById('tracking').value;
-  const foto = document.getElementById('fotoBase64').value || '';
-  
-  if(telefoneLimpo.length < 12) {
-    alert('⚠️ Telefone incorreto! Digite com DDD e número completo.\nExemplo: (31) 98888-1234');
-    return;
-  }
-  
-  const p = {
-    id: Date.now(),
-    name: nome,
-    block: bloco,
-    apt: apt,
-    phone: telefoneLimpo,
-    store: loja,
-    tracking: rastreio,
-    foto: foto,
-    status: 'Aguardando retirada',
-    date: new Date().toLocaleString('pt-BR')
+  const tel=limparTelefone(document.getElementById('phone').value);
+  if(tel.length<12) return alert('⚠️ Digite com DDD: (31) 98888-1234');
+  const p={
+    id:Date.now(),
+    name:document.getElementById('name').value,
+    block:document.getElementById('block').value,
+    apt:document.getElementById('apt').value,
+    phone:tel,
+    store:document.getElementById('store').value||'Não informada',
+    tracking:document.getElementById('tracking').value,
+    foto:document.getElementById('fotoBase64').value,
+    status:'Aguardando retirada',
+    date:new Date().toLocaleString('pt-BR')
   };
-  packages.unshift(p);
-  localStorage.setItem('packages', JSON.stringify(packages));
-  
-  const link = `https://wa.me/${telefoneLimpo}?text=${montarMsg(nome, loja, apt)}`;
-  window.open(link, '_blank');
-  
-  alert(`✅ Encomenda registrada!\n🟢 WhatsApp abrindo...\n📱 Número: ${telefoneLimpo}`);
-  this.reset();
-  document.getElementById('fotoPreview').classList.add('hidden');
-  document.getElementById('fotoBase64').value = '';
-  document.getElementById('btnNovaFoto').classList.add('hidden');
-  selectedPackageId = p.id;
-  show('search', null);
+  packages.unshift(p); localStorage.setItem('packages',JSON.stringify(packages));
+  window.open(`https://wa.me/${tel}?text=${montarMsg(p.name,p.store,p.apt)}`,'_blank');
+  alert('✅ Registrada! WhatsApp abrindo...');
+  this.reset(); tirarNova(); show('search');
 };
-
-document.getElementById('residentForm').onsubmit = function(e) {
+document.getElementById('residentForm').onsubmit=function(e) {
   e.preventDefault();
-  
-  const tel = limparTelefone(document.getElementById('rPhone').value);
-  if(tel.length < 12) {
-    alert('⚠️ Telefone incorreto! Digite com DDD.\nExemplo: (31) 98888-1234');
-    return;
-  }
-  
+  const tel=limparTelefone(document.getElementById('rPhone').value);
+  if(tel.length<12) return alert('⚠️ Digite com DDD');
   residents.push({
-    name: document.getElementById('rName').value,
-    block: document.getElementById('rBlock').value,
-    apt: document.getElementById('rApt').value,
-    phone: tel,
-    user: document.getElementById('rUser').value,
-    pass: document.getElementById('rPass').value
+    name:document.getElementById('rName').value,
+    block:document.getElementById('rBlock').value,
+    apt:document.getElementById('rApt').value,
+    phone:tel,
+    user:document.getElementById('rUser').value,
+    pass:document.getElementById('rPass').value
   });
-  localStorage.setItem('residents', JSON.stringify(residents));
-  alert('✅ Morador cadastrado!');
-  this.reset();
-  renderResidents();
+  localStorage.setItem('residents',JSON.stringify(residents));
+  alert('✅ Cadastrado!'); this.reset(); renderResidents();
 };
-
 function deliver(id) {
-  const p = packages.find(x => x.id == id);
+  const p=packages.find(x=>x.id==id);
   if(!p) return;
-  p.status = 'Entregue';
-  p.withdrawnBy = prompt('Nome de quem retirou:');
-  p.withdrawnDate = new Date().toLocaleDateString('pt-BR');
-  localStorage.setItem('packages', JSON.stringify(packages));
-  selectedPackageId = null;
+  p.status='Entregue';
+  p.withdrawnBy=prompt('Nome de quem retirou:');
+  localStorage.setItem('packages',JSON.stringify(packages));
   renderPackages(); updateStats();
 }
-
 setLoginRole('admin');
 </script>
 </body>
