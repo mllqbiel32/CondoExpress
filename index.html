@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CondoExpress — Bloco A Ouro Preto</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231769e0' rx='16' width='100' height='100'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white'%3E📦%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+(function(){
+    emailjs.init("TWDbG3DvjSw6fxXhr");
+})();
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
 body{background:#f4f6f8;color:#1f2937;line-height:1.5;padding:16px}
@@ -17,6 +23,7 @@ button{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:
 .btn-cam{background:#1769e0;color:white;margin:6px 0}
 .btn-galeria{background:#6b7280;color:white;margin:6px 0}
 .enviar{background:#16a34a;color:white;margin-top:16px}
+.enviar:disabled{background:#ccc;cursor:not-allowed}
 .primary{background:#1769e0;color:white;margin-top:16px}
 .secondary{background:#e5e7eb;color:#374151;margin-top:8px}
 .editar{background:#facc15;color:#854d0e;margin:4px 0 0 8px;width:auto;display:inline-block;padding:8px 14px;font-size:14px;border:2px solid #eab308}
@@ -89,22 +96,20 @@ nav button.active{background:#1769e0;color:white}
 
     <p style="margin:16px 0 8px;color:#1769e0;font-weight:bold">📝 Preencha os dados abaixo:</p>
     
-    <!-- TODOS CAMPOS LIVRES — VOCÊ DIGITA TUDO -->
     <div class="grid">
-      <div><label>Nome do Morador</label><input type="text" id="inpNome" placeholder="Digite o nome"></div>
-      <div><label>Apartamento</label><input type="text" id="inpApto" placeholder="Ex: 112"></div>
+      <div><label>Nome do Morador</label><input type="text" id="inpNome" name="name" placeholder="Digite o nome" required></div>
+      <div><label>Apartamento</label><input type="text" id="inpApto" name="apartamento" placeholder="Ex: 112" required></div>
       <div><label>Bloco</label><input type="text" value="A — Ouro Preto" readonly style="background:#f9fafb"></div>
-      <div><label>E-mail do Morador</label><input type="email" id="inpEmail" placeholder="email@exemplo.com"></div>
-      <div><label>Empresa / Loja</label><input type="text" id="inpEmpresa" placeholder="Ex: Shopee, Mercado Livre, TikTok..."></div>
-      <div><label>Número da Nota Fiscal</label><input type="text" id="inpNota" placeholder="Digite o número"></div>
-      <div><label>Código de Rastreio</label><input type="text" id="inpRastreio" placeholder="Digite o código"></div>
+      <div><label>E-mail do Morador</label><input type="email" id="inpEmail" name="email" placeholder="email@exemplo.com" required></div>
+      <div><label>Empresa / Loja</label><input type="text" id="inpEmpresa" name="empresa" placeholder="Ex: Shopee, Mercado Livre..."></div>
+      <div><label>Número da Nota Fiscal</label><input type="text" id="inpNota" name="notafiscal" placeholder="Digite o número"></div>
+      <div><label>Código de Rastreio</label><input type="text" id="inpRastreio" name="rastreio" placeholder="Digite o código"></div>
     </div>
     
-    <p class="aviso">💅 Tudo preenchido → aperte Enviar → confirma e pronto! Não sai daqui!</p>
+    <p class="aviso">💅 Tudo preenchido → aperte Enviar → mensagem vai direto pro e-mail do morador! Tudo aqui mesmo!</p>
     
-    <button class="enviar" onclick="enviarEncomenda()">✅ REGISTRAR E ENVIAR</button>
+    <button class="enviar" id="btnEnviar" onclick="enviarEncomenda()">✅ REGISTRAR E ENVIAR</button>
     
-    <!-- Mensagem de confirmação NA MESMA TELA -->
     <div id="statusEnvio" class="status-envio hidden"></div>
   </section>
 
@@ -336,71 +341,55 @@ async function enviarEncomenda(){
     return;
   }
   
+  const btn = document.getElementById('btnEnviar');
   const statusEl = document.getElementById('statusEnvio');
+  
+  btn.disabled = true;
+  btn.textContent = "⏳ Enviando...";
   statusEl.classList.remove('hidden','enviado','falha');
   statusEl.className = 'status-envio enviando';
-  statusEl.textContent = "⏳ Preparando...";
+  statusEl.textContent = "Preparando mensagem...";
   
   // Salva no cadastro
   const m = encontrarOuCriarMorador(nome, apto, email);
   m.encomendas.push({
     data: new Date().toLocaleString('pt-BR'),
-    nome:nome, apto:apto, empresa:empresa, nota:nota, rastreio:rastreio
+    nome:nome, apto:apto, email:email, empresa:empresa, nota:nota, rastreio:rastreio
   });
   
-  // Monta mensagem
-  const mensagem = `Olá ${nome}!
-
-Temos uma encomenda esperando por você! 📦
-
-🏠 Apartamento: ${apto}
-📅 Data: ${new Date().toLocaleString('pt-BR')}
-${empresa ? `🛒 Empresa/Loja: ${empresa}` : ''}
-${nota ? `📄 Nota Fiscal: ${nota}` : ''}
-${rastreio ? `🔍 Código de Rastreio: ${rastreio}` : ''}
-
-Retire na portaria do Condomínio Ouro Preto.
-
-Atenciosamente,
-Portaria — Condomínio Ouro Preto
-`;
-
-  const assunto = encodeURIComponent("📦 Encomenda Chegou — Condomínio Ouro Preto");
-  const corpo = encodeURIComponent(mensagem);
-  const destino = `mailto:${email}?subject=${assunto}&body=${corpo}`;
-  
-  // Pergunta e abre direto — NÃO SAI DA TELA
-  if(confirm(`✅ Confirmar envio para:\n${email}\n\nEmpresa: ${empresa || 'Não informada'}\nNota: ${nota || 'Não informada'}\nRastreio: ${rastreio || 'Não informada'}`)){
+  // Envia pelo EmailJS direto — NÃO SAI DA TELA!
+  emailjs.send('service_t2de096', 'template_axu51ce', {
+    name: nome,
+    email: email,
+    apartamento: apto,
+    empresa: empresa || 'Não informada',
+    notafiscal: nota || 'Não informada',
+    rastreio: rastreio || 'Não informada',
+    data: new Date().toLocaleString('pt-BR')
+  })
+  .then(function(){
+    statusEl.className = 'status-envio enviado';
+    statusEl.innerHTML = `✅ <strong>ENVIADO COM SUCESSO!</strong><br>O morador ${nome} recebeu no e-mail ${email}`;
     
-    statusEl.className = 'status-envio enviando';
-    statusEl.textContent = "📤 Abrindo envio...";
-    
-    // Abre o envio SEM sair da tela
-    window.location.href = destino;
-    
-    // Confirmação na MESMA TELA
-    setTimeout(() => {
-      statusEl.className = 'status-envio enviado';
-      statusEl.innerHTML = `✅ <strong>PRONTO!</strong><br>E-mail pronto para envio!<br>Confirme no botão Enviar que apareceu.`;
-      
-      // Limpa tudo sozinho
-      document.getElementById('inpNome').value = '';
-      document.getElementById('inpApto').value = '';
-      document.getElementById('inpEmail').value = '';
-      document.getElementById('inpEmpresa').value = '';
-      document.getElementById('inpNota').value = '';
-      document.getElementById('inpRastreio').value = '';
-      limparFoto();
-      
-      // Esconde a mensagem depois de 5 segundos
-      setTimeout(() => statusEl.classList.add('hidden'), 5000);
-    }, 800);
-    
-  } else {
-    statusEl.textContent = "❌ Cancelado";
+    // Limpa o formulário
+    document.getElementById('inpNome').value = '';
+    document.getElementById('inpApto').value = '';
+    document.getElementById('inpEmail').value = '';
+    document.getElementById('inpEmpresa').value = '';
+    document.getElementById('inpNota').value = '';
+    document.getElementById('inpRastreio').value = '';
+    limparFoto();
+  })
+  .catch(function(erro){
     statusEl.className = 'status-envio falha';
-    setTimeout(() => statusEl.classList.add('hidden'), 3000);
-  }
+    statusEl.innerHTML = `❌ Erro ao enviar! Verifique o e-mail e tente novamente.`;
+    console.log('Detalhe do erro:', erro);
+  })
+  .finally(function(){
+    btn.disabled = false;
+    btn.textContent = "✅ REGISTRAR E ENVIAR";
+    setTimeout(() => statusEl.classList.add('hidden'), 6000);
+  });
 }
 
 function carregaMinhasEncomendas(){
