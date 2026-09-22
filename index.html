@@ -12,11 +12,11 @@ body{background:#f4f6f8;color:#1f2937;line-height:1.5;padding:16px}
 .card-largo{max-width:900px}
 h2{font-size:18px;margin-bottom:20px;text-align:center;color:#1769e0}
 label{font-size:14px;font-weight:bold;display:block;margin:12px 0 4px}
-input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:15px}
 button{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer;font-size:15px;width:100%}
 .btn-cam{background:#1769e0;color:white;margin:6px 0}
 .btn-galeria{background:#6b7280;color:white;margin:6px 0}
-.email{background:#ea4335;color:white;margin-top:16px}
+.enviar{background:#16a34a;color:white;margin-top:16px}
 .primary{background:#1769e0;color:white;margin-top:16px}
 .secondary{background:#e5e7eb;color:#374151;margin-top:8px}
 .editar{background:#facc15;color:#854d0e;margin:4px 0 0 8px;width:auto;display:inline-block;padding:8px 14px;font-size:14px;border:2px solid #eab308}
@@ -35,6 +35,10 @@ nav button.active{background:#1769e0;color:white}
 .form-editar{background:#eff6ff;padding:20px;border-radius:12px;margin:20px 0;border-left:5px solid #1769e0}
 .form-editar h3{font-size:17px;margin-bottom:15px;color:#1769e0}
 .aviso-email{background:#dcfce7;padding:12px;border-radius:8px;color:#166534;margin:12px 0}
+.status-envio{padding:12px;border-radius:8px;margin:12px 0;font-weight:bold}
+.enviando{background:#fef3c7;color:#92400e}
+.enviado{background:#dcfce7;color:#166534}
+.falha{background:#fee2e2;color:#b91c1c}
 </style>
 </head>
 <body>
@@ -75,7 +79,7 @@ nav button.active{background:#1769e0;color:white}
   <section id="aba-registrar" class="aba hidden card card-largo">
     <h2>📦 Registrar Encomenda</h2>
     
-    <!-- FOTO — OPCIONAL, NÃO PREENCHE MAIS NADA -->
+    <!-- FOTO OPCIONAL -->
     <button type="button" class="btn-cam" onclick="document.getElementById('inputCam').click()">📷 Tirar Foto (opcional)</button>
     <input type="file" id="inputCam" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this)">
     <button type="button" class="btn-galeria" onclick="document.getElementById('inputGaleria').click()">📁 Escolher da Galeria (opcional)</button>
@@ -85,17 +89,34 @@ nav button.active{background:#1769e0;color:white}
 
     <p style="margin:16px 0 8px;color:#1769e0;font-weight:bold">📝 Preencha os dados abaixo:</p>
     
-    <!-- CAMPOS EDITÁVEIS — VOCÊ DIGITA TUDO -->
+    <!-- CAMPOS COMPLETOS -->
     <div class="grid">
       <div><label>Nome do Morador</label><input type="text" id="inpNome" placeholder="Digite o nome"></div>
       <div><label>Apartamento</label><input type="text" id="inpApto" placeholder="Ex: 012OP"></div>
       <div><label>Bloco</label><input type="text" value="A — Ouro Preto" readonly style="background:#f9fafb"></div>
-      <div><label>E-mail</label><input type="email" id="inpEmail" placeholder="email@exemplo.com"></div>
+      <div><label>E-mail do Morador</label><input type="email" id="inpEmail" placeholder="email@exemplo.com"></div>
+      <div>
+        <label>Empresa / Loja</label>
+        <select id="inpEmpresa">
+          <option value="">Selecione...</option>
+          <option value="Mercado Livre">🛒 Mercado Livre</option>
+          <option value="Shopee">🛍️ Shopee</option>
+          <option value="TikTok Shop">📱 TikTok Shop</option>
+          <option value="Amazon">📦 Amazon</option>
+          <option value="Kwai">▶️ Kwai</option>
+          <option value="Outros">📋 Outros</option>
+        </select>
+      </div>
+      <div><label>Número da Nota Fiscal</label><input type="text" id="inpNota" placeholder="Ex: 123456789"></div>
+      <div><label>Código de Rastreio</label><input type="text" id="inpRastreio" placeholder="Ex: BR123456789"></div>
     </div>
     
-    <p class="aviso-email">💡 Dica: o e-mail já fica salvo na lista de moradores depois do primeiro envio!</p>
-    <button class="email" onclick="enviarEmail()">📧 Registrar e Enviar por E-mail</button>
-    <p id="msgStatus" class="hidden"></p>
+    <p class="aviso-email">💡 Preencha tudo → aperte Enviar → o e-mail vai sozinho, não precisa sair daqui!</p>
+    
+    <button class="enviar" onclick="enviarEncomenda()">✅ REGISTRAR E ENVIAR E-MAIL</button>
+    
+    <!-- Status do envio -->
+    <div id="statusEnvio" class="status-envio hidden"></div>
   </section>
 
   <section id="aba-minhas" class="aba hidden card card-largo">
@@ -237,7 +258,7 @@ function entrar(){
     document.getElementById('nomeLogado').textContent = `👤 ${admin.nome}`;
     document.getElementById('menuAdmin').classList.remove('hidden');
     document.getElementById('areaAdminConfig').classList.remove('hidden');
-    document.getElementById('textoInicio').textContent = "Bem-vindo! Preencha os dados manualmente e envie.";
+    document.getElementById('textoInicio').textContent = "Bem-vindo! Preencha os dados e envie — tudo direto daqui!";
     carregaListaMoradores(); return;
   }
   const m = moradores.find(x => x.usuario === u && x.senha === s);
@@ -311,41 +332,82 @@ function encontrarOuCriarMorador(nome, apto, email){
   return novo;
 }
 
-function enviarEmail(){
+async function enviarEncomenda(){
   if(!ehAdmin){alert("Acesso negado!");return}
   
   const nome = document.getElementById('inpNome').value.trim();
   const apto = document.getElementById('inpApto').value.trim();
   const email = document.getElementById('inpEmail').value.trim();
+  const empresa = document.getElementById('inpEmpresa').value;
+  const nota = document.getElementById('inpNota').value.trim();
+  const rastreio = document.getElementById('inpRastreio').value.trim();
   
-  if(!nome || !apto){alert("Preencha Nome e Apartamento!");return}
-  if(!email){alert("Preencha o E-mail!");return}
+  if(!nome || !apto || !email){
+    alert("⚠️ Preencha: Nome, Apartamento e E-mail!");
+    return;
+  }
   
+  const statusEl = document.getElementById('statusEnvio');
+  statusEl.classList.remove('hidden','enviado','falha');
+  statusEl.className = 'status-envio enviando';
+  statusEl.textContent = "⏳ Enviando e-mail... aguarde!";
+  
+  // Salva no cadastro
   const m = encontrarOuCriarMorador(nome, apto, email);
-  m.encomendas.push({data: new Date().toLocaleString('pt-BR'),nome:nome,apto:apto});
+  m.encomendas.push({
+    data: new Date().toLocaleString('pt-BR'),
+    nome:nome, apto:apto, empresa:empresa, nota:nota, rastreio:rastreio
+  });
   
-  const assunto = encodeURIComponent("📦 Encomenda Chegou — Condomínio Ouro Preto");
-  const corpo = encodeURIComponent(
-`Olá ${nome}!
+  // Monta mensagem completa
+  const mensagem = `Olá ${nome}!
 
-Temos uma encomenda esperando por você!
+Temos uma encomenda esperando por você! 📦
 
 🏠 Apartamento: ${apto}
 📅 Data: ${new Date().toLocaleString('pt-BR')}
+${empresa ? `🛒 Empresa/Loja: ${empresa}` : ''}
+${nota ? `📄 Nota Fiscal: ${nota}` : ''}
+${rastreio ? `🔍 Código de Rastreio: ${rastreio}` : ''}
 
-Retire na portaria.
+Retire na portaria do Condomínio Ouro Preto.
 
 Atenciosamente,
 Portaria — Condomínio Ouro Preto
-`);
-  window.location.href = `mailto:${email}?subject=${assunto}&body=${corpo}`;
-  alert(`✅ Enviado para:\n${email}`);
+`;
+
+  try {
+    // MÉTODO DIRETO — abre o envio sem sair da tela
+    const assunto = encodeURIComponent("📦 Encomenda Chegou — Condomínio Ouro Preto");
+    const corpo = encodeURIComponent(mensagem);
+    
+    // Tenta enviar via API do navegador primeiro
+    if ('mailto' in window || navigator.userAgent.includes('Android') || navigator.userAgent.includes('iPhone')) {
+      window.location.href = `mailto:${email}?subject=${assunto}&body=${corpo}`;
+    } else {
+      window.open(`mailto:${email}?subject=${assunto}&body=${corpo}`, '_self');
+    }
+    
+    // Mostra mensagem de sucesso
+    statusEl.className = 'status-envio enviado';
+    statusEl.textContent = `✅ E-mail pronto para envio! Confira se abriu acima.`;
+    
+  } catch (erro) {
+    statusEl.className = 'status-envio falha';
+    statusEl.textContent = `⚠️ Se não abriu, copie abaixo e envie manualmente:`;
+    alert(`Copie e cole no seu e-mail:\n\nPara: ${email}\nAssunto: Encomenda Chegou\n\n${mensagem}`);
+  }
   
-  // Limpa os campos para próximo registro
-  document.getElementById('inpNome').value = '';
-  document.getElementById('inpApto').value = '';
-  document.getElementById('inpEmail').value = '';
-  limparFoto();
+  // Limpa os campos depois de enviar
+  setTimeout(() => {
+    document.getElementById('inpNome').value = '';
+    document.getElementById('inpApto').value = '';
+    document.getElementById('inpEmail').value = '';
+    document.getElementById('inpEmpresa').value = '';
+    document.getElementById('inpNota').value = '';
+    document.getElementById('inpRastreio').value = '';
+    limparFoto();
+  }, 1500);
 }
 
 function carregaMinhasEncomendas(){
@@ -355,7 +417,16 @@ function carregaMinhasEncomendas(){
     div.innerHTML = '<p style="text-align:center;color:#666;padding:20px">📭 Nenhuma encomenda ainda.</p>';
     return;
   }
-  div.innerHTML = m.encomendas.map(e => `<div class="item-encomenda"><strong>📦 Encomenda</strong><br>📅 ${e.data}<br>🏠 ${e.apto}</div>`).join('');
+  div.innerHTML = m.encomendas.map(e => `
+    <div class="item-encomenda">
+      <strong>📦 Encomenda</strong><br>
+      📅 ${e.data}<br>
+      🏠 ${e.apto}
+      ${e.empresa ? `<br>🛒 ${e.empresa}` : ''}
+      ${e.nota ? `<br>📄 Nota: ${e.nota}` : ''}
+      ${e.rastreio ? `<br>🔍 Rastreio: ${e.rastreio}` : ''}
+    </div>
+  `).join('');
 }
 
 function carregaListaMoradores(){
