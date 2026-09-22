@@ -11,14 +11,14 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 
 .container { max-width: 480px; margin: 0 auto; }
 
-/* Cabeçalho */
 .header { text-align: center; padding: 20px 0; }
 .header h1 { font-size: 28px; color: #1e40af; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .status { display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; margin: 10px 0; }
 .usuario { color: #4b5563; font-size: 16px; margin-bottom: 15px; }
 .aviso-morador { background: #e0f2fe; color: #0369a1; padding: 10px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
+.seletor-apto { background: #fef3c7; padding: 14px; border-radius: 10px; margin-bottom: 15px; }
+.seletor-apto label { font-weight: 600; color: #92400e; }
 
-/* Botões */
 .btn { border: none; border-radius: 12px; padding: 16px 20px; font-size: 17px; font-weight: 600; cursor: pointer; width: 100%; margin: 8px 0; transition: all .2s; }
 .btn:hover { transform: translateY(-1px); }
 .btn-sair { background: #e5e7eb; color: #374151; max-width: 250px; display: block; margin: 0 auto 20px; }
@@ -28,9 +28,7 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-bloco-b { background: #16a34a; color: white; }
 .btn-portaria { background: #f59e0b; color: white; }
 .btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
-.btn-desativado { background: #d1d5db; color: #6b7280; cursor: not-allowed; }
 
-/* Cards e Formulário */
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 label { font-weight: 600; font-size: 14px; color: #374151; display: block; margin: 12px 0 4px; }
@@ -39,7 +37,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .lista-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
 .lista-item:last-child { border: none; }
 .lista-item strong { font-size: 15px; color: #111827; display: block; }
-.lista-item span { font-size: 14px; color: #6b7280; }
 .encomenda-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
 .encomenda-data { font-size: 12px; color: #9ca3af; margin-top: 4px; }
 .sucesso { background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; margin-top: 12px; text-align: center; font-weight: 600; }
@@ -47,8 +44,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .tag-a { background: #1e40af; }
 .tag-b { background: #16a34a; }
 .vago { color: #9ca3af; font-style: italic; }
-
-/* Telas */
 .tela { display: none; }
 .tela.ativa { display: block; }
 .aba { display: none; }
@@ -60,7 +55,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
 <div class="container">
 
-<!-- TELA INICIAL — ESCOLHA -->
+<!-- TELA INICIAL -->
 <div id="tela-inicio" class="tela ativa">
   <div class="header">
     <h1>📦 CondoExpress</h1>
@@ -82,84 +77,90 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   </div>
 </div>
 
-<!-- TELA BLOCO A — MORADOR (SÓ VÊ) -->
+<!-- TELA BLOCO A — MORADOR (SÓ VÊ O SEU APTO) -->
 <div id="tela-morador-a" class="tela">
   <div class="header">
     <h1>📦 CondoExpress</h1>
-    <div class="status">✅ Visualização — Morador</div>
+    <div class="status">✅ Bloco A — Ouro Preto</div>
   </div>
 
   <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
-  
-  <div class="aviso-morador">
-    👤 Você está vendo como morador<br>
-    Apenas a Portaria pode registrar encomendas
+
+  <div class="seletor-apto">
+    <label>🏠 Selecione seu apartamento para ver suas encomendas:</label>
+    <select id="meu-apto-a" onchange="verMinhasEncomendas('a')">
+      <option value="">-- Escolha seu apartamento --</option>
+    </select>
   </div>
 
   <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorA('moradores-a')">👥 Moradores</button>
-    <button class="btn btn-nav" onclick="mostrarAbaMoradorA('encomendas-a')">📦 Minhas Encomendas</button>
+    <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorA('moradores-a')">👥 Lista do Bloco</button>
+    <button class="btn btn-nav" onclick="mostrarAbaMoradorA('minhas-a')">📦 Minhas Encomendas</button>
   </nav>
 
   <div id="moradores-a" class="aba ativa">
     <div class="card">
-      <h2>👥 Bloco A — Ouro Preto <span class="tag-bloco tag-a">A</span></h2>
+      <h2>👥 Moradores — Bloco A</h2>
       <div id="lista-moradores-a"></div>
     </div>
   </div>
 
-  <div id="encomendas-a" class="aba">
+  <div id="minhas-a" class="aba">
     <div class="card">
-      <h2>📦 Encomendas — Bloco A</h2>
-      <div id="lista-encomendas-a">
-        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada</p>
+      <h2>📦 Minhas Encomendas</h2>
+      <p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>
+      <div id="lista-minhas-a">
+        <p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- TELA BLOCO B — MORADOR (SÓ VÊ) -->
+<!-- TELA BLOCO B — MORADOR (SÓ VÊ O SEU APTO) -->
 <div id="tela-morador-b" class="tela">
   <div class="header">
     <h1>📦 CondoExpress</h1>
-    <div class="status">✅ Visualização — Morador</div>
+    <div class="status">✅ Bloco B — Sabará</div>
   </div>
 
   <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
-  
-  <div class="aviso-morador">
-    👤 Você está vendo como morador<br>
-    Apenas a Portaria pode registrar encomendas
+
+  <div class="seletor-apto">
+    <label>🏠 Selecione seu apartamento para ver suas encomendas:</label>
+    <select id="meu-apto-b" onchange="verMinhasEncomendas('b')">
+      <option value="">-- Escolha seu apartamento --</option>
+    </select>
   </div>
 
   <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorB('moradores-b')">👥 Moradores</button>
-    <button class="btn btn-nav" onclick="mostrarAbaMoradorB('encomendas-b')">📦 Minhas Encomendas</button>
+    <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorB('moradores-b')">👥 Lista do Bloco</button>
+    <button class="btn btn-nav" onclick="mostrarAbaMoradorB('minhas-b')">📦 Minhas Encomendas</button>
   </nav>
 
   <div id="moradores-b" class="aba ativa">
     <div class="card">
-      <h2>👥 Bloco B — Sabará <span class="tag-bloco tag-b">B</span></h2>
+      <h2>👥 Moradores — Bloco B</h2>
       <div id="lista-moradores-b"></div>
     </div>
   </div>
 
-  <div id="encomendas-b" class="aba">
+  <div id="minhas-b" class="aba">
     <div class="card">
-      <h2>📦 Encomendas — Bloco B</h2>
-      <div id="lista-encomendas-b">
-        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada</p>
+      <h2>📦 Minhas Encomendas</h2>
+      <p id="nome-meu-apto-b" style="color:#4b5563; margin-bottom:15px"></p>
+      <div id="lista-minhas-b">
+        <p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- TELA PORTARIA — PODE CADASTRAR TUDO -->
+<!-- TELA PORTARIA -->
 <div id="tela-portaria" class="tela">
   <div class="header">
     <h1>📦 CondoExpress</h1>
     <div class="status">🔑 Acesso — Portaria</div>
-    <p class="usuario">Portaria — Cadastro de Encomendas</p>
+    <p class="usuario">Cadastro de Encomendas</p>
   </div>
 
   <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
@@ -170,10 +171,9 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     <button class="btn btn-nav" onclick="mostrarAbaPortaria('todas-encomendas')">📋 Todas Encomendas</button>
   </nav>
 
-  <!-- REGISTRAR BLOCO A -->
   <div id="registrar-a" class="aba ativa">
     <div class="card">
-      <h2>📦 Registrar — Bloco A Ouro Preto</h2>
+      <h2>📦 Registrar — Bloco A</h2>
       <label>Apartamento</label>
       <select id="sel-apto-a" onchange="preencherMorador('a')">
         <option value="">-- Selecione --</option>
@@ -191,10 +191,9 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     </div>
   </div>
 
-  <!-- REGISTRAR BLOCO B -->
   <div id="registrar-b" class="aba">
     <div class="card">
-      <h2>📦 Registrar — Bloco B Sabará</h2>
+      <h2>📦 Registrar — Bloco B</h2>
       <label>Apartamento</label>
       <select id="sel-apto-b" onchange="preencherMorador('b')">
         <option value="">-- Selecione --</option>
@@ -212,10 +211,9 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     </div>
   </div>
 
-  <!-- TODAS ENCOMENDAS -->
   <div id="todas-encomendas" class="aba">
     <div class="card">
-      <h2>📋 Todas Encomendas Registradas</h2>
+      <h2>📋 Todas Encomendas</h2>
       <div id="lista-todas">
         <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda ainda</p>
       </div>
@@ -227,7 +225,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
 <script>
 // ==========================================
-// DADOS
+// DADOS DOS MORADORES
 // ==========================================
 const BlocoA = [
   {apto:"012OP",nome:"Claudete Conceição Rozas"},
@@ -397,7 +395,7 @@ function abrirMorador(sigla) {
   document.getElementById('tela-inicio').classList.remove('ativa');
   document.getElementById(`tela-morador-${sigla}`).classList.add('ativa');
   carregarListaMoradores(sigla);
-  carregarListaEncomendas(sigla);
+  carregarSelectAptosMorador(sigla);
 }
 
 function abrirPortaria() {
@@ -415,6 +413,46 @@ function carregarListaMoradores(sigla) {
   lista.forEach(m => {
     const nome = m.nome || '<span class="vago">Vago</span>';
     el.innerHTML += `<div class="lista-item"><strong>${m.apto}</strong><br>${nome}</div>`;
+  });
+}
+
+function carregarSelectAptosMorador(sigla) {
+  const lista = sigla === 'a' ? BlocoA : BlocoB;
+  const el = document.getElementById(`meu-apto-${sigla}`);
+  el.innerHTML = '<option value="">-- Escolha seu apartamento --</option>';
+  lista.forEach((m, idx) => {
+    el.innerHTML += `<option value="${m.apto}">${m.apto} — ${m.nome || 'Vago'}</option>`;
+  });
+}
+
+function verMinhasEncomendas(sigla) {
+  const meuApto = document.getElementById(`meu-apto-${sigla}`).value;
+  const listaEncs = sigla === 'a' ? encomendasA : encomendasB;
+  const elLista = document.getElementById(`lista-minhas-${sigla}`);
+  const elNome = document.getElementById(`nome-meu-apto-${sigla}`);
+
+  if(!meuApto) {
+    elLista.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>';
+    elNome.innerHTML = '';
+    return;
+  }
+
+  const minhas = listaEncs.filter(e => e.apto === meuApto);
+  const dadosApto = (sigla === 'a' ? BlocoA : BlocoB).find(m => m.apto === meuApto);
+  elNome.innerHTML = `<strong>${meuApto}</strong> — ${dadosApto?.nome || 'Vago'}`;
+
+  if(minhas.length === 0) {
+    elLista.innerHTML = '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda registrada para este apartamento</p>';
+    return;
+  }
+
+  elLista.innerHTML = '';
+  minhas.forEach(e => {
+    elLista.innerHTML += `<div class="encomenda-item">
+      <strong>📦 ${e.empresa}</strong><br>
+      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
+      <span class="encomenda-data">${e.data}</span>
+    </div>`;
   });
 }
 
@@ -455,7 +493,7 @@ function salvarEncomenda(sigla) {
   if(sigla === 'a') encomendasA.unshift(enc);
   else encomendasB.unshift(enc);
 
-  // Limpar
+  // Limpar formulário
   document.getElementById(`sel-apto-${sigla}`).value = '';
   document.getElementById(`nome-morador-${sigla}`).value = '';
   document.getElementById(`empresa-${sigla}`).value = '';
@@ -467,26 +505,7 @@ function salvarEncomenda(sigla) {
   msg.classList.remove('hidden');
   setTimeout(() => msg.classList.add('hidden'), 3000);
 
-  carregarListaEncomendas(sigla);
   carregarTodasEncomendas();
-}
-
-function carregarListaEncomendas(sigla) {
-  const lista = sigla === 'a' ? encomendasA : encomendasB;
-  const el = document.getElementById(`lista-encomendas-${sigla}`);
-  if(lista.length === 0) {
-    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada</p>';
-    return;
-  }
-  el.innerHTML = '';
-  lista.forEach(e => {
-    el.innerHTML += `<div class="encomenda-item">
-      <strong>📦 ${e.empresa}</strong><br>
-      ${e.apto} — ${e.nome}<br>
-      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
-      <span class="encomenda-data">${e.data}</span>
-    </div>`;
-  });
 }
 
 function carregarTodasEncomendas() {
@@ -508,7 +527,7 @@ function carregarTodasEncomendas() {
   });
 }
 
-// Navegação Abas
+// Navegação entre abas
 function mostrarAbaMoradorA(nome) {
   document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
   document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
