@@ -51,7 +51,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .aba.ativa { display: block; }
 .hidden { display: none !important; }
 .aviso { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
-.info { font-size: 13px; color: #6b7280; margin-top: -8px; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -97,6 +96,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
   <nav>
     <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorA('moradores-a')">👥 Lista do Bloco</button>
+    <button class="btn btn-nav" onclick="mostrarAbaMoradorA('minhas-a')">📦 Minhas Encomendas</button>
   </nav>
 
   <div id="moradores-a" class="aba ativa">
@@ -134,6 +134,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
   <nav>
     <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorB('moradores-b')">👥 Lista do Bloco</button>
+    <button class="btn btn-nav" onclick="mostrarAbaMoradorB('minhas-b')">📦 Minhas Encomendas</button>
   </nav>
 
   <div id="moradores-b" class="aba ativa">
@@ -219,7 +220,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     <div class="card">
       <h2>➕ Cadastrar Novo Morador</h2>
       <div class="aviso">🔒 Apenas a Portaria pode cadastrar</div>
-      <p class="info">✅ Permitido: mesmo número de apartamento para vários moradores</p>
       
       <label>Bloco</label>
       <select id="novo-bloco">
@@ -502,7 +502,7 @@ function verMinhasEncomendas(sigla) {
   elNome.innerHTML = `<strong>${dadosApto.apto}</strong> — ${dadosApto.nome || 'Vago'}`;
 
   if(minhas.length === 0) {
-    elLista.innerHTML = '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda registrada</p>';
+    elLista.innerHTML = '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda registrada para este apartamento</p>';
     return;
   }
 
@@ -531,7 +531,7 @@ function preencherMorador(sigla) {
   document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');
 }
 
-// ➕ CADASTRAR — SEM BLOQUEIO DE NÚMERO REPETIDO
+// ➕ CADASTRAR — PERMITE MESMO NÚMERO
 function cadastrarNovoMorador() {
   const bloco = document.getElementById('novo-bloco').value;
   const apto = document.getElementById('novo-apto').value.trim();
@@ -543,11 +543,8 @@ function cadastrarNovoMorador() {
   }
 
   const lista = bloco === 'a' ? BlocoA : BlocoB;
-  
-  // ✅ PERMITE MESMO NÚMERO — NÃO VERIFICA DUPLICIDADE
   lista.push({ apto: apto, nome: nome });
 
-  // Atualiza tudo
   carregarSelectAptos('a');
   carregarSelectAptos('b');
   carregarSelectAptosMorador('a');
@@ -556,7 +553,6 @@ function cadastrarNovoMorador() {
   carregarListaMoradores('a');
   carregarListaMoradores('b');
 
-  // Limpa
   document.getElementById('novo-apto').value = '';
   document.getElementById('novo-nome').value = '';
 
@@ -624,12 +620,12 @@ function salvarEdicao() {
 
 function salvarEncomenda(sigla) {
   const selIdx = document.getElementById(`sel-apto-${sigla}`).value;
-  if(selIdx === '') { alert('Selecione!'); return; }
+  if(selIdx === '') { alert('Selecione o apartamento!'); return; }
   
   const lista = sigla === 'a' ? BlocoA : BlocoB;
   const morador = lista[parseInt(selIdx)];
   const empresa = document.getElementById(`empresa-${sigla}`).value.trim();
-  if(!empresa) { alert('Digite a empresa!'); return; }
+  if(!empresa) { alert('Digite a empresa/loja!'); return; }
 
   const enc = {
     bloco: sigla.toUpperCase(),
@@ -677,7 +673,7 @@ function carregarTodasEncomendas() {
   });
 }
 
-// Navegação
+// Navegação entre abas
 function mostrarAbaMoradorA(nome) {
   document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
   document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
