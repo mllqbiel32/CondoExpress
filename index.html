@@ -41,6 +41,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .encomenda-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
 .encomenda-data { font-size: 12px; color: #9ca3af; margin-top: 4px; }
 .sucesso { background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; margin-top: 12px; text-align: center; font-weight: 600; }
+.erro { background: #fee2e2; color: #dc2626; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; display: none; }
 .tag-bloco { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; color: white; margin-left: 8px; }
 .tag-a { background: #1e40af; }
 .tag-b { background: #16a34a; }
@@ -51,6 +52,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .aba.ativa { display: block; }
 .hidden { display: none !important; }
 .aviso { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
+.senha-input { font-size: 18px; letter-spacing: 4px; }
 </style>
 </head>
 <body>
@@ -73,9 +75,17 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       🏆 BLOCO B — Sabará (Moradores)
     </button>
     
-    <button class="btn btn-portaria" onclick="abrirPortaria()">
+    <button class="btn btn-portaria" onclick="mostrarSenha()">
       🔑 PORTARIA — Controle Completo
     </button>
+
+    <!-- CAMPO DE SENHA -- ESCONDIDO ATÉ CLICAR -->
+    <div id="caixa-senha" class="hidden" style="margin-top:15px;">
+      <label>Digite a senha da Portaria:</label>
+      <input type="password" id="input-senha" class="senha-input" placeholder="••••••••">
+      <button class="btn btn-portaria" style="margin-top:10px;" onclick="verificarSenha()">✅ Entrar</button>
+      <div id="msg-erro-senha" class="erro">❌ Senha incorreta!</div>
+    </div>
   </div>
 </div>
 
@@ -281,6 +291,11 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
 <script>
 // ==========================================
+// SENHA DA PORTARIA
+// ==========================================
+const SENHA_PORTARIA = "portaria123"; // ← pode mudar aqui!
+
+// ==========================================
 // DADOS
 // ==========================================
 let BlocoA = [
@@ -442,11 +457,30 @@ let indiceEdicao = null;
 let blocoEdicao = null;
 
 // ==========================================
-// FUNÇÕES
+// FUNÇÕES DE SENHA
+// ==========================================
+function mostrarSenha() {
+  document.getElementById('caixa-senha').classList.remove('hidden');
+  document.getElementById('input-senha').value = '';
+  document.getElementById('msg-erro-senha').style.display = 'none';
+}
+
+function verificarSenha() {
+  const digitada = document.getElementById('input-senha').value;
+  if(digitada === SENHA_PORTARIA) {
+    abrirPortaria();
+  } else {
+    document.getElementById('msg-erro-senha').style.display = 'block';
+  }
+}
+
+// ==========================================
+// DEMAIS FUNÇÕES
 // ==========================================
 function voltarInicio() {
   document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
   document.getElementById('tela-inicio').classList.add('ativa');
+  document.getElementById('caixa-senha').classList.add('hidden');
 }
 
 function abrirMorador(sigla) {
@@ -531,7 +565,6 @@ function preencherMorador(sigla) {
   document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');
 }
 
-// ➕ CADASTRAR — PERMITE MESMO NÚMERO
 function cadastrarNovoMorador() {
   const bloco = document.getElementById('novo-bloco').value;
   const apto = document.getElementById('novo-apto').value.trim();
@@ -561,7 +594,6 @@ function cadastrarNovoMorador() {
   setTimeout(() => msg.classList.add('hidden'), 3000);
 }
 
-// ✏️ EDITAR
 function carregarSelectEdicao() {
   blocoEdicao = document.getElementById('editar-bloco').value;
   const lista = blocoEdicao === 'a' ? BlocoA : BlocoB;
@@ -673,7 +705,6 @@ function carregarTodasEncomendas() {
   });
 }
 
-// Navegação entre abas
 function mostrarAbaMoradorA(nome) {
   document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
   document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
