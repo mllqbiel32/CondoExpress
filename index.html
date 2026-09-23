@@ -28,6 +28,7 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-portaria { background: #f59e0b; color: white; }
 .btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
 .btn-salvar-edicao { background: #8b5cf6; color: white; }
+.btn-cadastrar { background: #0d9488; color: white; }
 
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
@@ -49,6 +50,8 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .aba { display: none; }
 .aba.ativa { display: block; }
 .hidden { display: none !important; }
+.aviso { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
+.info { font-size: 13px; color: #6b7280; margin-top: -8px; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -72,7 +75,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     </button>
     
     <button class="btn btn-portaria" onclick="abrirPortaria()">
-      🔑 PORTARIA — Cadastrar Encomendas
+      🔑 PORTARIA — Controle Completo
     </button>
   </div>
 </div>
@@ -155,16 +158,17 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div id="tela-portaria" class="tela">
   <div class="header">
     <h1>📦 CondoExpress</h1>
-    <div class="status">🔑 Acesso — Portaria</div>
-    <p class="usuario">Cadastro de Encomendas</p>
+    <div class="status">🔑 ACESSO — Portaria</div>
+    <p class="usuario">Controle completo do sistema</p>
   </div>
 
   <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
 
   <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaPortaria('registrar-a')">📦 Bloco A — Registrar</button>
-    <button class="btn btn-nav" onclick="mostrarAbaPortaria('registrar-b')">📦 Bloco B — Registrar</button>
-    <button class="btn btn-nav" onclick="mostrarAbaPortaria('editar')">✏️ Editar Moradores</button>
+    <button class="btn btn-nav ativo" onclick="mostrarAbaPortaria('registrar-a')">📦 Bloco A — Encomenda</button>
+    <button class="btn btn-nav" onclick="mostrarAbaPortaria('registrar-b')">📦 Bloco B — Encomenda</button>
+    <button class="btn btn-nav" onclick="mostrarAbaPortaria('cadastrar')">➕ Cadastrar Morador</button>
+    <button class="btn btn-nav" onclick="mostrarAbaPortaria('editar')">✏️ Editar Morador</button>
     <button class="btn btn-nav" onclick="mostrarAbaPortaria('todas-encomendas')">📋 Todas Encomendas</button>
   </nav>
 
@@ -172,7 +176,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   <div id="registrar-a" class="aba ativa">
     <div class="card">
       <h2>📦 Registrar — Bloco A</h2>
-      <label>Apartamento</label>
+      <label>Apartamento / Morador</label>
       <select id="sel-apto-a" onchange="preencherMorador('a')">
         <option value="">-- Selecione --</option>
       </select>
@@ -193,7 +197,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   <div id="registrar-b" class="aba">
     <div class="card">
       <h2>📦 Registrar — Bloco B</h2>
-      <label>Apartamento</label>
+      <label>Apartamento / Morador</label>
       <select id="sel-apto-b" onchange="preencherMorador('b')">
         <option value="">-- Selecione --</option>
       </select>
@@ -210,10 +214,35 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     </div>
   </div>
 
-  <!-- EDITAR MORADORES (NOVO!) -->
+  <!-- ➕ CADASTRAR NOVO MORADOR -->
+  <div id="cadastrar" class="aba">
+    <div class="card">
+      <h2>➕ Cadastrar Novo Morador</h2>
+      <div class="aviso">🔒 Apenas a Portaria pode cadastrar</div>
+      <p class="info">✅ Permitido: mesmo número de apartamento para vários moradores</p>
+      
+      <label>Bloco</label>
+      <select id="novo-bloco">
+        <option value="a">Bloco A — Ouro Preto</option>
+        <option value="b">Bloco B — Sabará</option>
+      </select>
+      
+      <label>Número do Apartamento</label>
+      <input type="text" id="novo-apto" placeholder="Ex: 205OP">
+      
+      <label>Nome Completo do Morador</label>
+      <input type="text" id="novo-nome" placeholder="Digite o nome completo">
+      
+      <button class="btn btn-cadastrar" onclick="cadastrarNovoMorador()">✅ CADASTRAR</button>
+      <div id="msg-cadastro" class="sucesso hidden">✅ Cadastrado com sucesso!</div>
+    </div>
+  </div>
+
+  <!-- ✏️ EDITAR MORADOR -->
   <div id="editar" class="aba">
     <div class="card">
-      <h2>✏️ Editar Moradores</h2>
+      <h2>✏️ Editar Morador</h2>
+      <div class="aviso">🔒 Apenas a Portaria pode alterar</div>
       
       <label>Bloco</label>
       <select id="editar-bloco" onchange="carregarSelectEdicao()">
@@ -221,16 +250,16 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         <option value="b">Bloco B — Sabará</option>
       </select>
       
-      <label>Apartamento</label>
+      <label>Apartamento / Morador</label>
       <select id="editar-apto" onchange="carregarDadosEdicao()">
         <option value="">-- Escolha --</option>
       </select>
       
-      <label>Número/Apelido do Apartamento</label>
-      <input type="text" id="editar-numero" placeholder="Ex: 012OP">
+      <label>Número do Apartamento</label>
+      <input type="text" id="editar-numero" placeholder="Ex: 205OP">
       
       <label>Nome do Morador</label>
-      <input type="text" id="editar-nome" placeholder="Nome completo do morador">
+      <input type="text" id="editar-nome" placeholder="Nome completo">
       
       <button class="btn btn-salvar-edicao" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
       <div id="msg-edicao" class="sucesso hidden">✅ Alterado com sucesso!</div>
@@ -242,7 +271,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     <div class="card">
       <h2>📋 Todas Encomendas</h2>
       <div id="lista-todas">
-        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda ainda</p>
+        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>
       </div>
     </div>
   </div>
@@ -252,7 +281,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
 <script>
 // ==========================================
-// DADOS DOS MORADORES
+// DADOS
 // ==========================================
 let BlocoA = [
   {apto:"012OP",nome:"Claudete Conceição Rozas"},
@@ -450,29 +479,30 @@ function carregarSelectAptosMorador(sigla) {
   const lista = sigla === 'a' ? BlocoA : BlocoB;
   const el = document.getElementById(`meu-apto-${sigla}`);
   el.innerHTML = '<option value="">-- Escolha seu apartamento --</option>';
-  lista.forEach((m) => {
-    el.innerHTML += `<option value="${m.apto}">${m.apto} — ${m.nome || 'Vago'}</option>`;
+  lista.forEach((m, idx) => {
+    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
   });
 }
 
 function verMinhasEncomendas(sigla) {
-  const meuApto = document.getElementById(`meu-apto-${sigla}`).value;
+  const indice = document.getElementById(`meu-apto-${sigla}`).value;
   const listaEncs = sigla === 'a' ? encomendasA : encomendasB;
   const elLista = document.getElementById(`lista-minhas-${sigla}`);
   const elNome = document.getElementById(`nome-meu-apto-${sigla}`);
 
-  if(!meuApto) {
+  if(!indice) {
     elLista.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>';
     elNome.innerHTML = '';
     return;
   }
 
-  const minhas = listaEncs.filter(e => e.apto === meuApto);
-  const dadosApto = (sigla === 'a' ? BlocoA : BlocoB).find(m => m.apto === meuApto);
-  elNome.innerHTML = `<strong>${meuApto}</strong> — ${dadosApto?.nome || 'Vago'}`;
+  const dadosApto = (sigla === 'a' ? BlocoA : BlocoB)[parseInt(indice)];
+  const minhas = listaEncs.filter(e => e.indiceOriginal === parseInt(indice));
+  
+  elNome.innerHTML = `<strong>${dadosApto.apto}</strong> — ${dadosApto.nome || 'Vago'}`;
 
   if(minhas.length === 0) {
-    elLista.innerHTML = '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda registrada para este apartamento</p>';
+    elLista.innerHTML = '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda registrada</p>';
     return;
   }
 
@@ -489,7 +519,7 @@ function verMinhasEncomendas(sigla) {
 function carregarSelectAptos(sigla) {
   const lista = sigla === 'a' ? BlocoA : BlocoB;
   const el = document.getElementById(`sel-apto-${sigla}`);
-  el.innerHTML = '<option value="">-- Selecione o apartamento --</option>';
+  el.innerHTML = '<option value="">-- Selecione --</option>';
   lista.forEach((m, idx) => {
     el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
   });
@@ -501,16 +531,49 @@ function preencherMorador(sigla) {
   document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');
 }
 
-// ===== FUNÇÕES DE EDIÇÃO =====
+// ➕ CADASTRAR — SEM BLOQUEIO DE NÚMERO REPETIDO
+function cadastrarNovoMorador() {
+  const bloco = document.getElementById('novo-bloco').value;
+  const apto = document.getElementById('novo-apto').value.trim();
+  const nome = document.getElementById('novo-nome').value.trim();
+
+  if(!apto || !nome) {
+    alert('Preencha o número do apartamento e o nome!');
+    return;
+  }
+
+  const lista = bloco === 'a' ? BlocoA : BlocoB;
+  
+  // ✅ PERMITE MESMO NÚMERO — NÃO VERIFICA DUPLICIDADE
+  lista.push({ apto: apto, nome: nome });
+
+  // Atualiza tudo
+  carregarSelectAptos('a');
+  carregarSelectAptos('b');
+  carregarSelectAptosMorador('a');
+  carregarSelectAptosMorador('b');
+  carregarSelectEdicao();
+  carregarListaMoradores('a');
+  carregarListaMoradores('b');
+
+  // Limpa
+  document.getElementById('novo-apto').value = '';
+  document.getElementById('novo-nome').value = '';
+
+  const msg = document.getElementById('msg-cadastro');
+  msg.classList.remove('hidden');
+  setTimeout(() => msg.classList.add('hidden'), 3000);
+}
+
+// ✏️ EDITAR
 function carregarSelectEdicao() {
   blocoEdicao = document.getElementById('editar-bloco').value;
   const lista = blocoEdicao === 'a' ? BlocoA : BlocoB;
   const el = document.getElementById('editar-apto');
-  el.innerHTML = '<option value="">-- Escolha o apartamento --</option>';
+  el.innerHTML = '<option value="">-- Escolha --</option>';
   lista.forEach((m, idx) => {
     el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
   });
-  // Limpar campos
   document.getElementById('editar-numero').value = '';
   document.getElementById('editar-nome').value = '';
   indiceEdicao = null;
@@ -533,7 +596,7 @@ function carregarDadosEdicao() {
 
 function salvarEdicao() {
   if(indiceEdicao === null) {
-    alert('Selecione um apartamento primeiro!');
+    alert('Selecione um apartamento!');
     return;
   }
   const novoApto = document.getElementById('editar-numero').value.trim();
@@ -546,14 +609,14 @@ function salvarEdicao() {
   lista[indiceEdicao].apto = novoApto;
   lista[indiceEdicao].nome = novoNome;
 
-  // Atualizar tudo
   carregarSelectEdicao();
   carregarSelectAptos('a');
   carregarSelectAptos('b');
   carregarSelectAptosMorador('a');
   carregarSelectAptosMorador('b');
+  carregarListaMoradores('a');
+  carregarListaMoradores('b');
 
-  // Mensagem
   const msg = document.getElementById('msg-edicao');
   msg.classList.remove('hidden');
   setTimeout(() => msg.classList.add('hidden'), 3000);
@@ -561,15 +624,16 @@ function salvarEdicao() {
 
 function salvarEncomenda(sigla) {
   const selIdx = document.getElementById(`sel-apto-${sigla}`).value;
-  if(selIdx === '') { alert('Selecione o apartamento!'); return; }
+  if(selIdx === '') { alert('Selecione!'); return; }
   
   const lista = sigla === 'a' ? BlocoA : BlocoB;
   const morador = lista[parseInt(selIdx)];
   const empresa = document.getElementById(`empresa-${sigla}`).value.trim();
-  if(!empresa) { alert('Digite a empresa/loja!'); return; }
+  if(!empresa) { alert('Digite a empresa!'); return; }
 
   const enc = {
     bloco: sigla.toUpperCase(),
+    indiceOriginal: parseInt(selIdx),
     apto: morador.apto,
     nome: morador.nome || 'Vago',
     empresa: empresa,
@@ -581,14 +645,12 @@ function salvarEncomenda(sigla) {
   if(sigla === 'a') encomendasA.unshift(enc);
   else encomendasB.unshift(enc);
 
-  // Limpar formulário
   document.getElementById(`sel-apto-${sigla}`).value = '';
   document.getElementById(`nome-morador-${sigla}`).value = '';
   document.getElementById(`empresa-${sigla}`).value = '';
   document.getElementById(`nota-${sigla}`).value = '';
   document.getElementById(`rastreio-${sigla}`).value = '';
 
-  // Mensagem
   const msg = document.getElementById(`msg-sucesso-${sigla}`);
   msg.classList.remove('hidden');
   setTimeout(() => msg.classList.add('hidden'), 3000);
@@ -615,7 +677,7 @@ function carregarTodasEncomendas() {
   });
 }
 
-// Navegação entre abas
+// Navegação
 function mostrarAbaMoradorA(nome) {
   document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
   document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
