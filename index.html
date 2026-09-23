@@ -9,7 +9,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
 body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 
-.container { max-width: 480px; margin: 0 auto; }
+.container { max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
 
 .header { text-align: center; padding: 20px 0; }
 .header h1 { font-size: 28px; color: #1e40af; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -18,8 +18,13 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .seletor-apto { background: #fef3c7; padding: 14px; border-radius: 10px; margin-bottom: 15px; }
 .seletor-apto label { font-weight: 600; color: #92400e; }
 
-.btn { border: none; border-radius: 12px; padding: 16px 20px; font-size: 17px; font-weight: 600; cursor: pointer; width: 100%; margin: 8px 0; transition: all .2s; pointer-events: auto; }
-.btn:active { transform: scale(0.98); }
+.btn { 
+  border: none; border-radius: 12px; padding: 16px 20px; 
+  font-size: 17px; font-weight: 600; cursor: pointer; 
+  width: 100%; margin: 8px 0; transition: all .2s; 
+  position: relative; z-index: 100; pointer-events: auto;
+}
+.btn:active { transform: scale(0.97); }
 .btn-sair { background: #e5e7eb; color: #374151; max-width: 250px; display: block; margin: 0 auto 20px; }
 .btn-nav { background: white; color: #1e40af; box-shadow: 0 1px 3px rgba(0,0,0,.1); text-align: left; padding-left: 20px; }
 .btn-nav.ativo { background: #1e40af; color: white; }
@@ -29,12 +34,24 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
 .btn-salvar-edicao { background: #8b5cf6; color: white; }
 .btn-cadastrar { background: #0d9488; color: white; }
-.btn-foto { background: #ec4899; color: white; margin-bottom: 12px; padding: 14px; font-size: 16px; }
+.btn-foto { 
+  background: #ec4899; color: white; margin-bottom: 12px; 
+  padding: 14px; font-size: 16px;
+  position: relative; z-index: 9999;
+}
 
-.card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+.card { 
+  background: white; border-radius: 16px; padding: 20px; 
+  margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); 
+  position: relative; z-index: 10;
+}
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 label { font-weight: 600; font-size: 14px; color: #374151; display: block; margin: 12px 0 4px; }
-input, select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; }
+input, select { 
+  width: 100%; padding: 12px; border: 1px solid #d1d5db; 
+  border-radius: 8px; font-size: 15px;
+  position: relative; z-index: 1;
+}
 input[readonly] { background: #f3f4f6; color: #4b5563; }
 .lista-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
 .lista-item:last-child { border: none; }
@@ -47,14 +64,14 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .tag-a { background: #1e40af; }
 .tag-b { background: #16a34a; }
 .vago { color: #9ca3af; font-style: italic; }
-.tela { display: none; }
+.tela { display: none; position: relative; z-index: 1; }
 .tela.ativa { display: block; }
-.aba { display: none; }
+.aba { display: none; position: relative; z-index: 1; }
 .aba.ativa { display: block; }
 .hidden { display: none !important; }
 .aviso { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
 .senha-input { font-size: 18px; letter-spacing: 4px; }
-.foto-preview { max-width: 100%; border-radius: 8px; margin: 10px 0; display: none; }
+.foto-preview { max-width: 100%; border-radius: 8px; margin: 10px 0; display: none; position: relative; z-index: 1; }
 </style>
 </head>
 <body>
@@ -188,7 +205,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   <div id="registrar-a" class="aba ativa">
     <div class="card">
       <!-- BOTÃO TIRAR FOTO - ACIMA DE REGISTRAR -->
-      <button class="btn btn-foto" onclick="document.getElementById('foto-a').click()">📸 Tirar Foto da Encomenda</button>
+      <button type="button" class="btn btn-foto" id="btn-foto-a" onclick="document.getElementById('foto-a').click()">📸 Tirar Foto da Encomenda</button>
       <input type="file" id="foto-a" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this, 'preview-a')">
       <img id="preview-a" class="foto-preview" alt="Foto da encomenda">
       
@@ -205,7 +222,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <input type="text" id="nota-a" placeholder="Número">
       <label>Código de Rastreio</label>
       <input type="text" id="rastreio-a" placeholder="Código">
-      <button class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>
+      <button type="button" class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>
       <div id="msg-sucesso-a" class="sucesso hidden">✅ Registrada!</div>
     </div>
   </div>
@@ -214,7 +231,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   <div id="registrar-b" class="aba">
     <div class="card">
       <!-- BOTÃO TIRAR FOTO - ACIMA DE REGISTRAR -->
-      <button class="btn btn-foto" onclick="document.getElementById('foto-b').click()">📸 Tirar Foto da Encomenda</button>
+      <button type="button" class="btn btn-foto" id="btn-foto-b" onclick="document.getElementById('foto-b').click()">📸 Tirar Foto da Encomenda</button>
       <input type="file" id="foto-b" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this, 'preview-b')">
       <img id="preview-b" class="foto-preview" alt="Foto da encomenda">
       
@@ -231,7 +248,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <input type="text" id="nota-b" placeholder="Número">
       <label>Código de Rastreio</label>
       <input type="text" id="rastreio-b" placeholder="Código">
-      <button class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>
+      <button type="button" class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>
       <div id="msg-sucesso-b" class="sucesso hidden">✅ Registrada!</div>
     </div>
   </div>
@@ -253,7 +270,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <label>Nome Completo do Morador</label>
       <input type="text" id="novo-nome" placeholder="Digite o nome completo">
       
-      <button class="btn btn-cadastrar" onclick="cadastrarNovoMorador()">✅ CADASTRAR</button>
+      <button type="button" class="btn btn-cadastrar" onclick="cadastrarNovoMorador()">✅ CADASTRAR</button>
       <div id="msg-cadastro" class="sucesso hidden">✅ Cadastrado com sucesso!</div>
     </div>
   </div>
@@ -280,7 +297,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <label>Nome do Morador</label>
       <input type="text" id="editar-nome" placeholder="Nome completo">
       
-      <button class="btn btn-salvar-edicao" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
+      <button type="button" class="btn btn-salvar-edicao" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
       <div id="msg-edicao" class="sucesso hidden">✅ Alterado com sucesso!</div>
     </div>
   </div>
@@ -545,6 +562,27 @@ function abrirPortaria() {
   carregarTodasEncomendas();
 }
 
+function mostrarAbaMoradorA(nome) {
+  document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
+  document.getElementById(nome).classList.add('ativa');
+  document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
+  event.target.classList.add('ativo');
+}
+
+function mostrarAbaMoradorB(nome) {
+  document.querySelectorAll('#tela-morador-b .aba').forEach(a => a.classList.remove('ativa'));
+  document.getElementById(nome).classList.add('ativa');
+  document.querySelectorAll('#tela-morador-b .btn-nav').forEach(b => b.classList.remove('ativo'));
+  event.target.classList.add('ativo');
+}
+
+function mostrarAbaPortaria(nome) {
+  document.querySelectorAll('#tela-portaria .aba').forEach(a => a.classList.remove('ativa'));
+  document.getElementById(nome).classList.add('ativa');
+  document.querySelectorAll('#tela-portaria .btn-nav').forEach(b => b.classList.remove('ativo'));
+  event.target.classList.add('ativo');
+}
+
 function carregarListaMoradores(sigla) {
   const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
   const el = document.getElementById(`lista-moradores-${sigla}`);
@@ -720,40 +758,4 @@ function salvarEncomenda(sigla) {
     nome: morador.nome || 'Vago',
     empresa: empresa,
     nota: document.getElementById(`nota-${sigla}`).value.trim() || 'Não informada',
-    rastreio: document.getElementById(`rastreio-${sigla}`).value.trim() || 'Não informado',
-    foto: foto,
-    data: new Date().toLocaleString('pt-BR')
-  };
-
-  if(sigla === 'a') window.encomendasA.unshift(enc);
-  else window.encomendasB.unshift(enc);
-  
-  salvarDados();
-
-  // Limpa campos e foto
-  document.getElementById(`sel-apto-${sigla}`).value = '';
-  document.getElementById(`nome-morador-${sigla}`).value = '';
-  document.getElementById(`empresa-${sigla}`).value = '';
-  document.getElementById(`nota-${sigla}`).value = '';
-  document.getElementById(`rastreio-${sigla}`).value = '';
-  document.getElementById(`preview-${sigla}`).style.display = 'none';
-  if(sigla === 'a') fotoBase64A = null;
-  else fotoBase64B = null;
-
-  const msg = document.getElementById(`msg-sucesso-${sigla}`);
-  msg.classList.remove('hidden');
-  setTimeout(() => msg.classList.add('hidden'), 3000);
-
-  carregarTodasEncomendas();
-}
-
-function carregarTodasEncomendas() {
-  const todas = [...window.encomendasA, ...window.encomendasB].sort((a,b) => new Date(b.data) - new Date(a.data));
-  const el = document.getElementById('lista-todas');
-  if(todas.length === 0) {
-    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';
-    return;
-  }
-  el.innerHTML = '';
-  todas.forEach(e => {
-    let foto
+    rastreio: document.getElementById(`rastreio-${sigla}`
