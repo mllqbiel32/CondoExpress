@@ -18,8 +18,8 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .seletor-apto { background: #fef3c7; padding: 14px; border-radius: 10px; margin-bottom: 15px; }
 .seletor-apto label { font-weight: 600; color: #92400e; }
 
-.btn { border: none; border-radius: 12px; padding: 16px 20px; font-size: 17px; font-weight: 600; cursor: pointer; width: 100%; margin: 8px 0; transition: all .2s; }
-.btn:hover { transform: translateY(-1px); }
+.btn { border: none; border-radius: 12px; padding: 16px 20px; font-size: 17px; font-weight: 600; cursor: pointer; width: 100%; margin: 8px 0; transition: all .2s; pointer-events: auto; }
+.btn:active { transform: scale(0.98); }
 .btn-sair { background: #e5e7eb; color: #374151; max-width: 250px; display: block; margin: 0 auto 20px; }
 .btn-nav { background: white; color: #1e40af; box-shadow: 0 1px 3px rgba(0,0,0,.1); text-align: left; padding-left: 20px; }
 .btn-nav.ativo { background: #1e40af; color: white; }
@@ -29,7 +29,7 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
 .btn-salvar-edicao { background: #8b5cf6; color: white; }
 .btn-cadastrar { background: #0d9488; color: white; }
-.btn-foto { background: #ec4899; color: white; margin-bottom: 10px; }
+.btn-foto { background: #ec4899; color: white; margin-bottom: 12px; padding: 14px; font-size: 16px; }
 
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
@@ -188,8 +188,8 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   <div id="registrar-a" class="aba ativa">
     <div class="card">
       <!-- BOTÃO TIRAR FOTO - ACIMA DE REGISTRAR -->
-      <input type="file" id="foto-a" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this, 'preview-a')">
       <button class="btn btn-foto" onclick="document.getElementById('foto-a').click()">📸 Tirar Foto da Encomenda</button>
+      <input type="file" id="foto-a" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this, 'preview-a')">
       <img id="preview-a" class="foto-preview" alt="Foto da encomenda">
       
       <h2>📦 Registrar — Bloco A</h2>
@@ -214,8 +214,8 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   <div id="registrar-b" class="aba">
     <div class="card">
       <!-- BOTÃO TIRAR FOTO - ACIMA DE REGISTRAR -->
-      <input type="file" id="foto-b" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this, 'preview-b')">
       <button class="btn btn-foto" onclick="document.getElementById('foto-b').click()">📸 Tirar Foto da Encomenda</button>
+      <input type="file" id="foto-b" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this, 'preview-b')">
       <img id="preview-b" class="foto-preview" alt="Foto da encomenda">
       
       <h2>📦 Registrar — Bloco B</h2>
@@ -481,7 +481,6 @@ function salvarDados() {
   localStorage.setItem('condo_encomendasB', JSON.stringify(window.encomendasB));
 }
 
-// Carrega tudo quando abre a página
 carregarDados();
 
 // ==========================================
@@ -504,7 +503,7 @@ function mostrarFoto(input, previewId) {
 }
 
 // ==========================================
-// FUNÇÕES DE SENHA
+// SENHA
 // ==========================================
 function mostrarSenha() {
   document.getElementById('caixa-senha').classList.remove('hidden');
@@ -731,7 +730,7 @@ function salvarEncomenda(sigla) {
   
   salvarDados();
 
-  // Limpa os campos e foto
+  // Limpa campos e foto
   document.getElementById(`sel-apto-${sigla}`).value = '';
   document.getElementById(`nome-morador-${sigla}`).value = '';
   document.getElementById(`empresa-${sigla}`).value = '';
@@ -755,4 +754,6 @@ function carregarTodasEncomendas() {
     el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';
     return;
   }
-  el
+  el.innerHTML = '';
+  todas.forEach(e => {
+    let foto
