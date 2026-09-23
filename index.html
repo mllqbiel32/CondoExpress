@@ -4,326 +4,102 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CondoExpress</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
-body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
-
-.container { max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
-
-.header { text-align: center; padding: 20px 0; }
-.header h1 { font-size: 28px; color: #1e40af; display: flex; align-items: center; justify-content: center; gap: 10px; }
-.status { display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; margin: 10px 0; }
-.usuario { color: #4b5563; font-size: 16px; margin-bottom: 15px; }
-.seletor-apto { background: #fef3c7; padding: 14px; border-radius: 10px; margin-bottom: 15px; }
-.seletor-apto label { font-weight: 600; color: #92400e; }
-
-.btn { 
-  border: none; border-radius: 12px; padding: 16px 20px; 
-  font-size: 17px; font-weight: 600; cursor: pointer; 
-  width: 100%; margin: 8px 0; transition: all .2s; 
-  position: relative; z-index: 100; pointer-events: auto;
-}
-.btn:active { transform: scale(0.97); }
-.btn-sair { background: #e5e7eb; color: #374151; max-width: 250px; display: block; margin: 0 auto 20px; }
-.btn-nav { background: white; color: #1e40af; box-shadow: 0 1px 3px rgba(0,0,0,.1); text-align: left; padding-left: 20px; }
-.btn-nav.ativo { background: #1e40af; color: white; }
-.btn-bloco-a { background: #1e40af; color: white; }
-.btn-bloco-b { background: #16a34a; color: white; }
-.btn-portaria { background: #f59e0b; color: white; }
-.btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
-.btn-salvar-edicao { background: #8b5cf6; color: white; }
-.btn-cadastrar { background: #0d9488; color: white; }
-.btn-foto { 
-  background: #ec4899; color: white; margin-bottom: 12px; 
-  padding: 14px; font-size: 16px;
-  position: relative; z-index: 9999;
-}
-
-.card { 
-  background: white; border-radius: 16px; padding: 20px; 
-  margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); 
-  position: relative; z-index: 10;
-}
-.card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-label { font-weight: 600; font-size: 14px; color: #374151; display: block; margin: 12px 0 4px; }
-input, select { 
-  width: 100%; padding: 12px; border: 1px solid #d1d5db; 
-  border-radius: 8px; font-size: 15px;
-  position: relative; z-index: 1;
-}
-input[readonly] { background: #f3f4f6; color: #4b5563; }
-.lista-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
-.lista-item:last-child { border: none; }
-.lista-item strong { font-size: 15px; color: #111827; display: block; }
-.encomenda-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
-.encomenda-data { font-size: 12px; color: #9ca3af; margin-top: 4px; }
-.sucesso { background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; margin-top: 12px; text-align: center; font-weight: 600; }
-.erro { background: #fee2e2; color: #dc2626; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; display: none; }
-.tag-bloco { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; color: white; margin-left: 8px; }
-.tag-a { background: #1e40af; }
-.tag-b { background: #16a34a; }
-.vago { color: #9ca3af; font-style: italic; }
-.tela { display: none; position: relative; z-index: 1; }
-.tela.ativa { display: block; }
-.aba { display: none; position: relative; z-index: 1; }
-.aba.ativa { display: block; }
-.hidden { display: none !important; }
-.aviso { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
-.senha-input { font-size: 18px; letter-spacing: 4px; }
-.foto-preview { max-width: 100%; border-radius: 8px; margin: 10px 0; display: none; position: relative; z-index: 1; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f0f4f8;padding:16px}
+.container{max-width:480px;margin:0 auto}
+h1{font-size:24px;color:#1e40af;text-align:center;margin:20px 0}
+.card{background:white;border-radius:16px;padding:20px;margin:15px 0;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.btn{display:block;width:100%;border:none;border-radius:12px;padding:18px;font-size:18px;font-weight:bold;color:white;cursor:pointer;margin:10px 0;text-align:center}
+.btn-a{background:#1e40af}
+.btn-b{background:#16a34a}
+.btn-portaria{background:#f59e0b}
+.btn-sair{background:#e5e7eb;color:#374151;max-width:250px;margin:0 auto 20px}
+.btn-enviar{background:#16a34a}
+label{font-weight:bold;display:block;margin:15px 0 5px}
+input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:16px}
+.tela{display:none}
+.tela.ativa{display:block}
+.aba{display:none}
+.aba.ativa{display:block}
+.hidden{display:none}
+.sucesso{background:#dcfce7;color:#166534;padding:15px;border-radius:8px;margin-top:15px;text-align:center;font-weight:bold}
 </style>
 </head>
 <body>
-
 <div class="container">
 
-<!-- TELA INICIAL -->
-<div id="tela-inicio" class="tela ativa">
-  <div class="header">
-    <h1>📦 CondoExpress</h1>
-  </div>
-  <div class="card">
-    <p style="text-align:center; font-size:17px; color:#4b5563; margin-bottom:20px">Escolha uma opção:</p>
-    
-    <button class="btn btn-bloco-a" onclick="abrirMorador('a')">
-      🏆 BLOCO A — Ouro Preto (Moradores)
-    </button>
-    
-    <button class="btn btn-bloco-b" onclick="abrirMorador('b')">
-      🏆 BLOCO B — Sabará (Moradores)
-    </button>
-    
-    <button class="btn btn-portaria" onclick="mostrarSenha()">
-      🔑 PORTARIA — Controle Completo
-    </button>
+<!-- TELA INÍCIO -->
+<div id="inicio" class="tela ativa">
+<h1>📦 CondoExpress</h1>
+<div class="card">
+<button class="btn btn-a" onclick="ir('moradorA')">BLOCO A — Ouro Preto</button>
+<button class="btn btn-b" onclick="ir('moradorB')">BLOCO B — Sabará</button>
+<button class="btn btn-portaria" onclick="document.getElementById('senha').classList.remove('hidden')">🔑 PORTARIA</button>
 
-    <div id="caixa-senha" class="hidden" style="margin-top:15px;">
-      <label>Digite a senha da Portaria:</label>
-      <input type="password" id="input-senha" class="senha-input" placeholder="••••••••">
-      <button class="btn btn-portaria" style="margin-top:10px;" onclick="verificarSenha()">✅ Entrar</button>
-      <div id="msg-erro-senha" class="erro">❌ Senha incorreta!</div>
-    </div>
-  </div>
+<div id="senha" class="hidden">
+<label>Senha:</label>
+<input type="password" id="senhaInput">
+<button class="btn btn-portaria" onclick="verificar()">Entrar</button>
 </div>
-
-<!-- TELA BLOCO A — MORADOR -->
-<div id="tela-morador-a" class="tela">
-  <div class="header">
-    <h1>📦 CondoExpress</h1>
-    <div class="status">✅ Bloco A — Ouro Preto</div>
-  </div>
-  <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
-
-  <div class="seletor-apto">
-    <label>🏠 Selecione seu apartamento para ver suas encomendas:</label>
-    <select id="meu-apto-a" onchange="verMinhasEncomendas('a')">
-      <option value="">-- Escolha seu apartamento --</option>
-    </select>
-  </div>
-
-  <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorA('moradores-a')">👥 Lista do Bloco</button>
-    <button class="btn btn-nav" onclick="mostrarAbaMoradorA('minhas-a')">📦 Minhas Encomendas</button>
-  </nav>
-
-  <div id="moradores-a" class="aba ativa">
-    <div class="card">
-      <h2>👥 Moradores — Bloco A</h2>
-      <div id="lista-moradores-a"></div>
-    </div>
-  </div>
-
-  <div id="minhas-a" class="aba">
-    <div class="card">
-      <h2>📦 Minhas Encomendas</h2>
-      <p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>
-      <div id="lista-minhas-a">
-        <p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>
-      </div>
-    </div>
-  </div>
 </div>
-
-<!-- TELA BLOCO B — MORADOR -->
-<div id="tela-morador-b" class="tela">
-  <div class="header">
-    <h1>📦 CondoExpress</h1>
-    <div class="status">✅ Bloco B — Sabará</div>
-  </div>
-  <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
-
-  <div class="seletor-apto">
-    <label>🏠 Selecione seu apartamento para ver suas encomendas:</label>
-    <select id="meu-apto-b" onchange="verMinhasEncomendas('b')">
-      <option value="">-- Escolha seu apartamento --</option>
-    </select>
-  </div>
-
-  <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorB('moradores-b')">👥 Lista do Bloco</button>
-    <button class="btn btn-nav" onclick="mostrarAbaMoradorB('minhas-b')">📦 Minhas Encomendas</button>
-  </nav>
-
-  <div id="moradores-b" class="aba ativa">
-    <div class="card">
-      <h2>👥 Moradores — Bloco B</h2>
-      <div id="lista-moradores-b"></div>
-    </div>
-  </div>
-
-  <div id="minhas-b" class="aba">
-    <div class="card">
-      <h2>📦 Minhas Encomendas</h2>
-      <p id="nome-meu-apto-b" style="color:#4b5563; margin-bottom:15px"></p>
-      <div id="lista-minhas-b">
-        <p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- TELA PORTARIA -->
-<div id="tela-portaria" class="tela">
-  <div class="header">
-    <h1>📦 CondoExpress</h1>
-    <div class="status">🔑 ACESSO — Portaria</div>
-    <p class="usuario">Controle completo do sistema</p>
-  </div>
+<div id="portaria" class="tela">
+<h1>🔑 Portaria</h1>
+<button class="btn btn-sair" onclick="ir('inicio')">⬅️ Voltar</button>
 
-  <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
+<button class="btn" style="background:#1e40af" onclick="mostrarAba('regA')">📦 Bloco A</button>
+<button class="btn" style="background:#16a34a" onclick="mostrarAba('regB')">📦 Bloco B</button>
 
-  <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaPortaria('registrar-a')">📦 Bloco A — Encomenda</button>
-    <button class="btn btn-nav" onclick="mostrarAbaPortaria('registrar-b')">📦 Bloco B — Encomenda</button>
-    <button class="btn btn-nav" onclick="mostrarAbaPortaria('cadastrar')">➕ Cadastrar Morador</button>
-    <button class="btn btn-nav" onclick="mostrarAbaPortaria('editar')">✏️ Editar Morador</button>
-    <button class="btn btn-nav" onclick="mostrarAbaPortaria('todas-encomendas')">📋 Todas Encomendas</button>
-  </nav>
+<div id="regA" class="aba ativa card">
+<label>Apartamento:</label>
+<select id="selA"></select>
+<label>Empresa/Loja:</label>
+<input type="text" id="empresaA">
+<button class="btn btn-enviar" onclick="salvarA()">✅ REGISTRAR</button>
+<div id="msgA" class="sucesso hidden">✅ Enviado!</div>
+</div>
 
-  <!-- REGISTRAR BLOCO A -->
-  <div id="registrar-a" class="aba ativa">
-    <div class="card">
-      <!-- BOTÃO TIRAR FOTO - ACIMA DE REGISTRAR -->
-      <button type="button" class="btn btn-foto" id="btn-foto-a" onclick="document.getElementById('foto-a').click()">📸 Tirar Foto da Encomenda</button>
-      <input type="file" id="foto-a" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this, 'preview-a')">
-      <img id="preview-a" class="foto-preview" alt="Foto da encomenda">
-      
-      <h2>📦 Registrar — Bloco A</h2>
-      <label>Apartamento / Morador</label>
-      <select id="sel-apto-a" onchange="preencherMorador('a')">
-        <option value="">-- Selecione --</option>
-      </select>
-      <label>Nome do Morador</label>
-      <input type="text" id="nome-morador-a" readonly>
-      <label>Empresa / Loja</label>
-      <input type="text" id="empresa-a" placeholder="Ex: Shopee, Correios...">
-      <label>Nota Fiscal</label>
-      <input type="text" id="nota-a" placeholder="Número">
-      <label>Código de Rastreio</label>
-      <input type="text" id="rastreio-a" placeholder="Código">
-      <button type="button" class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>
-      <div id="msg-sucesso-a" class="sucesso hidden">✅ Registrada!</div>
-    </div>
-  </div>
+<div id="regB" class="aba card">
+<label>Apartamento:</label>
+<select id="selB"></select>
+<label>Empresa/Loja:</label>
+<input type="text" id="empresaB">
+<button class="btn btn-enviar" onclick="salvarB()">✅ REGISTRAR</button>
+<div id="msgB" class="sucesso hidden">✅ Enviado!</div>
+</div>
+</div>
 
-  <!-- REGISTRAR BLOCO B -->
-  <div id="registrar-b" class="aba">
-    <div class="card">
-      <!-- BOTÃO TIRAR FOTO - ACIMA DE REGISTRAR -->
-      <button type="button" class="btn btn-foto" id="btn-foto-b" onclick="document.getElementById('foto-b').click()">📸 Tirar Foto da Encomenda</button>
-      <input type="file" id="foto-b" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this, 'preview-b')">
-      <img id="preview-b" class="foto-preview" alt="Foto da encomenda">
-      
-      <h2>📦 Registrar — Bloco B</h2>
-      <label>Apartamento / Morador</label>
-      <select id="sel-apto-b" onchange="preencherMorador('b')">
-        <option value="">-- Selecione --</option>
-      </select>
-      <label>Nome do Morador</label>
-      <input type="text" id="nome-morador-b" readonly>
-      <label>Empresa / Loja</label>
-      <input type="text" id="empresa-b" placeholder="Ex: Shopee, Correios...">
-      <label>Nota Fiscal</label>
-      <input type="text" id="nota-b" placeholder="Número">
-      <label>Código de Rastreio</label>
-      <input type="text" id="rastreio-b" placeholder="Código">
-      <button type="button" class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>
-      <div id="msg-sucesso-b" class="sucesso hidden">✅ Registrada!</div>
-    </div>
-  </div>
+<!-- TELA MORADOR A -->
+<div id="moradorA" class="tela">
+<h1>🏠 Bloco A</h1>
+<button class="btn btn-sair" onclick="ir('inicio')">⬅️ Voltar</button>
+<div class="card">
+<label>Seu apartamento:</label>
+<select id="meuA" onchange="verMinhas('A')"></select>
+<div id="listaA"></div>
+</div>
+</div>
 
-  <div id="cadastrar" class="aba">
-    <div class="card">
-      <h2>➕ Cadastrar Novo Morador</h2>
-      <div class="aviso">🔒 Apenas a Portaria pode cadastrar</div>
-      
-      <label>Bloco</label>
-      <select id="novo-bloco">
-        <option value="a">Bloco A — Ouro Preto</option>
-        <option value="b">Bloco B — Sabará</option>
-      </select>
-      
-      <label>Número do Apartamento</label>
-      <input type="text" id="novo-apto" placeholder="Ex: 205OP">
-      
-      <label>Nome Completo do Morador</label>
-      <input type="text" id="novo-nome" placeholder="Digite o nome completo">
-      
-      <button type="button" class="btn btn-cadastrar" onclick="cadastrarNovoMorador()">✅ CADASTRAR</button>
-      <div id="msg-cadastro" class="sucesso hidden">✅ Cadastrado com sucesso!</div>
-    </div>
-  </div>
-
-  <div id="editar" class="aba">
-    <div class="card">
-      <h2>✏️ Editar Morador</h2>
-      <div class="aviso">🔒 Apenas a Portaria pode alterar</div>
-      
-      <label>Bloco</label>
-      <select id="editar-bloco" onchange="carregarSelectEdicao()">
-        <option value="a">Bloco A — Ouro Preto</option>
-        <option value="b">Bloco B — Sabará</option>
-      </select>
-      
-      <label>Apartamento / Morador</label>
-      <select id="editar-apto" onchange="carregarDadosEdicao()">
-        <option value="">-- Escolha --</option>
-      </select>
-      
-      <label>Número do Apartamento</label>
-      <input type="text" id="editar-numero" placeholder="Ex: 205OP">
-      
-      <label>Nome do Morador</label>
-      <input type="text" id="editar-nome" placeholder="Nome completo">
-      
-      <button type="button" class="btn btn-salvar-edicao" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
-      <div id="msg-edicao" class="sucesso hidden">✅ Alterado com sucesso!</div>
-    </div>
-  </div>
-
-  <div id="todas-encomendas" class="aba">
-    <div class="card">
-      <h2>📋 Todas Encomendas</h2>
-      <div id="lista-todas">
-        <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>
-      </div>
-    </div>
-  </div>
+<!-- TELA MORADOR B -->
+<div id="moradorB" class="tela">
+<h1>🏠 Bloco B</h1>
+<button class="btn btn-sair" onclick="ir('inicio')">⬅️ Voltar</button>
+<div class="card">
+<label>Seu apartamento:</label>
+<select id="meuB" onchange="verMinhas('B')"></select>
+<div id="listaB"></div>
+</div>
 </div>
 
 </div>
 
 <script>
-// ==========================================
-// SENHA
-// ==========================================
-const SENHA_PORTARIA = "portaria123";
+const SENHA = "portaria123";
 
-// ==========================================
-// DADOS INICIAIS DOS MORADORES
-// ==========================================
-const BlocoA_PADRAO = [
+const blocoA = [
   {apto:"012OP",nome:"Claudete Conceição Rozas"},
   {apto:"013OP",nome:"Cristina Filizola"},
   {apto:"014OP",nome:"Urias Taques Junior"},
@@ -399,7 +175,7 @@ const BlocoA_PADRAO = [
   {apto:"194OP",nome:"Vago"}
 ];
 
-const BlocoB_PADRAO = [
+const blocoB = [
   {apto:"011SAB",nome:"Carlos E. Simões Duarte / Patricia Luciano"},
   {apto:"012SAB",nome:"Joseph Gross"},
   {apto:"013SAB",nome:"Patricia Natrielli Gerhardt / Pedro, Isabel"},
@@ -476,286 +252,58 @@ const BlocoB_PADRAO = [
   {apto:"194SAB",nome:"Vago"}
 ];
 
-// ==========================================
-// SALVAMENTO PERMANENTE
-// ==========================================
-function carregarDados() {
-  let blocoA = localStorage.getItem('condo_blocoA');
-  let blocoB = localStorage.getItem('condo_blocoB');
-  let encA = localStorage.getItem('condo_encomendasA');
-  let encB = localStorage.getItem('condo_encomendasB');
-  
-  window.BlocoA = blocoA ? JSON.parse(blocoA) : [...BlocoA_PADRAO];
-  window.BlocoB = blocoB ? JSON.parse(blocoB) : [...BlocoB_PADRAO];
-  window.encomendasA = encA ? JSON.parse(encA) : [];
-  window.encomendasB = encB ? JSON.parse(encB) : [];
+let encA = JSON.parse(localStorage.getItem('encA')||'[]');
+let encB = JSON.parse(localStorage.getItem('encB')||'[]');
+
+function ir(id){document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));document.getElementById(id).classList.add('ativa')}
+function mostrarAba(id){document.querySelectorAll('.aba').forEach(a=>a.classList.remove('ativa'));document.getElementById(id).classList.add('ativa')}
+
+function verificar(){if(document.getElementById('senhaInput').value===SENHA){ir('portaria');carregarSelects()}}
+
+function carregarSelects(){
+  let sA = document.getElementById('selA'); sA.innerHTML='<option value="">-- Selecione --</option>';
+  blocoA.forEach((m,i)=>sA.innerHTML+=`<option value="${i}">${m.apto} — ${m.nome}</option>`);
+  let sB = document.getElementById('selB'); sB.innerHTML='<option value="">-- Selecione --</option>';
+  blocoB.forEach((m,i)=>sB.innerHTML+=`<option value="${i}">${m.apto} — ${m.nome}</option>`);
+  let mA = document.getElementById('meuA'); mA.innerHTML='<option value="">-- Seu apartamento --</option>';
+  blocoA.forEach((m,i)=>mA.innerHTML+=`<option value="${i}">${m.apto}</option>`);
+  let mB = document.getElementById('meuB'); mB.innerHTML='<option value="">-- Seu apartamento --</option>';
+  blocoB.forEach((m,i)=>mB.innerHTML+=`<option value="${i}">${m.apto}</option>`);
 }
 
-function salvarDados() {
-  localStorage.setItem('condo_blocoA', JSON.stringify(window.BlocoA));
-  localStorage.setItem('condo_blocoB', JSON.stringify(window.BlocoB));
-  localStorage.setItem('condo_encomendasA', JSON.stringify(window.encomendasA));
-  localStorage.setItem('condo_encomendasB', JSON.stringify(window.encomendasB));
+function salvarA(){
+  let i = document.getElementById('selA').value;
+  let emp = document.getElementById('empresaA').value.trim();
+  if(!i||!emp){alert('Preencha tudo!');return}
+  encA.unshift({apto:blocoA[i].apto,nome:blocoA[i].nome,empresa:emp,data:new Date().toLocaleString('pt-BR')});
+  localStorage.setItem('encA',JSON.stringify(encA));
+  document.getElementById('msgA').classList.remove('hidden');
+  document.getElementById('empresaA').value='';
+  setTimeout(()=>document.getElementById('msgA').classList.add('hidden'),3000);
 }
 
-carregarDados();
-
-// ==========================================
-// FOTO DA ENCOMENDA
-// ==========================================
-let fotoBase64A = null;
-let fotoBase64B = null;
-
-function mostrarFoto(input, previewId) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById(previewId).src = e.target.result;
-      document.getElementById(previewId).style.display = 'block';
-      if (previewId === 'preview-a') fotoBase64A = e.target.result;
-      else fotoBase64B = e.target.result;
-    };
-    reader.readAsDataURL(input.files[0]);
-  }
+function salvarB(){
+  let i = document.getElementById('selB').value;
+  let emp = document.getElementById('empresaB').value.trim();
+  if(!i||!emp){alert('Preencha tudo!');return}
+  encB.unshift({apto:blocoB[i].apto,nome:blocoB[i].nome,empresa:emp,data:new Date().toLocaleString('pt-BR')});
+  localStorage.setItem('encB',JSON.stringify(encB));
+  document.getElementById('msgB').classList.remove('hidden');
+  document.getElementById('empresaB').value='';
+  setTimeout(()=>document.getElementById('msgB').classList.add('hidden'),3000);
 }
 
-// ==========================================
-// SENHA
-// ==========================================
-function mostrarSenha() {
-  document.getElementById('caixa-senha').classList.remove('hidden');
-  document.getElementById('input-senha').value = '';
-  document.getElementById('msg-erro-senha').style.display = 'none';
+function verMinhas(b){
+  let sel = document.getElementById('meu'+b).value;
+  let lista = document.getElementById('lista'+b);
+  if(!sel){lista.innerHTML='';return}
+  let todas = b==='A'?encA:encB;
+  let minhas = todas.filter(e=>e.apto === (b==='A'?blocoA:blocoB)[sel].apto);
+  if(!minhas.length){lista.innerHTML='<p style="color:green">✅ Nenhuma encomenda</p>';return}
+  lista.innerHTML='';
+  minhas.forEach(e=>lista.innerHTML+=`<p style="padding:10px 0;border-bottom:1px solid #ddd"><strong>📦 ${e.empresa}</strong><br><small>${e.data}</small></p>`);
 }
-
-function verificarSenha() {
-  const digitada = document.getElementById('input-senha').value;
-  if(digitada === SENHA_PORTARIA) {
-    abrirPortaria();
-  } else {
-    document.getElementById('msg-erro-senha').style.display = 'block';
-  }
-}
-
-// ==========================================
-// NAVEGAÇÃO
-// ==========================================
-function voltarInicio() {
-  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
-  document.getElementById('tela-inicio').classList.add('ativa');
-  document.getElementById('caixa-senha').classList.add('hidden');
-}
-
-function abrirMorador(sigla) {
-  document.getElementById('tela-inicio').classList.remove('ativa');
-  document.getElementById(`tela-morador-${sigla}`).classList.add('ativa');
-  carregarListaMoradores(sigla);
-  carregarSelectAptosMorador(sigla);
-}
-
-function abrirPortaria() {
-  document.getElementById('tela-inicio').classList.remove('ativa');
-  document.getElementById('tela-portaria').classList.add('ativa');
-  carregarSelectAptos('a');
-  carregarSelectAptos('b');
-  carregarSelectEdicao();
-  carregarTodasEncomendas();
-}
-
-function mostrarAbaMoradorA(nome) {
-  document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
-  document.getElementById(nome).classList.add('ativa');
-  document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
-  event.target.classList.add('ativo');
-}
-
-function mostrarAbaMoradorB(nome) {
-  document.querySelectorAll('#tela-morador-b .aba').forEach(a => a.classList.remove('ativa'));
-  document.getElementById(nome).classList.add('ativa');
-  document.querySelectorAll('#tela-morador-b .btn-nav').forEach(b => b.classList.remove('ativo'));
-  event.target.classList.add('ativo');
-}
-
-function mostrarAbaPortaria(nome) {
-  document.querySelectorAll('#tela-portaria .aba').forEach(a => a.classList.remove('ativa'));
-  document.getElementById(nome).classList.add('ativa');
-  document.querySelectorAll('#tela-portaria .btn-nav').forEach(b => b.classList.remove('ativo'));
-  event.target.classList.add('ativo');
-}
-
-function carregarListaMoradores(sigla) {
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
-  const el = document.getElementById(`lista-moradores-${sigla}`);
-  el.innerHTML = '';
-  lista.forEach(m => {
-    const nome = m.nome || '<span class="vago">Vago</span>';
-    el.innerHTML += `<div class="lista-item"><strong>${m.apto}</strong><br>${nome}</div>`;
-  });
-}
-
-function carregarSelectAptosMorador(sigla) {
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
-  const el = document.getElementById(`meu-apto-${sigla}`);
-  el.innerHTML = '<option value="">-- Escolha seu apartamento --</option>';
-  lista.forEach((m, idx) => {
-    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
-  });
-}
-
-function verMinhasEncomendas(sigla) {
-  const indice = document.getElementById(`meu-apto-${sigla}`).value;
-  const listaEncs = sigla === 'a' ? window.encomendasA : window.encomendasB;
-  const elLista = document.getElementById(`lista-minhas-${sigla}`);
-  const elNome = document.getElementById(`nome-meu-apto-${sigla}`);
-
-  if(!indice) {
-    elLista.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>';
-    elNome.innerHTML = '';
-    return;
-  }
-
-  const dadosApto = (sigla === 'a' ? window.BlocoA : window.BlocoB)[parseInt(indice)];
-  const minhas = listaEncs.filter(e => e.indiceOriginal === parseInt(indice));
-  
-  elNome.innerHTML = `<strong>${dadosApto.apto}</strong> — ${dadosApto.nome || 'Vago'}`;
-
-  if(minhas.length === 0) {
-    elLista.innerHTML = '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda registrada para este apartamento</p>';
-    return;
-  }
-
-  elLista.innerHTML = '';
-  minhas.forEach(e => {
-    let fotoHtml = e.foto ? `<img src="${e.foto}" style="max-width:100%; border-radius:8px; margin:8px 0;">` : '';
-    elLista.innerHTML += `<div class="encomenda-item">
-      <strong>📦 ${e.empresa}</strong><br>
-      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
-      ${fotoHtml}
-      <span class="encomenda-data">${e.data}</span>
-    </div>`;
-  });
-}
-
-function carregarSelectAptos(sigla) {
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
-  const el = document.getElementById(`sel-apto-${sigla}`);
-  el.innerHTML = '<option value="">-- Selecione --</option>';
-  lista.forEach((m, idx) => {
-    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
-  });
-}
-
-function preencherMorador(sigla) {
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
-  const sel = document.getElementById(`sel-apto-${sigla}`).value;
-  document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');
-}
-
-function cadastrarNovoMorador() {
-  const bloco = document.getElementById('novo-bloco').value;
-  const apto = document.getElementById('novo-apto').value.trim();
-  const nome = document.getElementById('novo-nome').value.trim();
-
-  if(!apto || !nome) {
-    alert('Preencha o número do apartamento e o nome!');
-    return;
-  }
-
-  const lista = bloco === 'a' ? window.BlocoA : window.BlocoB;
-  lista.push({ apto: apto, nome: nome });
-  salvarDados();
-
-  carregarSelectAptos('a');
-  carregarSelectAptos('b');
-  carregarSelectAptosMorador('a');
-  carregarSelectAptosMorador('b');
-  carregarSelectEdicao();
-  carregarListaMoradores('a');
-  carregarListaMoradores('b');
-
-  document.getElementById('novo-apto').value = '';
-  document.getElementById('novo-nome').value = '';
-
-  const msg = document.getElementById('msg-cadastro');
-  msg.classList.remove('hidden');
-  setTimeout(() => msg.classList.add('hidden'), 3000);
-}
-
-let indiceEdicao = null, blocoEdicao = null;
-
-function carregarSelectEdicao() {
-  blocoEdicao = document.getElementById('editar-bloco').value;
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;
-  const el = document.getElementById('editar-apto');
-  el.innerHTML = '<option value="">-- Escolha --</option>';
-  lista.forEach((m, idx) => {
-    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
-  });
-  document.getElementById('editar-numero').value = '';
-  document.getElementById('editar-nome').value = '';
-  indiceEdicao = null;
-}
-
-function carregarDadosEdicao() {
-  const sel = document.getElementById('editar-apto').value;
-  if(sel === '') {
-    document.getElementById('editar-numero').value = '';
-    document.getElementById('editar-nome').value = '';
-    indiceEdicao = null;
-    return;
-  }
-  blocoEdicao = document.getElementById('editar-bloco').value;
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;
-  indiceEdicao = parseInt(sel);
-  document.getElementById('editar-numero').value = lista[indiceEdicao].apto;
-  document.getElementById('editar-nome').value = lista[indiceEdicao].nome;
-}
-
-function salvarEdicao() {
-  if(indiceEdicao === null) {
-    alert('Selecione um apartamento!');
-    return;
-  }
-  const novoApto = document.getElementById('editar-numero').value.trim();
-  const novoNome = document.getElementById('editar-nome').value.trim();
-  if(!novoApto || !novoNome) {
-    alert('Preencha os dois campos!');
-    return;
-  }
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;
-  lista[indiceEdicao].apto = novoApto;
-  lista[indiceEdicao].nome = novoNome;
-  salvarDados();
-
-  carregarSelectEdicao();
-  carregarSelectAptos('a');
-  carregarSelectAptos('b');
-  carregarSelectAptosMorador('a');
-  carregarSelectAptosMorador('b');
-  carregarListaMoradores('a');
-  carregarListaMoradores('b');
-
-  const msg = document.getElementById('msg-edicao');
-  msg.classList.remove('hidden');
-  setTimeout(() => msg.classList.add('hidden'), 3000);
-}
-
-function salvarEncomenda(sigla) {
-  const selIdx = document.getElementById(`sel-apto-${sigla}`).value;
-  if(selIdx === '') { alert('Selecione o apartamento!'); return; }
-  
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
-  const morador = lista[parseInt(selIdx)];
-  const empresa = document.getElementById(`empresa-${sigla}`).value.trim();
-  if(!empresa) { alert('Digite a empresa/loja!'); return; }
-
-  const foto = sigla === 'a' ? fotoBase64A : fotoBase64B;
-
-  const enc = {
-    bloco: sigla.toUpperCase(),
-    indiceOriginal: parseInt(selIdx),
-    apto: morador.apto,
-    nome: morador.nome || 'Vago',
-    empresa: empresa,
-    nota: document.getElementById(`nota-${sigla}`).value.trim() || 'Não informada',
-    rastreio: document.getElementById(`rastreio-${sigla}`
+</script>
+</div>
+</body>
+</html>
