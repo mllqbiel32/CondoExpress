@@ -29,6 +29,7 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
 .btn-salvar-edicao { background: #8b5cf6; color: white; }
 .btn-cadastrar { background: #0d9488; color: white; }
+.btn-foto { background: #ec4899; color: white; margin-bottom: 10px; }
 
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
@@ -53,6 +54,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .hidden { display: none !important; }
 .aviso { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
 .senha-input { font-size: 18px; letter-spacing: 4px; }
+.foto-preview { max-width: 100%; border-radius: 8px; margin: 10px 0; display: none; }
 </style>
 </head>
 <body>
@@ -182,8 +184,14 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     <button class="btn btn-nav" onclick="mostrarAbaPortaria('todas-encomendas')">📋 Todas Encomendas</button>
   </nav>
 
+  <!-- REGISTRAR BLOCO A -->
   <div id="registrar-a" class="aba ativa">
     <div class="card">
+      <!-- BOTÃO TIRAR FOTO - ACIMA DE REGISTRAR -->
+      <input type="file" id="foto-a" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this, 'preview-a')">
+      <button class="btn btn-foto" onclick="document.getElementById('foto-a').click()">📸 Tirar Foto da Encomenda</button>
+      <img id="preview-a" class="foto-preview" alt="Foto da encomenda">
+      
       <h2>📦 Registrar — Bloco A</h2>
       <label>Apartamento / Morador</label>
       <select id="sel-apto-a" onchange="preencherMorador('a')">
@@ -202,8 +210,14 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     </div>
   </div>
 
+  <!-- REGISTRAR BLOCO B -->
   <div id="registrar-b" class="aba">
     <div class="card">
+      <!-- BOTÃO TIRAR FOTO - ACIMA DE REGISTRAR -->
+      <input type="file" id="foto-b" accept="image/*" capture="environment" style="display:none" onchange="mostrarFoto(this, 'preview-b')">
+      <button class="btn btn-foto" onclick="document.getElementById('foto-b').click()">📸 Tirar Foto da Encomenda</button>
+      <img id="preview-b" class="foto-preview" alt="Foto da encomenda">
+      
       <h2>📦 Registrar — Bloco B</h2>
       <label>Apartamento / Morador</label>
       <select id="sel-apto-b" onchange="preencherMorador('b')">
@@ -471,6 +485,25 @@ function salvarDados() {
 carregarDados();
 
 // ==========================================
+// FOTO DA ENCOMENDA
+// ==========================================
+let fotoBase64A = null;
+let fotoBase64B = null;
+
+function mostrarFoto(input, previewId) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById(previewId).src = e.target.result;
+      document.getElementById(previewId).style.display = 'block';
+      if (previewId === 'preview-a') fotoBase64A = e.target.result;
+      else fotoBase64B = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// ==========================================
 // FUNÇÕES DE SENHA
 // ==========================================
 function mostrarSenha() {
@@ -556,9 +589,11 @@ function verMinhasEncomendas(sigla) {
 
   elLista.innerHTML = '';
   minhas.forEach(e => {
+    let fotoHtml = e.foto ? `<img src="${e.foto}" style="max-width:100%; border-radius:8px; margin:8px 0;">` : '';
     elLista.innerHTML += `<div class="encomenda-item">
       <strong>📦 ${e.empresa}</strong><br>
       Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
+      ${fotoHtml}
       <span class="encomenda-data">${e.data}</span>
     </div>`;
   });
@@ -677,6 +712,8 @@ function salvarEncomenda(sigla) {
   const empresa = document.getElementById(`empresa-${sigla}`).value.trim();
   if(!empresa) { alert('Digite a empresa/loja!'); return; }
 
+  const foto = sigla === 'a' ? fotoBase64A : fotoBase64B;
+
   const enc = {
     bloco: sigla.toUpperCase(),
     indiceOriginal: parseInt(selIdx),
@@ -685,19 +722,24 @@ function salvarEncomenda(sigla) {
     empresa: empresa,
     nota: document.getElementById(`nota-${sigla}`).value.trim() || 'Não informada',
     rastreio: document.getElementById(`rastreio-${sigla}`).value.trim() || 'Não informado',
+    foto: foto,
     data: new Date().toLocaleString('pt-BR')
   };
 
   if(sigla === 'a') window.encomendasA.unshift(enc);
   else window.encomendasB.unshift(enc);
   
-  salvarDados(); // SALVA PARA SEMPRE! ✅
+  salvarDados();
 
+  // Limpa os campos e foto
   document.getElementById(`sel-apto-${sigla}`).value = '';
   document.getElementById(`nome-morador-${sigla}`).value = '';
   document.getElementById(`empresa-${sigla}`).value = '';
   document.getElementById(`nota-${sigla}`).value = '';
   document.getElementById(`rastreio-${sigla}`).value = '';
+  document.getElementById(`preview-${sigla}`).style.display = 'none';
+  if(sigla === 'a') fotoBase64A = null;
+  else fotoBase64B = null;
 
   const msg = document.getElementById(`msg-sucesso-${sigla}`);
   msg.classList.remove('hidden');
@@ -713,37 +755,4 @@ function carregarTodasEncomendas() {
     el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';
     return;
   }
-  el.innerHTML = '';
-  todas.forEach(e => {
-    el.innerHTML += `<div class="encomenda-item">
-      <strong>📦 ${e.empresa}</strong>
-      <span class="tag-bloco tag-${e.bloco.toLowerCase()}" style="float:right">Bloco ${e.bloco}</span><br>
-      ${e.apto} — ${e.nome}<br>
-      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
-      <span class="encomenda-data">${e.data}</span>
-    </div>`;
-  });
-}
-
-function mostrarAbaMoradorA(nome) {
-  document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
-  document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
-  document.getElementById(nome).classList.add('ativa');
-  event.target.classList.add('ativo');
-}
-function mostrarAbaMoradorB(nome) {
-  document.querySelectorAll('#tela-morador-b .aba').forEach(a => a.classList.remove('ativa'));
-  document.querySelectorAll('#tela-morador-b .btn-nav').forEach(b => b.classList.remove('ativo'));
-  document.getElementById(nome).classList.add('ativa');
-  event.target.classList.add('ativo');
-}
-function mostrarAbaPortaria(nome) {
-  document.querySelectorAll('#tela-portaria .aba').forEach(a => a.classList.remove('ativa'));
-  document.querySelectorAll('#tela-portaria .btn-nav').forEach(b => b.classList.remove('ativo'));
-  document.getElementById(nome).classList.add('ativa');
-  event.target.classList.add('ativo');
-}
-</script>
-
-</body>
-</html>
+  el
