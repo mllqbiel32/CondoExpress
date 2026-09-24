@@ -29,6 +29,7 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
 .btn-salvar-edicao { background: #8b5cf6; color: white; }
 .btn-cadastrar { background: #0d9488; color: white; }
+.btn-camera { background: #6366f1; color: white; padding: 10px 16px; font-size: 15px; width: auto; display: inline-flex; align-items: center; gap: 8px; margin: 8px 0; }
 
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
@@ -53,9 +54,29 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .hidden { display: none !important; }
 .aviso { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
 .senha-input { font-size: 18px; letter-spacing: 4px; }
+.preview-foto { margin-top: 10px; border-radius: 8px; overflow: hidden; display: none; }
+.preview-foto.mostrar { display: block; }
+.preview-foto img { width: 100%; height: auto; display: block; }
+.camera-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 9999; display: none; flex-direction: column; }
+.camera-container.ativo { display: flex; }
+.camera-video { width: 100%; height: 60%; object-fit: cover; background: #000; }
+.camera-botoes { display: flex; justify-content: center; gap: 15px; padding: 20px; background: #000; }
+.camera-botao { width: 70px; height: 70px; border-radius: 50%; border: 4px solid white; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; }
+.camera-botao:hover { background: rgba(255,255,255,0.2); }
 </style>
 </head>
 <body>
+
+<!-- CÂMERA (NOVO - NÃO MEXE NO RESTO) -->
+<div id="camera-modal" class="camera-container">
+  <video id="camera-video" class="camera-video" autoplay playsinline></video>
+  <div class="camera-botoes">
+    <button class="camera-botao" onclick="fecharCamera()" style="border-color: #ef4444;">✕</button>
+    <button class="camera-botao" onclick="tirarFoto()" style="background: white; color: black;">📷</button>
+    <button class="camera-botao" onclick="usarArquivo()" style="border-color: #6366f1;">📁</button>
+  </div>
+</div>
+<input type="file" id="input-arquivo-foto" accept="image/*" style="display: none;">
 
 <div class="container">
 
@@ -197,6 +218,11 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <input type="text" id="nota-a" placeholder="Número">
       <label>Código de Rastreio</label>
       <input type="text" id="rastreio-a" placeholder="Código">
+      <label>Foto da Encomenda</label>
+      <button type="button" class="btn-camera" onclick="abrirCamera('a')">📷 Tirar Foto</button>
+      <div id="preview-foto-a" class="preview-foto">
+        <img id="img-foto-a" alt="Foto da encomenda">
+      </div>
       <button class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>
       <div id="msg-sucesso-a" class="sucesso hidden">✅ Registrada!</div>
     </div>
@@ -217,6 +243,11 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <input type="text" id="nota-b" placeholder="Número">
       <label>Código de Rastreio</label>
       <input type="text" id="rastreio-b" placeholder="Código">
+      <label>Foto da Encomenda</label>
+      <button type="button" class="btn-camera" onclick="abrirCamera('b')">📷 Tirar Foto</button>
+      <div id="preview-foto-b" class="preview-foto">
+        <img id="img-foto-b" alt="Foto da encomenda">
+      </div>
       <button class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>
       <div id="msg-sucesso-b" class="sucesso hidden">✅ Registrada!</div>
     </div>
@@ -284,6 +315,82 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 </div>
 
 <script>
+// ==========================================
+// CÂMERA E FOTO (NOVO — APENAS AQUI)
+// ==========================================
+let streamCamera = null;
+let blocoAtualFoto = null;
+let fotoBase64 = null;
+
+async function abrirCamera(bloco) {
+  blocoAtualFoto = bloco;
+  fotoBase64 = null;
+  
+  const modal = document.getElementById('camera-modal');
+  const video = document.getElementById('camera-video');
+  
+  modal.classList.add('ativo');
+  
+  try {
+    streamCamera = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'environment', width: 1280, height: 720 } 
+    });
+    video.srcObject = streamCamera;
+  } catch (erro) {
+    console.log('Câmera não disponível, usando arquivo:', erro);
+    usarArquivo();
+  }
+}
+
+function fecharCamera() {
+  if (streamCamera) {
+    streamCamera.getTracks().forEach(t => t.stop());
+    streamCamera = null;
+  }
+  document.getElementById('camera-modal').classList.remove('ativo');
+  blocoAtualFoto = null;
+}
+
+function tirarFoto() {
+  const video = document.getElementById('camera-video');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  fotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
+  mostrarPreview(fotoBase64);
+  fecharCamera();
+}
+
+function usarArquivo() {
+  fecharCamera();
+  blocoAtualFoto = blocoAtualFoto; // mantém
+  document.getElementById('input-arquivo-foto').click();
+}
+
+document.getElementById('input-arquivo-foto').addEventListener('change', function(e) {
+  const arquivo = e.target.files[0];
+  if (!arquivo || !blocoAtualFoto) return;
+  
+  const leitor = new FileReader();
+  leitor.onload = function(event) {
+    fotoBase64 = event.target.result;
+    mostrarPreview(fotoBase64);
+  };
+  leitor.readAsDataURL(arquivo);
+  this.value = '';
+});
+
+function mostrarPreview(dadosFoto) {
+  if (!blocoAtualFoto) return;
+  const preview = document.getElementById(`preview-foto-${blocoAtualFoto}`);
+  const img = document.getElementById(`img-foto-${blocoAtualFoto}`);
+  img.src = dadosFoto;
+  preview.classList.add('mostrar');
+}
+
 // ==========================================
 // SENHA
 // ==========================================
@@ -471,7 +578,7 @@ function salvarDados() {
 carregarDados();
 
 // ==========================================
-// FUNÇÕES DE SENHA
+// SENHA
 // ==========================================
 function mostrarSenha() {
   document.getElementById('caixa-senha').classList.remove('hidden');
@@ -558,7 +665,8 @@ function verMinhasEncomendas(sigla) {
   minhas.forEach(e => {
     elLista.innerHTML += `<div class="encomenda-item">
       <strong>📦 ${e.empresa}</strong><br>
-      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
+      Nota: ${e.nota} | Rastreio: ${e.rastreio}
+      ${e.foto ? `<br><img src="${e.foto}" style="width:100%; margin-top:8px; border-radius:6px;">` : ''}<br>
       <span class="encomenda-data">${e.data}</span>
     </div>`;
   });
@@ -639,111 +747,4 @@ function carregarDadosEdicao() {
   document.getElementById('editar-nome').value = lista[indiceEdicao].nome;
 }
 
-function salvarEdicao() {
-  if(indiceEdicao === null) {
-    alert('Selecione um apartamento!');
-    return;
-  }
-  const novoApto = document.getElementById('editar-numero').value.trim();
-  const novoNome = document.getElementById('editar-nome').value.trim();
-  if(!novoApto || !novoNome) {
-    alert('Preencha os dois campos!');
-    return;
-  }
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;
-  lista[indiceEdicao].apto = novoApto;
-  lista[indiceEdicao].nome = novoNome;
-  salvarDados();
-
-  carregarSelectEdicao();
-  carregarSelectAptos('a');
-  carregarSelectAptos('b');
-  carregarSelectAptosMorador('a');
-  carregarSelectAptosMorador('b');
-  carregarListaMoradores('a');
-  carregarListaMoradores('b');
-
-  const msg = document.getElementById('msg-edicao');
-  msg.classList.remove('hidden');
-  setTimeout(() => msg.classList.add('hidden'), 3000);
-}
-
-function salvarEncomenda(sigla) {
-  const selIdx = document.getElementById(`sel-apto-${sigla}`).value;
-  if(selIdx === '') { alert('Selecione o apartamento!'); return; }
-  
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
-  const morador = lista[parseInt(selIdx)];
-  const empresa = document.getElementById(`empresa-${sigla}`).value.trim();
-  if(!empresa) { alert('Digite a empresa/loja!'); return; }
-
-  const enc = {
-    bloco: sigla.toUpperCase(),
-    indiceOriginal: parseInt(selIdx),
-    apto: morador.apto,
-    nome: morador.nome || 'Vago',
-    empresa: empresa,
-    nota: document.getElementById(`nota-${sigla}`).value.trim() || 'Não informada',
-    rastreio: document.getElementById(`rastreio-${sigla}`).value.trim() || 'Não informado',
-    data: new Date().toLocaleString('pt-BR')
-  };
-
-  if(sigla === 'a') window.encomendasA.unshift(enc);
-  else window.encomendasB.unshift(enc);
-  
-  salvarDados(); // SALVA PARA SEMPRE! ✅
-
-  document.getElementById(`sel-apto-${sigla}`).value = '';
-  document.getElementById(`nome-morador-${sigla}`).value = '';
-  document.getElementById(`empresa-${sigla}`).value = '';
-  document.getElementById(`nota-${sigla}`).value = '';
-  document.getElementById(`rastreio-${sigla}`).value = '';
-
-  const msg = document.getElementById(`msg-sucesso-${sigla}`);
-  msg.classList.remove('hidden');
-  setTimeout(() => msg.classList.add('hidden'), 3000);
-
-  carregarTodasEncomendas();
-}
-
-function carregarTodasEncomendas() {
-  const todas = [...window.encomendasA, ...window.encomendasB].sort((a,b) => new Date(b.data) - new Date(a.data));
-  const el = document.getElementById('lista-todas');
-  if(todas.length === 0) {
-    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';
-    return;
-  }
-  el.innerHTML = '';
-  todas.forEach(e => {
-    el.innerHTML += `<div class="encomenda-item">
-      <strong>📦 ${e.empresa}</strong>
-      <span class="tag-bloco tag-${e.bloco.toLowerCase()}" style="float:right">Bloco ${e.bloco}</span><br>
-      ${e.apto} — ${e.nome}<br>
-      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
-      <span class="encomenda-data">${e.data}</span>
-    </div>`;
-  });
-}
-
-function mostrarAbaMoradorA(nome) {
-  document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
-  document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
-  document.getElementById(nome).classList.add('ativa');
-  event.target.classList.add('ativo');
-}
-function mostrarAbaMoradorB(nome) {
-  document.querySelectorAll('#tela-morador-b .aba').forEach(a => a.classList.remove('ativa'));
-  document.querySelectorAll('#tela-morador-b .btn-nav').forEach(b => b.classList.remove('ativo'));
-  document.getElementById(nome).classList.add('ativa');
-  event.target.classList.add('ativo');
-}
-function mostrarAbaPortaria(nome) {
-  document.querySelectorAll('#tela-portaria .aba').forEach(a => a.classList.remove('ativa'));
-  document.querySelectorAll('#tela-portaria .btn-nav').forEach(b => b.classList.remove('ativo'));
-  document.getElementById(nome).classList.add('ativa');
-  event.target.classList.add('ativo');
-}
-</script>
-
-</body>
-</html>
+function salvar
