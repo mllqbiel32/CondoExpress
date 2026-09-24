@@ -1,5 +1,4 @@
-<!DOCTYPE html>  
-<html lang="pt-BR">  
+<!DOCTYPE html>  <html lang="pt-BR">  
 <head>  
 <meta charset="UTF-8">  
 <meta name="viewport" content="width=device-width, initial-scale=1.0">  
@@ -58,7 +57,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .btn-toggle-senha { position: absolute; right: 10px; background: none; border: none; font-size: 18px; cursor: pointer; color: #6b7280; padding: 5px; }
 
 /* Câmera e Upload */
-.area-camera { background: #f8fafc; border: 2px dashed #3b82f6; border-radius: 12px; padding: 14px; margin: 10px 0; text-align: center; }
+.area-camera { background: #f8fafc; border: 2px dashed #3b82f6; border-radius: 12px; padding: 14px; margin-top: 10px; text-align: center; }
 .video-preview { width: 100%; max-height: 240px; border-radius: 8px; background: #000; object-fit: cover; }
 .foto-preview { width: 100%; max-height: 240px; border-radius: 8px; object-fit: cover; border: 2px solid #16a34a; margin-top: 8px; }
 .btn-cam { background: #3b82f6; color: white; font-size: 14px; padding: 10px 14px; margin-top: 8px; }
@@ -174,7 +173,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <label>Empresa / Loja</label>  
       <input type="text" id="empresa-a" placeholder="Ex: Shopee, Correios...">  
       
-      <!-- ÁREA DA CÂMERA — SUBIDA PARA AQUI ✅ -->
+      <!-- ÁREA DA CÂMERA -->
       <label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
       <div class="area-camera">
         <video id="video-a" class="video-preview hidden" autoplay playsinline></video>
@@ -210,7 +209,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <label>Empresa / Loja</label>  
       <input type="text" id="empresa-b" placeholder="Ex: Shopee, Correios...">  
 
-      <!-- ÁREA DA CÂMERA — SUBIDA PARA AQUI ✅ -->
+      <!-- ÁREA DA CÂMERA -->
       <label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
       <div class="area-camera">
         <video id="video-b" class="video-preview hidden" autoplay playsinline></video>
@@ -660,4 +659,198 @@ function verMinhasEncomendas(sigla) {
     const htmlFoto = e.foto ? `<br><img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto encomenda">` : '';
     elLista.innerHTML += `<div class="encomenda-item">  
       <strong>📦 ${e.empresa}</strong><br>  
-      Nota: ${e.nota} | Rastreio: ${e.r
+      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>  
+      <span class="encomenda-data">${e.data}</span>  
+      ${htmlFoto}
+    </div>`;  
+  });  
+}  
+  
+function carregarSelectAptos(sigla) {  
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
+  const el = document.getElementById(`sel-apto-${sigla}`);  
+  el.innerHTML = '<option value="">-- Selecione --</option>';  
+  lista.forEach((m, idx) => {  
+    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;  
+  });  
+}  
+  
+function preencherMorador(sigla) {  
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
+  const sel = document.getElementById(`sel-apto-${sigla}`).value;  
+  document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');  
+}  
+  
+function cadastrarNovoMorador() {  
+  const bloco = document.getElementById('novo-bloco').value;  
+  const apto = document.getElementById('novo-apto').value.trim();  
+  const nome = document.getElementById('novo-nome').value.trim();  
+  
+  if(!apto || !nome) {  
+    alert('Preencha o número do apartamento e o nome!');  
+    return;  
+  }  
+  
+  const lista = bloco === 'a' ? window.BlocoA : window.BlocoB;  
+  lista.push({ apto: apto, nome: nome });  
+  salvarDados();  
+  
+  carregarSelectAptos('a');  
+  carregarSelectAptos('b');  
+  carregarSelectAptosMorador('a');  
+  carregarSelectAptosMorador('b');  
+  carregarSelectEdicao();  
+  carregarListaMoradores('a');  
+  carregarListaMoradores('b');  
+  
+  document.getElementById('novo-apto').value = '';  
+  document.getElementById('novo-nome').value = '';  
+  
+  const msg = document.getElementById('msg-cadastro');  
+  msg.classList.remove('hidden');  
+  setTimeout(() => msg.classList.add('hidden'), 3000);  
+}  
+  
+let indiceEdicao = null, blocoEdicao = null;  
+  
+function carregarSelectEdicao() {  
+  blocoEdicao = document.getElementById('editar-bloco').value;  
+  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;  
+  const el = document.getElementById('editar-apto');  
+  el.innerHTML = '<option value="">-- Escolha --</option>';  
+  lista.forEach((m, idx) => {  
+    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;  
+  });  
+  document.getElementById('editar-numero').value = '';  
+  document.getElementById('editar-nome').value = '';  
+  indiceEdicao = null;  
+}  
+  
+function carregarDadosEdicao() {  
+  const sel = document.getElementById('editar-apto').value;  
+  if(sel === '') {  
+    document.getElementById('editar-numero').value = '';  
+    document.getElementById('editar-nome').value = '';  
+    indiceEdicao = null;  
+    return;  
+  }  
+  blocoEdicao = document.getElementById('editar-bloco').value;  
+  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;  
+  indiceEdicao = parseInt(sel);  
+  document.getElementById('editar-numero').value = lista[indiceEdicao].apto;  
+  document.getElementById('editar-nome').value = lista[indiceEdicao].nome;  
+}  
+  
+function salvarEdicao() {  
+  if(indiceEdicao === null) {  
+    alert('Selecione um apartamento!');  
+    return;  
+  }  
+  const novoApto = document.getElementById('editar-numero').value.trim();  
+  const novoNome = document.getElementById('editar-nome').value.trim();  
+  if(!novoApto || !novoNome) {  
+    alert('Preencha os dois campos!');  
+    return;  
+  }  
+  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;  
+  lista[indiceEdicao].apto = novoApto;  
+  lista[indiceEdicao].nome = novoNome;  
+  salvarDados();  
+  
+  carregarSelectEdicao();  
+  carregarSelectAptos('a');  
+  carregarSelectAptos('b');  
+  carregarSelectAptosMorador('a');  
+  carregarSelectAptosMorador('b');  
+  carregarListaMoradores('a');  
+  carregarListaMoradores('b');  
+  
+  const msg = document.getElementById('msg-edicao');  
+  msg.classList.remove('hidden');  
+  setTimeout(() => msg.classList.add('hidden'), 3000);  
+}  
+  
+function salvarEncomenda(sigla) {  
+  const selIdx = document.getElementById(`sel-apto-${sigla}`).value;  
+  if(selIdx === '') { alert('Selecione o apartamento!'); return; }  
+    
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
+  const morador = lista[parseInt(selIdx)];  
+  const empresa = document.getElementById(`empresa-${sigla}`).value.trim();  
+  if(!empresa) { alert('Digite a empresa/loja!'); return; }  
+  
+  const enc = {  
+    bloco: sigla.toUpperCase(),  
+    indiceOriginal: parseInt(selIdx),  
+    apto: morador.apto,  
+    nome: morador.nome || 'Vago',  
+    empresa: empresa,  
+    nota: document.getElementById(`nota-${sigla}`).value.trim() || 'Não informada',  
+    rastreio: document.getElementById(`rastreio-${sigla}`).value.trim() || 'Não informado',  
+    foto: fotosBase64[sigla] || null,
+    data: new Date().toLocaleString('pt-BR')  
+  };  
+  
+  if(sigla === 'a') window.encomendasA.unshift(enc);  
+  else window.encomendasB.unshift(enc);  
+    
+  salvarDados();  
+  
+  document.getElementById(`sel-apto-${sigla}`).value = '';  
+  document.getElementById(`nome-morador-${sigla}`).value = '';  
+  document.getElementById(`empresa-${sigla}`).value = '';  
+  document.getElementById(`nota-${sigla}`).value = '';  
+  document.getElementById(`rastreio-${sigla}`).value = '';  
+  
+  resetarCameraInterface(sigla);
+
+  const msg = document.getElementById(`msg-sucesso-${sigla}`);  
+  msg.classList.remove('hidden');  
+  setTimeout(() => msg.classList.add('hidden'), 3000);  
+  
+  carregarTodasEncomendas();  
+}  
+  
+function carregarTodasEncomendas() {  
+  const todas = [...window.encomendasA, ...window.encomendasB].sort((a,b) => new Date(b.data) - new Date(a.data));  
+  const el = document.getElementById('lista-todas');  
+  if(todas.length === 0) {  
+    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';  
+    return;  
+  }  
+  el.innerHTML = '';  
+  todas.forEach(e => {  
+    const htmlFoto = e.foto ? `<br><img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto encomenda">` : '';
+    el.innerHTML += `<div class="encomenda-item">  
+      <strong>📦 ${e.empresa}</strong>  
+      <span class="tag-bloco tag-${e.bloco.toLowerCase()}" style="float:right">Bloco ${e.bloco}</span><br>  
+      ${e.apto} — ${e.nome}<br>  
+      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>  
+      <span class="encomenda-data">${e.data}</span>  
+      ${htmlFoto}
+    </div>`;  
+  });  
+}  
+  
+function mostrarAbaMoradorA(nome) {  
+  document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));  
+  document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));  
+  document.getElementById(nome).classList.add('ativa');  
+  event.target.classList.add('ativo');  
+}  
+function mostrarAbaMoradorB(nome) {  
+  document.querySelectorAll('#tela-morador-b .aba').forEach(a => a.classList.remove('ativa'));  
+  document.querySelectorAll('#tela-morador-b .btn-nav').forEach(b => b.classList.remove('ativo'));  
+  document.getElementById(nome).classList.add('ativa');  
+  event.target.classList.add('ativo');  
+}  
+function mostrarAbaPortaria(nome) {  
+  document.querySelectorAll('#tela-portaria .aba').forEach(a => a.classList.remove('ativa'));  
+  document.querySelectorAll('#tela-portaria .btn-nav').forEach(b => b.classList.remove('ativo'));  
+  document.getElementById(nome).classList.add('ativa');  
+  event.target.classList.add('ativo');  
+  desligarCamera('a');
+  desligarCamera('b');
+}  
+</script>  </body>  
+</html>
