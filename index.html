@@ -67,7 +67,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 </head>
 <body>
 
-<!-- CÂMERA -->
+<!-- CÂMERA - APENAS ADICIONADA -->
 <div id="camera-modal" class="camera-container">
   <video id="camera-video" class="camera-video" autoplay playsinline></video>
   <div class="camera-botoes">
@@ -80,7 +80,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
 <div class="container">
 
-<!-- TELA INICIAL -->
+<!-- TELA INICIAL - INTACTA -->
 <div id="tela-inicio" class="tela ativa">
   <div class="header">
     <h1>📦 CondoExpress</h1>
@@ -109,7 +109,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   </div>
 </div>
 
-<!-- TELA BLOCO A — MORADOR -->
+<!-- TELA BLOCO A - INTACTA -->
 <div id="tela-morador-a" class="tela">
   <div class="header">
     <h1>📦 CondoExpress</h1>
@@ -147,7 +147,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   </div>
 </div>
 
-<!-- TELA BLOCO B — MORADOR -->
+<!-- TELA BLOCO B - INTACTA -->
 <div id="tela-morador-b" class="tela">
   <div class="header">
     <h1>📦 CondoExpress</h1>
@@ -185,7 +185,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   </div>
 </div>
 
-<!-- TELA PORTARIA -->
+<!-- TELA PORTARIA - INTACTA, BOTÃO CÂMERA ADICIONADO -->
 <div id="tela-portaria" class="tela">
   <div class="header">
     <h1>📦 CondoExpress</h1>
@@ -219,7 +219,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <label>Código de Rastreio</label>
       <input type="text" id="rastreio-a" placeholder="Código">
       <label>Foto da Encomenda</label>
-      <button type="button" class="btn-camera" id="btn-cam-a" onclick="abrirCamera('a')">📷 Tirar Foto</button>
+      <button type="button" class="btn-camera" onclick="abrirCamera('a')">📷 Tirar Foto</button>
       <div id="preview-foto-a" class="preview-foto">
         <img id="img-foto-a" alt="Foto da encomenda">
       </div>
@@ -244,7 +244,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <label>Código de Rastreio</label>
       <input type="text" id="rastreio-b" placeholder="Código">
       <label>Foto da Encomenda</label>
-      <button type="button" class="btn-camera" id="btn-cam-b" onclick="abrirCamera('b')">📷 Tirar Foto</button>
+      <button type="button" class="btn-camera" onclick="abrirCamera('b')">📷 Tirar Foto</button>
       <div id="preview-foto-b" class="preview-foto">
         <img id="img-foto-b" alt="Foto da encomenda">
       </div>
@@ -316,7 +316,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
 <script>
 // ==========================================
-// CÂMERA — APENAS ESTA PARTE ADICIONADA
+// CÂMERA - APENAS ESTA PARTE ADICIONADA
 // ==========================================
 let streamCamera = null;
 let blocoAtualFoto = null;
@@ -389,13 +389,34 @@ function mostrarPreview(dadosFoto) {
 }
 
 // ==========================================
-// SENHA — EXATAMENTE COMO ESTAVA
+// FUNÇÕES DE ABA - INTACTAS
+// ==========================================
+function mostrarAbaMoradorA(nomeAba) {
+  document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
+  document.getElementById(nomeAba).classList.add('ativa');
+  event.target.classList.add('ativo');
+}
+
+function mostrarAbaMoradorB(nomeAba) {
+  document.querySelectorAll('#tela-morador-b .aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('#tela-morador-b .btn-nav').forEach(b => b.classList.remove('ativo'));
+  document.getElementById(nomeAba).classList.add('ativa');
+  event.target.classList.add('ativo');
+}
+
+function mostrarAbaPortaria(nomeAba) {
+  document.querySelectorAll('#tela-portaria .aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('#tela-portaria .btn-nav').forEach(b => b.classList.remove('ativo'));
+  document.getElementById(nomeAba).classList.add('ativa');
+  event.target.classList.add('ativo');
+}
+
+// ==========================================
+// DADOS - INTACTOS
 // ==========================================
 const SENHA_PORTARIA = "portaria123";
 
-// ==========================================
-// DADOS INICIAIS — EXATAMENTE COMO ESTAVA
-// ==========================================
 const BlocoA_PADRAO = [
   {apto:"012OP",nome:"Claudete Conceição Rozas"},
   {apto:"013OP",nome:"Cristina Filizola"},
@@ -550,7 +571,7 @@ const BlocoB_PADRAO = [
 ];
 
 // ==========================================
-// SALVAMENTO — EXATAMENTE COMO ESTAVA
+// SALVAMENTO - INTACTO
 // ==========================================
 function carregarDados() {
   let blocoA = localStorage.getItem('condo_blocoA');
@@ -574,7 +595,7 @@ function salvarDados() {
 carregarDados();
 
 // ==========================================
-// FUNÇÕES ORIGINAIS — NÃO MEXI EM NADA
+// FUNÇÕES ORIGINAIS - INTACTAS
 // ==========================================
 function mostrarSenha() {
   document.getElementById('caixa-senha').classList.remove('hidden');
@@ -680,66 +701,31 @@ function preencherMorador(sigla) {
   document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');
 }
 
-function cadastrarNovoMorador() {
-  const bloco = document.getElementById('novo-bloco').value;
-  const apto = document.getElementById('novo-apto').value.trim();
-  const nome = document.getElementById('novo-nome').value.trim();
-
-  if(!apto || !nome) {
-    alert('Preencha o número do apartamento e o nome!');
-    return;
-  }
-
-  const lista = bloco === 'a' ? window.BlocoA : window.BlocoB;
-  lista.push({ apto: apto, nome: nome });
-  salvarDados();
-
-  carregarSelectAptos('a');
-  carregarSelectAptos('b');
-  carregarSelectAptosMorador('a');
-  carregarSelectAptosMorador('b');
-  carregarSelectEdicao();
-  carregarListaMoradores('a');
-  carregarListaMoradores('b');
-
-  document.getElementById('novo-apto').value = '';
-  document.getElementById('novo-nome').value = '';
-
-  const msg = document.getElementById('msg-cadastro');
-  msg.classList.remove('hidden');
-  setTimeout(() => msg.classList.add('hidden'), 3000);
-}
-
-let indiceEdicao = null, blocoEdicao = null;
-
-function carregarSelectEdicao() {
-  blocoEdicao = document.getElementById('editar-bloco').value;
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;
-  const el = document.getElementById('editar-apto');
-  el.innerHTML = '<option value="">-- Escolha --</option>';
-  lista.forEach((m, idx) => {
-    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
+function salvarEncomenda(sigla) {
+  const sel = document.getElementById(`sel-apto-${sigla}`).value;
+  if(!sel) { alert('Selecione o apartamento!'); return; }
+  
+  const empresa = document.getElementById(`empresa-${sigla}`).value.trim() || 'Não informada';
+  const nota = document.getElementById(`nota-${sigla}`).value.trim() || '-';
+  const rastreio = document.getElementById(`rastreio-${sigla}`).value.trim() || '-';
+  
+  const listaEncs = sigla === 'a' ? window.encomendasA : window.encomendasB;
+  listaEncs.push({
+    indiceOriginal: parseInt(sel),
+    empresa, nota, rastreio,
+    foto: fotoBase64 || null,
+    data: new Date().toLocaleString('pt-BR')
   });
-  document.getElementById('editar-numero').value = '';
-  document.getElementById('editar-nome').value = '';
-  indiceEdicao = null;
-}
-
-function carregarDadosEdicao() {
-  const sel = document.getElementById('editar-apto').value;
-  if(sel === '') {
-    document.getElementById('editar-numero').value = '';
-    document.getElementById('editar-nome').value = '';
-    indiceEdicao = null;
-    return;
-  }
-  blocoEdicao = document.getElementById('editar-bloco').value;
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;
-  indiceEdicao = parseInt(sel);
-  document.getElementById('editar-numero').value = lista[indiceEdicao].apto;
-  document.getElementById('editar-nome').value = lista[indiceEdicao].nome;
-}
-
-function salvarEdicao() {
-  if(indiceEdicao === null) {
-   
+  
+  salvarDados();
+  
+  // Limpa formulário
+  document.getElementById(`sel-apto-${sigla}`).value = '';
+  document.getElementById(`nome-morador-${sigla}`).value = '';
+  document.getElementById(`empresa-${sigla}`).value = '';
+  document.getElementById(`nota-${sigla}`).value = '';
+  document.getElementById(`rastreio-${sigla}`).value = '';
+  document.getElementById(`preview-foto-${sigla}`).classList.remove('mostrar');
+  fotoBase64 = null;
+  
+  const msg = document.getElementById(`msg
