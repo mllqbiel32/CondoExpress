@@ -164,16 +164,8 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   </nav>    <div id="registrar-a" class="aba ativa">  
     <div class="card">  
       <h2>📦 Registrar — Bloco A</h2>  
-      <label>Apartamento / Morador</label>  
-      <select id="sel-apto-a" onchange="preencherMorador('a')">  
-        <option value="">-- Selecione --</option>  
-      </select>  
-      <label>Nome do Morador</label>  
-      <input type="text" id="nome-morador-a" readonly>  
-      <label>Empresa / Loja</label>  
-      <input type="text" id="empresa-a" placeholder="Ex: Shopee, Correios...">  
       
-      <!-- ÁREA DA CÂMERA -->
+      <!-- ÁREA DA CÂMERA (MOVIDA PARA O TOPO) -->
       <label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
       <div class="area-camera">
         <video id="video-a" class="video-preview hidden" autoplay playsinline></video>
@@ -189,6 +181,15 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         </div>
       </div>
 
+      <label>Apartamento / Morador</label>  
+      <select id="sel-apto-a" onchange="preencherMorador('a')">  
+        <option value="">-- Selecione --</option>  
+      </select>  
+      <label>Nome do Morador</label>  
+      <input type="text" id="nome-morador-a" readonly>  
+      <label>Empresa / Loja</label>  
+      <input type="text" id="empresa-a" placeholder="Ex: Shopee, Correios...">  
+
       <label>Nota Fiscal</label>  
       <input type="text" id="nota-a" placeholder="Número">  
       <label>Código de Rastreio</label>  
@@ -200,16 +201,8 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
   </div>    <div id="registrar-b" class="aba">  
     <div class="card">  
       <h2>📦 Registrar — Bloco B</h2>  
-      <label>Apartamento / Morador</label>  
-      <select id="sel-apto-b" onchange="preencherMorador('b')">  
-        <option value="">-- Selecione --</option>  
-      </select>  
-      <label>Nome do Morador</label>  
-      <input type="text" id="nome-morador-b" readonly>  
-      <label>Empresa / Loja</label>  
-      <input type="text" id="empresa-b" placeholder="Ex: Shopee, Correios...">  
-
-      <!-- ÁREA DA CÂMERA -->
+      
+      <!-- ÁREA DA CÂMERA (MOVIDA PARA O TOPO) -->
       <label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
       <div class="area-camera">
         <video id="video-b" class="video-preview hidden" autoplay playsinline></video>
@@ -224,6 +217,15 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
           ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" capture="environment" onchange="carregarFotoArquivo('b', event)" style="margin-top:5px; font-size:12px;">
         </div>
       </div>
+
+      <label>Apartamento / Morador</label>  
+      <select id="sel-apto-b" onchange="preencherMorador('b')">  
+        <option value="">-- Selecione --</option>  
+      </select>  
+      <label>Nome do Morador</label>  
+      <input type="text" id="nome-morador-b" readonly>  
+      <label>Empresa / Loja</label>  
+      <input type="text" id="empresa-b" placeholder="Ex: Shopee, Correios...">  
 
       <label>Nota Fiscal</label>  
       <input type="text" id="nota-b" placeholder="Número">  
