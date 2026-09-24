@@ -16,14 +16,17 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .header h1 { font-size: 28px; color: #1e40af; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .status { display: inline-block; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 20px; font-size: 14px; margin: 10px 0; }
 .usuario { color: #4b5563; font-size: 16px; margin-bottom: 15px; }
+
 .seletor-apto { background: #fef3c7; padding: 14px; border-radius: 10px; margin-bottom: 15px; }
 .seletor-apto label { font-weight: 600; color: #92400e; }
 
 .btn { border: none; border-radius: 12px; padding: 16px 20px; font-size: 17px; font-weight: 600; cursor: pointer; width: 100%; margin: 8px 0; transition: all .2s; }
 .btn:hover { transform: translateY(-1px); }
+
 .btn-sair { background: #e5e7eb; color: #374151; max-width: 250px; display: block; margin: 0 auto 20px; }
 .btn-nav { background: white; color: #1e40af; box-shadow: 0 1px 3px rgba(0,0,0,.1); text-align: left; padding-left: 20px; }
 .btn-nav.ativo { background: #1e40af; color: white; }
+
 .btn-bloco-a { background: #1e40af; color: white; }
 .btn-bloco-b { background: #16a34a; color: white; }
 .btn-portaria { background: #f59e0b; color: white; }
@@ -31,41 +34,76 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-salvar-edicao { background: #8b5cf6; color: white; }
 .btn-cadastrar { background: #0d9488; color: white; }
 
-/* NOVO: BOTÃO DA CÂMERA */
-.btn-camera {
-  background: #2563eb;
-  color: white;
-  margin-top: 5px;
-  margin-bottom: 15px;
-}
-
-.camera-input {
-  display: none;
-}
-
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
 label { font-weight: 600; font-size: 14px; color: #374151; display: block; margin: 12px 0 4px; }
 input, select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; }
 input[readonly] { background: #f3f4f6; color: #4b5563; }
+
 .lista-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
 .lista-item:last-child { border: none; }
 .lista-item strong { font-size: 15px; color: #111827; display: block; }
+
 .encomenda-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
 .encomenda-data { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+
 .sucesso { background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; margin-top: 12px; text-align: center; font-weight: 600; }
 .erro { background: #fee2e2; color: #dc2626; padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; display: none; }
+
 .tag-bloco { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; color: white; margin-left: 8px; }
 .tag-a { background: #1e40af; }
 .tag-b { background: #16a34a; }
+
 .vago { color: #9ca3af; font-style: italic; }
 .tela { display: none; }
 .tela.ativa { display: block; }
 .aba { display: none; }
 .aba.ativa { display: block; }
 .hidden { display: none !important; }
+
 .aviso { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
 .senha-input { font-size: 18px; letter-spacing: 4px; }
+
+/* ==============================
+   ÁREA DA CÂMERA
+   ============================== */
+
+.area-camera {
+  margin-bottom: 18px;
+  padding: 14px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.btn-camera {
+  background: #2563eb;
+  color: white;
+  margin: 0;
+}
+
+.preview-camera {
+  display: none;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.preview-camera img {
+  width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+}
+
+.camera-ok {
+  color: #16a34a;
+  font-weight: 600;
+  margin-top: 8px;
+  font-size: 14px;
+}
 </style>
 </head>
 
@@ -73,41 +111,68 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
 <div class="container">
 
-<!-- TELA INICIAL -->
+<!-- ==============================
+     TELA INICIAL
+     ============================== -->
+
 <div id="tela-inicio" class="tela ativa">
+
   <div class="header">
     <h1>📦 CondoExpress</h1>
   </div>
 
   <div class="card">
+
     <p style="text-align:center; font-size:17px; color:#4b5563; margin-bottom:20px">
       Escolha uma opção:
     </p>
-    
-    <button class="btn btn-bloco-a" onclick="abrirMorador('a')">
+
+    <button class="btn btn-bloco-a" type="button" onclick="abrirMorador('a')">
       🏆 BLOCO A — Ouro Preto (Moradores)
     </button>
-    
-    <button class="btn btn-bloco-b" onclick="abrirMorador('b')">
+
+    <button class="btn btn-bloco-b" type="button" onclick="abrirMorador('b')">
       🏆 BLOCO B — Sabará (Moradores)
     </button>
-    
-    <button class="btn btn-portaria" onclick="mostrarSenha()">
+
+    <button class="btn btn-portaria" type="button" onclick="mostrarSenha()">
       🔑 PORTARIA — Controle Completo
     </button>
 
     <div id="caixa-senha" class="hidden" style="margin-top:15px;">
+
       <label>Digite a senha da Portaria:</label>
-      <input type="password" id="input-senha" class="senha-input" placeholder="••••••••">
-      <button class="btn btn-portaria" style="margin-top:10px;" onclick="verificarSenha()">
+
+      <input
+        type="password"
+        id="input-senha"
+        class="senha-input"
+        placeholder="••••••••"
+      >
+
+      <button
+        class="btn btn-portaria"
+        type="button"
+        style="margin-top:10px;"
+        onclick="verificarSenha()"
+      >
         ✅ Entrar
       </button>
-      <div id="msg-erro-senha" class="erro">❌ Senha incorreta!</div>
+
+      <div id="msg-erro-senha" class="erro">
+        ❌ Senha incorreta!
+      </div>
+
     </div>
+
   </div>
 </div>
 
-<!-- TELA BLOCO A — MORADOR -->
+
+<!-- ==============================
+     TELA BLOCO A — MORADOR
+     ============================== -->
+
 <div id="tela-morador-a" class="tela">
 
   <div class="header">
@@ -115,161 +180,306 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     <div class="status">✅ Bloco A — Ouro Preto</div>
   </div>
 
-  <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
+  <button class="btn btn-sair" type="button" onclick="voltarInicio()">
+    ⬅️ Voltar
+  </button>
 
   <div class="seletor-apto">
-    <label>🏠 Selecione seu apartamento para ver suas encomendas:</label>
+
+    <label>
+      🏠 Selecione seu apartamento para ver suas encomendas:
+    </label>
 
     <select id="meu-apto-a" onchange="verMinhasEncomendas('a')">
       <option value="">-- Escolha seu apartamento --</option>
     </select>
+
   </div>
 
   <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorA('moradores-a')">
+
+    <button
+      class="btn btn-nav ativo"
+      type="button"
+      onclick="mostrarAbaMoradorA('moradores-a')"
+    >
       👥 Lista do Bloco
     </button>
 
-    <button class="btn btn-nav" onclick="mostrarAbaMoradorA('minhas-a')">
+    <button
+      class="btn btn-nav"
+      type="button"
+      onclick="mostrarAbaMoradorA('minhas-a')"
+    >
       📦 Minhas Encomendas
     </button>
+
   </nav>
 
   <div id="moradores-a" class="aba ativa">
+
     <div class="card">
+
       <h2>👥 Moradores — Bloco A</h2>
+
       <div id="lista-moradores-a"></div>
+
     </div>
+
   </div>
 
   <div id="minhas-a" class="aba">
+
     <div class="card">
+
       <h2>📦 Minhas Encomendas</h2>
 
-      <p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>
+      <p
+        id="nome-meu-apto-a"
+        style="color:#4b5563; margin-bottom:15px"
+      ></p>
 
       <div id="lista-minhas-a">
+
         <p style="text-align:center; color:#6b7280; padding:20px">
           Selecione seu apartamento acima 👆
         </p>
+
       </div>
+
     </div>
+
   </div>
+
 </div>
 
-<!-- TELA BLOCO B — MORADOR -->
+
+<!-- ==============================
+     TELA BLOCO B — MORADOR
+     ============================== -->
+
 <div id="tela-morador-b" class="tela">
 
   <div class="header">
+
     <h1>📦 CondoExpress</h1>
-    <div class="status">✅ Bloco B — Sabará</div>
+
+    <div class="status">
+      ✅ Bloco B — Sabará
+    </div>
+
   </div>
 
-  <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
+  <button class="btn btn-sair" type="button" onclick="voltarInicio()">
+    ⬅️ Voltar
+  </button>
 
   <div class="seletor-apto">
-    <label>🏠 Selecione seu apartamento para ver suas encomendas:</label>
+
+    <label>
+      🏠 Selecione seu apartamento para ver suas encomendas:
+    </label>
 
     <select id="meu-apto-b" onchange="verMinhasEncomendas('b')">
       <option value="">-- Escolha seu apartamento --</option>
     </select>
+
   </div>
 
   <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorB('moradores-b')">
+
+    <button
+      class="btn btn-nav ativo"
+      type="button"
+      onclick="mostrarAbaMoradorB('moradores-b')"
+    >
       👥 Lista do Bloco
     </button>
 
-    <button class="btn btn-nav" onclick="mostrarAbaMoradorB('minhas-b')">
+    <button
+      class="btn btn-nav"
+      type="button"
+      onclick="mostrarAbaMoradorB('minhas-b')"
+    >
       📦 Minhas Encomendas
     </button>
+
   </nav>
 
   <div id="moradores-b" class="aba ativa">
+
     <div class="card">
+
       <h2>👥 Moradores — Bloco B</h2>
+
       <div id="lista-moradores-b"></div>
+
     </div>
+
   </div>
 
   <div id="minhas-b" class="aba">
+
     <div class="card">
+
       <h2>📦 Minhas Encomendas</h2>
 
-      <p id="nome-meu-apto-b" style="color:#4b5563; margin-bottom:15px"></p>
+      <p
+        id="nome-meu-apto-b"
+        style="color:#4b5563; margin-bottom:15px"
+      ></p>
 
       <div id="lista-minhas-b">
+
         <p style="text-align:center; color:#6b7280; padding:20px">
           Selecione seu apartamento acima 👆
         </p>
+
       </div>
+
     </div>
+
   </div>
+
 </div>
 
-<!-- TELA PORTARIA -->
+
+<!-- ==============================
+     TELA PORTARIA
+     ============================== -->
+
 <div id="tela-portaria" class="tela">
 
   <div class="header">
+
     <h1>📦 CondoExpress</h1>
-    <div class="status">🔑 ACESSO — Portaria</div>
-    <p class="usuario">Controle completo do sistema</p>
+
+    <div class="status">
+      🔑 ACESSO — Portaria
+    </div>
+
+    <p class="usuario">
+      Controle completo do sistema
+    </p>
+
   </div>
 
-  <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
+  <button class="btn btn-sair" type="button" onclick="voltarInicio()">
+    ⬅️ Voltar
+  </button>
 
   <nav>
-    <button class="btn btn-nav ativo" onclick="mostrarAbaPortaria('registrar-a')">
+
+    <button
+      class="btn btn-nav ativo"
+      type="button"
+      onclick="mostrarAbaPortaria('registrar-a')"
+    >
       📦 Bloco A — Encomenda
     </button>
 
-    <button class="btn btn-nav" onclick="mostrarAbaPortaria('registrar-b')">
+    <button
+      class="btn btn-nav"
+      type="button"
+      onclick="mostrarAbaPortaria('registrar-b')"
+    >
       📦 Bloco B — Encomenda
     </button>
 
-    <button class="btn btn-nav" onclick="mostrarAbaPortaria('cadastrar')">
+    <button
+      class="btn btn-nav"
+      type="button"
+      onclick="mostrarAbaPortaria('cadastrar')"
+    >
       ➕ Cadastrar Morador
     </button>
 
-    <button class="btn btn-nav" onclick="mostrarAbaPortaria('editar')">
+    <button
+      class="btn btn-nav"
+      type="button"
+      onclick="mostrarAbaPortaria('editar')"
+    >
       ✏️ Editar Morador
     </button>
 
-    <button class="btn btn-nav" onclick="mostrarAbaPortaria('todas-encomendas')">
+    <button
+      class="btn btn-nav"
+      type="button"
+      onclick="mostrarAbaPortaria('todas-encomendas')"
+    >
       📋 Todas Encomendas
     </button>
+
   </nav>
 
-  <!-- REGISTRAR BLOCO A -->
+
+  <!-- ==============================
+       REGISTRAR BLOCO A
+       ============================== -->
+
   <div id="registrar-a" class="aba ativa">
 
     <div class="card">
 
       <h2>📦 Registrar — Bloco A</h2>
 
-      <!-- NOVA CÂMERA -->
-      <button type="button" class="btn btn-camera" onclick="abrirCamera('a')">
-        📷 TIRAR FOTO DA ENCOMENDA
-      </button>
+      <!-- CÂMERA BLOCO A -->
+      <div class="area-camera">
 
-      <input
-        type="file"
-        id="camera-a"
-        class="camera-input"
-        accept="image/*"
-        capture="environment"
-        onchange="fotoTirada('a')"
-      >
+        <input
+          type="file"
+          id="foto-encomenda-a"
+          accept="image/*"
+          capture="environment"
+          style="display:none;"
+          onchange="fotoTirada('a')"
+        >
+
+        <button
+          class="btn btn-camera"
+          type="button"
+          onclick="abrirCamera('a')"
+        >
+          📷 TIRAR FOTO DA ENCOMENDA
+        </button>
+
+        <div
+          id="preview-foto-a"
+          class="preview-camera"
+        >
+
+          <img
+            id="imagem-foto-a"
+            alt="Foto da encomenda"
+          >
+
+          <p class="camera-ok">
+            ✅ Foto capturada
+          </p>
+
+        </div>
+
+      </div>
+
 
       <label>Apartamento / Morador</label>
 
-      <select id="sel-apto-a" onchange="preencherMorador('a')">
+      <select
+        id="sel-apto-a"
+        onchange="preencherMorador('a')"
+      >
         <option value="">-- Selecione --</option>
       </select>
 
+
       <label>Nome do Morador</label>
 
-      <input type="text" id="nome-morador-a" readonly>
+      <input
+        type="text"
+        id="nome-morador-a"
+        readonly
+      >
+
 
       <label>Empresa / Loja</label>
 
@@ -279,6 +489,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         placeholder="Ex: Shopee, Correios..."
       >
 
+
       <label>Nota Fiscal</label>
 
       <input
@@ -286,6 +497,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         id="nota-a"
         placeholder="Número"
       >
+
 
       <label>Código de Rastreio</label>
 
@@ -295,47 +507,94 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         placeholder="Código"
       >
 
-      <button class="btn btn-enviar" onclick="salvarEncomenda('a')">
+
+      <button
+        class="btn btn-enviar"
+        type="button"
+        onclick="salvarEncomenda('a')"
+      >
         ✅ REGISTRAR ENCOMENDA
       </button>
 
-      <div id="msg-sucesso-a" class="sucesso hidden">
+      <div
+        id="msg-sucesso-a"
+        class="sucesso hidden"
+      >
         ✅ Registrada!
       </div>
 
     </div>
+
   </div>
 
-  <!-- REGISTRAR BLOCO B -->
+
+  <!-- ==============================
+       REGISTRAR BLOCO B
+       ============================== -->
+
   <div id="registrar-b" class="aba">
 
     <div class="card">
 
       <h2>📦 Registrar — Bloco B</h2>
 
-      <!-- NOVA CÂMERA -->
-      <button type="button" class="btn btn-camera" onclick="abrirCamera('b')">
-        📷 TIRAR FOTO DA ENCOMENDA
-      </button>
+      <!-- CÂMERA BLOCO B -->
+      <div class="area-camera">
 
-      <input
-        type="file"
-        id="camera-b"
-        class="camera-input"
-        accept="image/*"
-        capture="environment"
-        onchange="fotoTirada('b')"
-      >
+        <input
+          type="file"
+          id="foto-encomenda-b"
+          accept="image/*"
+          capture="environment"
+          style="display:none;"
+          onchange="fotoTirada('b')"
+        >
+
+        <button
+          class="btn btn-camera"
+          type="button"
+          onclick="abrirCamera('b')"
+        >
+          📷 TIRAR FOTO DA ENCOMENDA
+        </button>
+
+        <div
+          id="preview-foto-b"
+          class="preview-camera"
+        >
+
+          <img
+            id="imagem-foto-b"
+            alt="Foto da encomenda"
+          >
+
+          <p class="camera-ok">
+            ✅ Foto capturada
+          </p>
+
+        </div>
+
+      </div>
+
 
       <label>Apartamento / Morador</label>
 
-      <select id="sel-apto-b" onchange="preencherMorador('b')">
+      <select
+        id="sel-apto-b"
+        onchange="preencherMorador('b')"
+      >
         <option value="">-- Selecione --</option>
       </select>
 
+
       <label>Nome do Morador</label>
 
-      <input type="text" id="nome-morador-b" readonly>
+      <input
+        type="text"
+        id="nome-morador-b"
+        readonly
+      >
+
 
       <label>Empresa / Loja</label>
 
@@ -345,6 +604,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         placeholder="Ex: Shopee, Correios..."
       >
 
+
       <label>Nota Fiscal</label>
 
       <input
@@ -352,6 +612,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         id="nota-b"
         placeholder="Número"
       >
+
 
       <label>Código de Rastreio</label>
 
@@ -361,18 +622,31 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         placeholder="Código"
       >
 
-      <button class="btn btn-enviar" onclick="salvarEncomenda('b')">
+
+      <button
+        class="btn btn-enviar"
+        type="button"
+        onclick="salvarEncomenda('b')"
+      >
         ✅ REGISTRAR ENCOMENDA
       </button>
 
-      <div id="msg-sucesso-b" class="sucesso hidden">
+      <div
+        id="msg-sucesso-b"
+        class="sucesso hidden"
+      >
         ✅ Registrada!
       </div>
 
     </div>
+
   </div>
 
-  <!-- CADASTRAR MORADOR -->
+
+  <!-- ==============================
+       CADASTRAR MORADOR
+       ============================== -->
+
   <div id="cadastrar" class="aba">
 
     <div class="card">
@@ -382,14 +656,22 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <div class="aviso">
         🔒 Apenas a Portaria pode cadastrar
       </div>
-      
+
       <label>Bloco</label>
 
       <select id="novo-bloco">
-        <option value="a">Bloco A — Ouro Preto</option>
-        <option value="b">Bloco B — Sabará</option>
+
+        <option value="a">
+          Bloco A — Ouro Preto
+        </option>
+
+        <option value="b">
+          Bloco B — Sabará
+        </option>
+
       </select>
-      
+
+
       <label>Número do Apartamento</label>
 
       <input
@@ -397,7 +679,8 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         id="novo-apto"
         placeholder="Ex: 205OP"
       >
-      
+
+
       <label>Nome Completo do Morador</label>
 
       <input
@@ -405,19 +688,33 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         id="novo-nome"
         placeholder="Digite o nome completo"
       >
-      
-      <button class="btn btn-cadastrar" onclick="cadastrarNovoMorador()">
+
+
+      <button
+        class="btn btn-cadastrar"
+        type="button"
+        onclick="cadastrarNovoMorador()"
+      >
         ✅ CADASTRAR
       </button>
 
-      <div id="msg-cadastro" class="sucesso hidden">
+
+      <div
+        id="msg-cadastro"
+        class="sucesso hidden"
+      >
         ✅ Cadastrado com sucesso!
       </div>
 
     </div>
+
   </div>
 
-  <!-- EDITAR MORADOR -->
+
+  <!-- ==============================
+       EDITAR MORADOR
+       ============================== -->
+
   <div id="editar" class="aba">
 
     <div class="card">
@@ -427,20 +724,39 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <div class="aviso">
         🔒 Apenas a Portaria pode alterar
       </div>
-      
+
       <label>Bloco</label>
 
-      <select id="editar-bloco" onchange="carregarSelectEdicao()">
-        <option value="a">Bloco A — Ouro Preto</option>
-        <option value="b">Bloco B — Sabará</option>
+      <select
+        id="editar-bloco"
+        onchange="carregarSelectEdicao()"
+      >
+
+        <option value="a">
+          Bloco A — Ouro Preto
+        </option>
+
+        <option value="b">
+          Bloco B — Sabará
+        </option>
+
       </select>
-      
+
+
       <label>Apartamento / Morador</label>
 
-      <select id="editar-apto" onchange="carregarDadosEdicao()">
-        <option value="">-- Escolha --</option>
+      <select
+        id="editar-apto"
+        onchange="carregarDadosEdicao()"
+      >
+
+        <option value="">
+          -- Escolha --
+        </option>
+
       </select>
-      
+
+
       <label>Número do Apartamento</label>
 
       <input
@@ -448,7 +764,8 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         id="editar-numero"
         placeholder="Ex: 205OP"
       >
-      
+
+
       <label>Nome do Morador</label>
 
       <input
@@ -456,19 +773,33 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
         id="editar-nome"
         placeholder="Nome completo"
       >
-      
-      <button class="btn btn-salvar-edicao" onclick="salvarEdicao()">
+
+
+      <button
+        class="btn btn-salvar-edicao"
+        type="button"
+        onclick="salvarEdicao()"
+      >
         💾 SALVAR ALTERAÇÕES
       </button>
 
-      <div id="msg-edicao" class="sucesso hidden">
+
+      <div
+        id="msg-edicao"
+        class="sucesso hidden"
+      >
         ✅ Alterado com sucesso!
       </div>
 
     </div>
+
   </div>
 
-  <!-- TODAS ENCOMENDAS -->
+
+  <!-- ==============================
+       TODAS ENCOMENDAS
+       ============================== -->
+
   <div id="todas-encomendas" class="aba">
 
     <div class="card">
@@ -476,23 +807,28 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <h2>📋 Todas Encomendas</h2>
 
       <div id="lista-todas">
+
         <p style="text-align:center; color:#6b7280; padding:20px">
           Nenhuma encomenda registrada ainda
         </p>
+
       </div>
 
     </div>
+
   </div>
 
 </div>
 
 </div>
 
+
 <script>
 
 // ==========================================
 // SENHA
 // ==========================================
+
 const SENHA_PORTARIA = "portaria123";
 
 
@@ -664,24 +1000,111 @@ function carregarDados() {
   let blocoB = localStorage.getItem('condo_blocoB');
   let encA = localStorage.getItem('condo_encomendasA');
   let encB = localStorage.getItem('condo_encomendasB');
-  
-  window.BlocoA = blocoA ? JSON.parse(blocoA) : [...BlocoA_PADRAO];
-  window.BlocoB = blocoB ? JSON.parse(blocoB) : [...BlocoB_PADRAO];
-  window.encomendasA = encA ? JSON.parse(encA) : [];
-  window.encomendasB = encB ? JSON.parse(encB) : [];
+
+  window.BlocoA = blocoA
+    ? JSON.parse(blocoA)
+    : [...BlocoA_PADRAO];
+
+  window.BlocoB = blocoB
+    ? JSON.parse(blocoB)
+    : [...BlocoB_PADRAO];
+
+  window.encomendasA = encA
+    ? JSON.parse(encA)
+    : [];
+
+  window.encomendasB = encB
+    ? JSON.parse(encB)
+    : [];
 }
 
 
 function salvarDados() {
 
-  localStorage.setItem('condo_blocoA', JSON.stringify(window.BlocoA));
-  localStorage.setItem('condo_blocoB', JSON.stringify(window.BlocoB));
-  localStorage.setItem('condo_encomendasA', JSON.stringify(window.encomendasA));
-  localStorage.setItem('condo_encomendasB', JSON.stringify(window.encomendasB));
+  localStorage.setItem(
+    'condo_blocoA',
+    JSON.stringify(window.BlocoA)
+  );
 
+  localStorage.setItem(
+    'condo_blocoB',
+    JSON.stringify(window.BlocoB)
+  );
+
+  localStorage.setItem(
+    'condo_encomendasA',
+    JSON.stringify(window.encomendasA)
+  );
+
+  localStorage.setItem(
+    'condo_encomendasB',
+    JSON.stringify(window.encomendasB)
+  );
 }
 
+
 carregarDados();
+
+
+// ==========================================
+// CÂMERA
+// ==========================================
+
+function abrirCamera(sigla) {
+
+  const input = document.getElementById(
+    `foto-encomenda-${sigla}`
+  );
+
+  /*
+    O input é acionado diretamente pelo botão.
+    capture="environment" faz o celular abrir
+    preferencialmente a câmera traseira.
+  */
+
+  input.click();
+}
+
+
+function fotoTirada(sigla) {
+
+  const input = document.getElementById(
+    `foto-encomenda-${sigla}`
+  );
+
+  const preview = document.getElementById(
+    `preview-foto-${sigla}`
+  );
+
+  const imagem = document.getElementById(
+    `imagem-foto-${sigla}`
+  );
+
+  if (!input.files || input.files.length === 0) {
+    return;
+  }
+
+  const arquivo = input.files[0];
+
+  /*
+    Apenas mostra a foto.
+    NÃO altera a tela.
+    NÃO recarrega a página.
+    NÃO chama voltarInicio().
+  */
+
+  const leitor = new FileReader();
+
+  leitor.onload = function(e) {
+
+    imagem.src = e.target.result;
+
+    preview.style.display = 'block';
+
+  };
+
+  leitor.readAsDataURL(arquivo);
+}
 
 
 // ==========================================
@@ -690,16 +1113,22 @@ carregarDados();
 
 function mostrarSenha() {
 
-  document.getElementById('caixa-senha').classList.remove('hidden');
-  document.getElementById('input-senha').value = '';
-  document.getElementById('msg-erro-senha').style.display = 'none';
+  document
+    .getElementById('caixa-senha')
+    .classList.remove('hidden');
 
+  document.getElementById('input-senha').value = '';
+
+  document
+    .getElementById('msg-erro-senha')
+    .style.display = 'none';
 }
 
 
 function verificarSenha() {
 
-  const digitada = document.getElementById('input-senha').value;
+  const digitada =
+    document.getElementById('input-senha').value;
 
   if(digitada === SENHA_PORTARIA) {
 
@@ -707,10 +1136,11 @@ function verificarSenha() {
 
   } else {
 
-    document.getElementById('msg-erro-senha').style.display = 'block';
+    document
+      .getElementById('msg-erro-senha')
+      .style.display = 'block';
 
   }
-
 }
 
 
@@ -720,38 +1150,49 @@ function verificarSenha() {
 
 function voltarInicio() {
 
-  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+  document
+    .querySelectorAll('.tela')
+    .forEach(t => t.classList.remove('ativa'));
 
-  document.getElementById('tela-inicio').classList.add('ativa');
+  document
+    .getElementById('tela-inicio')
+    .classList.add('ativa');
 
-  document.getElementById('caixa-senha').classList.add('hidden');
-
+  document
+    .getElementById('caixa-senha')
+    .classList.add('hidden');
 }
 
 
 function abrirMorador(sigla) {
 
-  document.getElementById('tela-inicio').classList.remove('ativa');
+  document
+    .getElementById('tela-inicio')
+    .classList.remove('ativa');
 
-  document.getElementById(`tela-morador-${sigla}`).classList.add('ativa');
+  document
+    .getElementById(`tela-morador-${sigla}`)
+    .classList.add('ativa');
 
   carregarListaMoradores(sigla);
   carregarSelectAptosMorador(sigla);
-
 }
 
 
 function abrirPortaria() {
 
-  document.getElementById('tela-inicio').classList.remove('ativa');
+  document
+    .getElementById('tela-inicio')
+    .classList.remove('ativa');
 
-  document.getElementById('tela-portaria').classList.add('ativa');
+  document
+    .getElementById('tela-portaria')
+    .classList.add('ativa');
 
   carregarSelectAptos('a');
   carregarSelectAptos('b');
   carregarSelectEdicao();
   carregarTodasEncomendas();
-
 }
 
 
@@ -761,35 +1202,46 @@ function abrirPortaria() {
 
 function carregarListaMoradores(sigla) {
 
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+  const lista =
+    sigla === 'a'
+      ? window.BlocoA
+      : window.BlocoB;
 
-  const el = document.getElementById(`lista-moradores-${sigla}`);
+  const el =
+    document.getElementById(`lista-moradores-${sigla}`);
 
   el.innerHTML = '';
 
   lista.forEach(m => {
 
-    const nome = m.nome || '<span class="vago">Vago</span>';
+    const nome =
+      m.nome ||
+      '<span class="vago">Vago</span>';
 
     el.innerHTML += `
       <div class="lista-item">
-        <strong>${m.apto}</strong><br>
+        <strong>${m.apto}</strong>
+        <br>
         ${nome}
       </div>
     `;
 
   });
-
 }
 
 
 function carregarSelectAptosMorador(sigla) {
 
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+  const lista =
+    sigla === 'a'
+      ? window.BlocoA
+      : window.BlocoB;
 
-  const el = document.getElementById(`meu-apto-${sigla}`);
+  const el =
+    document.getElementById(`meu-apto-${sigla}`);
 
-  el.innerHTML = '<option value="">-- Escolha seu apartamento --</option>';
+  el.innerHTML =
+    '<option value="">-- Escolha seu apartamento --</option>';
 
   lista.forEach((m, idx) => {
 
@@ -800,32 +1252,33 @@ function carregarSelectAptosMorador(sigla) {
     `;
 
   });
-
 }
 
 
 // ==========================================
-// ENCOMENDAS DO MORADOR
+// MINHAS ENCOMENDAS
 // ==========================================
 
 function verMinhasEncomendas(sigla) {
 
-  const indice = document.getElementById(`meu-apto-${sigla}`).value;
+  const indice =
+    document.getElementById(`meu-apto-${sigla}`).value;
 
-  const listaEncs = sigla === 'a'
-    ? window.encomendasA
-    : window.encomendasB;
+  const listaEncs =
+    sigla === 'a'
+      ? window.encomendasA
+      : window.encomendasB;
 
-  const elLista = document.getElementById(`lista-minhas-${sigla}`);
-  const elNome = document.getElementById(`nome-meu-apto-${sigla}`);
+  const elLista =
+    document.getElementById(`lista-minhas-${sigla}`);
+
+  const elNome =
+    document.getElementById(`nome-meu-apto-${sigla}`);
 
   if(!indice) {
 
-    elLista.innerHTML = `
-      <p style="text-align:center; color:#6b7280; padding:20px">
-        Selecione seu apartamento acima 👆
-      </p>
-    `;
+    elLista.innerHTML =
+      '<p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>';
 
     elNome.innerHTML = '';
 
@@ -833,21 +1286,23 @@ function verMinhasEncomendas(sigla) {
   }
 
   const dadosApto =
-    (sigla === 'a' ? window.BlocoA : window.BlocoB)[parseInt(indice)];
+    (sigla === 'a'
+      ? window.BlocoA
+      : window.BlocoB
+    )[parseInt(indice)];
 
   const minhas =
-    listaEncs.filter(e => e.indiceOriginal === parseInt(indice));
+    listaEncs.filter(
+      e => e.indiceOriginal === parseInt(indice)
+    );
 
   elNome.innerHTML =
     `<strong>${dadosApto.apto}</strong> — ${dadosApto.nome || 'Vago'}`;
 
   if(minhas.length === 0) {
 
-    elLista.innerHTML = `
-      <p style="text-align:center; color:#16a34a; padding:20px">
-        ✅ Nenhuma encomenda registrada para este apartamento
-      </p>
-    `;
+    elLista.innerHTML =
+      '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda registrada para este apartamento</p>';
 
     return;
   }
@@ -858,30 +1313,34 @@ function verMinhasEncomendas(sigla) {
 
     elLista.innerHTML += `
       <div class="encomenda-item">
-        <strong>📦 ${e.empresa}</strong><br>
-        Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
+        <strong>📦 ${e.empresa}</strong>
+        <br>
+        Nota: ${e.nota} | Rastreio: ${e.rastreio}
+        <br>
         <span class="encomenda-data">${e.data}</span>
       </div>
     `;
 
   });
-
 }
 
 
 // ==========================================
-// SELECTS
+// SELECT DE APARTAMENTOS
 // ==========================================
 
 function carregarSelectAptos(sigla) {
 
-  const lista = sigla === 'a'
-    ? window.BlocoA
-    : window.BlocoB;
+  const lista =
+    sigla === 'a'
+      ? window.BlocoA
+      : window.BlocoB;
 
-  const el = document.getElementById(`sel-apto-${sigla}`);
+  const el =
+    document.getElementById(`sel-apto-${sigla}`);
 
-  el.innerHTML = '<option value="">-- Selecione --</option>';
+  el.innerHTML =
+    '<option value="">-- Selecione --</option>';
 
   lista.forEach((m, idx) => {
 
@@ -892,24 +1351,25 @@ function carregarSelectAptos(sigla) {
     `;
 
   });
-
 }
 
 
 function preencherMorador(sigla) {
 
-  const lista = sigla === 'a'
-    ? window.BlocoA
-    : window.BlocoB;
+  const lista =
+    sigla === 'a'
+      ? window.BlocoA
+      : window.BlocoB;
 
   const sel =
     document.getElementById(`sel-apto-${sigla}`).value;
 
-  document.getElementById(`nome-morador-${sigla}`).value =
+  document.getElementById(
+    `nome-morador-${sigla}`
+  ).value =
     sel === ''
       ? ''
       : (lista[parseInt(sel)].nome || 'Vago');
-
 }
 
 
@@ -930,7 +1390,9 @@ function cadastrarNovoMorador() {
 
   if(!apto || !nome) {
 
-    alert('Preencha o número do apartamento e o nome!');
+    alert(
+      'Preencha o número do apartamento e o nome!'
+    );
 
     return;
   }
@@ -963,10 +1425,10 @@ function cadastrarNovoMorador() {
 
   msg.classList.remove('hidden');
 
-  setTimeout(() => {
-    msg.classList.add('hidden');
-  }, 3000);
-
+  setTimeout(
+    () => msg.classList.add('hidden'),
+    3000
+  );
 }
 
 
@@ -1008,7 +1470,6 @@ function carregarSelectEdicao() {
   document.getElementById('editar-nome').value = '';
 
   indiceEdicao = null;
-
 }
 
 
@@ -1037,12 +1498,15 @@ function carregarDadosEdicao() {
 
   indiceEdicao = parseInt(sel);
 
-  document.getElementById('editar-numero').value =
+  document.getElementById(
+    'editar-numero'
+  ).value =
     lista[indiceEdicao].apto;
 
-  document.getElementById('editar-nome').value =
+  document.getElementById(
+    'editar-nome'
+  ).value =
     lista[indiceEdicao].nome;
-
 }
 
 
@@ -1056,10 +1520,16 @@ function salvarEdicao() {
   }
 
   const novoApto =
-    document.getElementById('editar-numero').value.trim();
+    document
+      .getElementById('editar-numero')
+      .value
+      .trim();
 
   const novoNome =
-    document.getElementById('editar-nome').value.trim();
+    document
+      .getElementById('editar-nome')
+      .value
+      .trim();
 
   if(!novoApto || !novoNome) {
 
@@ -1091,43 +1561,10 @@ function salvarEdicao() {
 
   msg.classList.remove('hidden');
 
-  setTimeout(() => {
-    msg.classList.add('hidden');
-  }, 3000);
-
-}
-
-
-// ==========================================
-// NOVA FUNÇÃO: CÂMERA DA ENCOMENDA
-// ==========================================
-
-function abrirCamera(sigla) {
-
-  const camera =
-    document.getElementById(`camera-${sigla}`);
-
-  camera.click();
-
-}
-
-
-function fotoTirada(sigla) {
-
-  const camera =
-    document.getElementById(`camera-${sigla}`);
-
-  const arquivo = camera.files[0];
-
-  if(arquivo) {
-
-    console.log(
-      `Foto da encomenda capturada no Bloco ${sigla.toUpperCase()}:`,
-      arquivo
-    );
-
-  }
-
+  setTimeout(
+    () => msg.classList.add('hidden'),
+    3000
+  );
 }
 
 
@@ -1138,7 +1575,9 @@ function fotoTirada(sigla) {
 function salvarEncomenda(sigla) {
 
   const selIdx =
-    document.getElementById(`sel-apto-${sigla}`).value;
+    document.getElementById(
+      `sel-apto-${sigla}`
+    ).value;
 
   if(selIdx === '') {
 
@@ -1146,7 +1585,7 @@ function salvarEncomenda(sigla) {
 
     return;
   }
-  
+
   const lista =
     sigla === 'a'
       ? window.BlocoA
@@ -1156,7 +1595,9 @@ function salvarEncomenda(sigla) {
     lista[parseInt(selIdx)];
 
   const empresa =
-    document.getElementById(`empresa-${sigla}`).value.trim();
+    document.getElementById(
+      `empresa-${sigla}`
+    ).value.trim();
 
   if(!empresa) {
 
@@ -1169,54 +1610,110 @@ function salvarEncomenda(sigla) {
 
     bloco: sigla.toUpperCase(),
 
-    indiceOriginal: parseInt(selIdx),
+    indiceOriginal:
+      parseInt(selIdx),
 
-    apto: morador.apto,
+    apto:
+      morador.apto,
 
-    nome: morador.nome || 'Vago',
+    nome:
+      morador.nome || 'Vago',
 
-    empresa: empresa,
+    empresa:
+      empresa,
 
     nota:
-      document.getElementById(`nota-${sigla}`).value.trim()
-      || 'Não informada',
+      document.getElementById(
+        `nota-${sigla}`
+      ).value.trim() || 'Não informada',
 
     rastreio:
-      document.getElementById(`rastreio-${sigla}`).value.trim()
-      || 'Não informado',
+      document.getElementById(
+        `rastreio-${sigla}`
+      ).value.trim() || 'Não informado',
 
     data:
       new Date().toLocaleString('pt-BR')
 
   };
 
-  if(sigla === 'a')
+  if(sigla === 'a') {
+
     window.encomendasA.unshift(enc);
-  else
+
+  } else {
+
     window.encomendasB.unshift(enc);
-  
+
+  }
+
   salvarDados();
 
-  document.getElementById(`sel-apto-${sigla}`).value = '';
-  document.getElementById(`nome-morador-${sigla}`).value = '';
-  document.getElementById(`empresa-${sigla}`).value = '';
-  document.getElementById(`nota-${sigla}`).value = '';
-  document.getElementById(`rastreio-${sigla}`).value = '';
+  document.getElementById(
+    `sel-apto-${sigla}`
+  ).value = '';
 
-  /* Limpa também a foto selecionada */
-  document.getElementById(`camera-${sigla}`).value = '';
+  document.getElementById(
+    `nome-morador-${sigla}`
+  ).value = '';
+
+  document.getElementById(
+    `empresa-${sigla}`
+  ).value = '';
+
+  document.getElementById(
+    `nota-${sigla}`
+  ).value = '';
+
+  document.getElementById(
+    `rastreio-${sigla}`
+  ).value = '';
+
+  /*
+    Limpa somente o campo da câmera depois que
+    a encomenda foi realmente registrada.
+  */
+
+  const inputFoto =
+    document.getElementById(
+      `foto-encomenda-${sigla}`
+    );
+
+  const previewFoto =
+    document.getElementById(
+      `preview-foto-${sigla}`
+    );
+
+  const imagemFoto =
+    document.getElementById(
+      `imagem-foto-${sigla}`
+    );
+
+  if(inputFoto) {
+    inputFoto.value = '';
+  }
+
+  if(previewFoto) {
+    previewFoto.style.display = 'none';
+  }
+
+  if(imagemFoto) {
+    imagemFoto.src = '';
+  }
 
   const msg =
-    document.getElementById(`msg-sucesso-${sigla}`);
+    document.getElementById(
+      `msg-sucesso-${sigla}`
+    );
 
   msg.classList.remove('hidden');
 
-  setTimeout(() => {
-    msg.classList.add('hidden');
-  }, 3000);
+  setTimeout(
+    () => msg.classList.add('hidden'),
+    3000
+  );
 
   carregarTodasEncomendas();
-
 }
 
 
@@ -1227,19 +1724,22 @@ function salvarEncomenda(sigla) {
 function carregarTodasEncomendas() {
 
   const todas =
-    [...window.encomendasA, ...window.encomendasB]
-      .sort((a,b) => new Date(b.data) - new Date(a.data));
+    [
+      ...window.encomendasA,
+      ...window.encomendasB
+    ]
+    .sort(
+      (a,b) =>
+        new Date(b.data) - new Date(a.data)
+    );
 
   const el =
     document.getElementById('lista-todas');
 
   if(todas.length === 0) {
 
-    el.innerHTML = `
-      <p style="text-align:center; color:#6b7280; padding:20px">
-        Nenhuma encomenda registrada ainda
-      </p>
-    `;
+    el.innerHTML =
+      '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';
 
     return;
   }
@@ -1262,9 +1762,13 @@ function carregarTodasEncomendas() {
 
         <br>
 
-        ${e.apto} — ${e.nome}<br>
+        ${e.apto} — ${e.nome}
 
-        Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
+        <br>
+
+        Nota: ${e.nota} | Rastreio: ${e.rastreio}
+
+        <br>
 
         <span class="encomenda-data">
           ${e.data}
@@ -1274,12 +1778,11 @@ function carregarTodasEncomendas() {
     `;
 
   });
-
 }
 
 
 // ==========================================
-// ABAS MORADOR A
+// ABAS DO MORADOR A
 // ==========================================
 
 function mostrarAbaMoradorA(nome) {
@@ -1297,12 +1800,11 @@ function mostrarAbaMoradorA(nome) {
     .classList.add('ativa');
 
   event.target.classList.add('ativo');
-
 }
 
 
 // ==========================================
-// ABAS MORADOR B
+// ABAS DO MORADOR B
 // ==========================================
 
 function mostrarAbaMoradorB(nome) {
@@ -1320,12 +1822,11 @@ function mostrarAbaMoradorB(nome) {
     .classList.add('ativa');
 
   event.target.classList.add('ativo');
-
 }
 
 
 // ==========================================
-// ABAS PORTARIA
+// ABAS DA PORTARIA
 // ==========================================
 
 function mostrarAbaPortaria(nome) {
@@ -1343,10 +1844,9 @@ function mostrarAbaPortaria(nome) {
     .classList.add('ativa');
 
   event.target.classList.add('ativo');
-
 }
 
 </script>
 
 </body>
-</html>
+  </html>
