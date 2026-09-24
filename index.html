@@ -62,7 +62,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .foto-preview { width: 100%; max-height: 240px; border-radius: 8px; object-fit: cover; border: 2px solid #16a34a; margin-top: 8px; }
 .btn-cam { background: #3b82f6; color: white; font-size: 14px; padding: 10px 14px; margin-top: 8px; }
 .btn-foto { background: #ef4444; color: white; font-size: 14px; padding: 10px 14px; margin-top: 8px; }
-.foto-encomenda-thumb { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid #e5e7eb; }
+.foto-encomenda-thumb { width: 100%; max-height: 220px; object-fit: cover; border-radius: 8px; margin-top: 10px; border: 1px solid #d1d5db; display: block; }
 </style>
 
 </head>  
@@ -165,7 +165,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     <div class="card">  
       <h2>📦 Registrar — Bloco A</h2>  
       
-      <!-- ÁREA DA CÂMERA (MOVIDA PARA O TOPO) -->
+      <!-- ÁREA DA CÂMERA -->
       <label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
       <div class="area-camera">
         <video id="video-a" class="video-preview hidden" autoplay playsinline></video>
@@ -202,7 +202,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     <div class="card">  
       <h2>📦 Registrar — Bloco B</h2>  
       
-      <!-- ÁREA DA CÂMERA (MOVIDA PARA O TOPO) -->
+      <!-- ÁREA DA CÂMERA -->
       <label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
       <div class="area-camera">
         <video id="video-b" class="video-preview hidden" autoplay playsinline></video>
@@ -658,7 +658,8 @@ function verMinhasEncomendas(sigla) {
   
   elLista.innerHTML = '';  
   minhas.forEach(e => {  
-    const htmlFoto = e.foto ? `<br><img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto encomenda">` : '';
+    // RENDERIZA A FOTO DA ENCOMENDA PARA O MORADOR
+    const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : '';
     elLista.innerHTML += `<div class="encomenda-item">  
       <strong>📦 ${e.empresa}</strong><br>  
       Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>  
@@ -822,7 +823,7 @@ function carregarTodasEncomendas() {
   }  
   el.innerHTML = '';  
   todas.forEach(e => {  
-    const htmlFoto = e.foto ? `<br><img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto encomenda">` : '';
+    const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : '';
     el.innerHTML += `<div class="encomenda-item">  
       <strong>📦 ${e.empresa}</strong>  
       <span class="tag-bloco tag-${e.bloco.toLowerCase()}" style="float:right">Bloco ${e.bloco}</span><br>  
