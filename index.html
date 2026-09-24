@@ -65,6 +65,28 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .foto-encomenda-thumb { width: 100%; max-height: 220px; object-fit: cover; border-radius: 8px; margin-top: 10px; border: 1px solid #d1d5db; display: block; }
 </style>
 
+<!-- IMPORTAÇÃO DO FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // SUAS CONFIGURAÇÕES DO FIREBASE (SUBSTITUA AQUI)
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_PROJETO.firebaseapp.com",
+    projectId: "SEU_PROJETO",
+    storageBucket: "SEU_PROJETO.appspot.com",
+    messagingSenderId: "SEU_SENDER_ID",
+    appId: "SEU_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.db = db;
+  window.dbFunctions = { collection, addDoc, onSnapshot, doc, setDoc };
+</script>
+
 </head>  
 <body>  <div class="container">  <!-- TELA INICIAL -->  <div id="tela-inicio" class="tela ativa">  
   <div class="header">  
@@ -449,7 +471,7 @@ const BlocoB_PADRAO = [
 ];  
   
 // ==========================================  
-// SALVAMENTO PERMANENTE  
+// SALVAMENTO PERMANENTE & SINCRONIZAÇÃO NUVEM
 // ==========================================  
 function carregarDados() {  
   let blocoA = localStorage.getItem('condo_blocoA');  
@@ -461,6 +483,8 @@ function carregarDados() {
   window.BlocoB = blocoB ? JSON.parse(blocoB) : [...BlocoB_PADRAO];  
   window.encomendasA = encA ? JSON.parse(encA) : [];  
   window.encomendasB = encB ? JSON.parse(encB) : [];  
+
+  iniciarSincronizacaoNuvem();
 }  
   
 function salvarDados() {  
@@ -468,7 +492,50 @@ function salvarDados() {
   localStorage.setItem('condo_blocoB', JSON.stringify(window.BlocoB));  
   localStorage.setItem('condo_encomendasA', JSON.stringify(window.encomendasA));  
   localStorage.setItem('condo_encomendasB', JSON.stringify(window.encomendasB));  
+
+  if (window.db && window.dbFunctions) {
+    const { doc, setDoc } = window.dbFunctions;
+    setDoc(doc(window.db, "condo_dados", "blocoA"), { lista: window.BlocoA });
+    setDoc(doc(window.db, "condo_dados", "blocoB"), { lista: window.BlocoB });
+  }
 }  
+
+function iniciarSincronizacaoNuvem() {
+  setTimeout(() => {
+    if (!window.db) return;
+    const { collection, onSnapshot, doc } = window.dbFunctions;
+
+    // Escuta mudanças de encomendas em tempo real
+    onSnapshot(collection(window.db, "encomendasA"), (snapshot) => {
+      window.encomendasA = snapshot.docs.map(doc => doc.data());
+      localStorage.setItem('condo_encomendasA', JSON.stringify(window.encomendasA));
+      carregarTodasEncomendas();
+    });
+
+    onSnapshot(collection(window.db, "encomendasB"), (snapshot) => {
+      window.encomendasB = snapshot.docs.map(doc => doc.data());
+      localStorage.setItem('condo_encomendasB', JSON.stringify(window.encomendasB));
+      carregarTodasEncomendas();
+    });
+
+    // Escuta mudanças de moradores em tempo real
+    onSnapshot(doc(window.db, "condo_dados", "blocoA"), (docSnap) => {
+      if (docSnap.exists()) {
+        window.BlocoA = docSnap.data().lista;
+        localStorage.setItem('condo_blocoA', JSON.stringify(window.BlocoA));
+        carregarListaMoradores('a');
+      }
+    });
+
+    onSnapshot(doc(window.db, "condo_dados", "blocoB"), (docSnap) => {
+      if (docSnap.exists()) {
+        window.BlocoB = docSnap.data().lista;
+        localStorage.setItem('condo_blocoB', JSON.stringify(window.BlocoB));
+        carregarListaMoradores('b');
+      }
+    });
+  }, 1000);
+}
   
 carregarDados();  
   
@@ -658,7 +725,6 @@ function verMinhasEncomendas(sigla) {
   
   elLista.innerHTML = '';  
   minhas.forEach(e => {  
-    // RENDERIZA A FOTO DA ENCOMENDA PARA O MORADOR
     const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : '';
     elLista.innerHTML += `<div class="encomenda-item">  
       <strong>📦 ${e.empresa}</strong><br>  
@@ -798,6 +864,12 @@ function salvarEncomenda(sigla) {
   else window.encomendasB.unshift(enc);  
     
   salvarDados();  
+
+  // ENVIO EM TEMPO REAL PARA O FIREBASE
+  if (window.db && window.dbFunctions) {
+    const { collection, addDoc } = window.dbFunctions;
+    addDoc(collection(window.db, sigla === 'a' ? "encomendasA" : "encomendasB"), enc);
+  }
   
   document.getElementById(`sel-apto-${sigla}`).value = '';  
   document.getElementById(`nome-morador-${sigla}`).value = '';  
