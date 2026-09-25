@@ -30,6 +30,7 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-cadastrar { background: #0d9488; color: white; }
 .btn-retirar { background: #2563eb; color: white; font-size: 14px; padding: 10px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; margin-top: 10px; width: 100%; }
 .btn-retirar:hover { background: #1d4ed8; }
+.btn-limpar-filtro { background: #e5e7eb; color: #374151; font-size: 13px; padding: 8px; margin-top: 6px; width: auto; display: inline-block; }
 
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
@@ -57,6 +58,9 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .hidden { display: none !important; }
 .aviso { background: #fef3c7; color: #92400e; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; text-align: center; }
 .senha-input { font-size: 18px; letter-spacing: 4px; }
+
+/* Filtro de data */
+.filtro-data-container { background: #f8fafc; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
 
 /* Campo de senha */
 .campo-senha-container { position: relative; display: flex; align-items: center; }
@@ -133,6 +137,15 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div class="card">
 <h2>📦 Minhas Encomendas</h2>
 <p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>
+
+
+<!-- CALENDÁRIO FILTRO BLCO A -->
+<div class="filtro-data-container">
+  <label for="filtro-data-a">📅 Filtrar por data de chegada:</label>
+  <input type="date" id="filtro-data-a" onchange="verMinhasEncomendas('a')">
+  <button type="button" class="btn btn-limpar-filtro" onclick="limparFiltroData('a')">Limpar Data</button>
+</div>
+
 <div id="lista-minhas-a">
 <p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>
 </div>
@@ -167,6 +180,14 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div class="card">
 <h2>📦 Minhas Encomendas</h2>
 <p id="nome-meu-apto-b" style="color:#4b5563; margin-bottom:15px"></p>
+
+<!-- CALENDÁRIO FILTRO BLOCO B -->
+<div class="filtro-data-container">
+  <label for="filtro-data-b">📅 Filtrar por data de chegada:</label>
+  <input type="date" id="filtro-data-b" onchange="verMinhasEncomendas('b')">
+  <button type="button" class="btn btn-limpar-filtro" onclick="limparFiltroData('b')">Limpar Data</button>
+</div>
+
 <div id="lista-minhas-b">
 <p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>
 </div>
@@ -317,6 +338,14 @@ ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" captur
 <div id="todas-encomendas" class="aba">
 <div class="card">
 <h2>📋 Todas Encomendas</h2>
+
+<!-- CALENDÁRIO FILTRO PORTARIA -->
+<div class="filtro-data-container">
+  <label for="filtro-data-portaria">📅 Filtrar por data de chegada:</label>
+  <input type="date" id="filtro-data-portaria" onchange="carregarTodasEncomendas()">
+  <button type="button" class="btn btn-limpar-filtro" onclick="limparFiltroData('portaria')">Limpar Data</button>
+</div>
+
 <div id="lista-todas">
 <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>
 </div>
@@ -401,7 +430,8 @@ const BlocoB_PADRAO = [
 {apto:"142SAB",nome:"Vago"}, {apto:"143SAB",nome:"Eduardo I. Fonseca / Thais Sozi Fonseca"},
 {apto:"144SAB",nome:"Flavia Pagotti Silva / Pedro Pagotti S. Leme"}, {apto:"151SAB",nome:"Norma Montagna Braga"},
 {apto:"152SAB",nome:"Henrique Navarro / Patricia Navarro / Alice Navarro"}, {apto:"153SAB",nome:"Sonia Beli Valquiria de Aquino / Mauricio Filho de Aquino / Lucas Aquino Souza"},
-{apto:"154SAB",nome:"Ana Lucia Carlier"}, {apto:"161SAB",nome:"Thiago Lira Fernandes / Lilian / Ma. Clara / Maria Beatriz / Lucas"}, {apto:"162SAB",nome:"Harvey James Wattengel / Estela Wattengel / Adriana Wattengel / Christopher Wattengel"}, {apto:"163SAB",nome:"Tatiana M.K. Shibuya / Stefan O.S. Johansson / Pedro S. Bizzaro"},
+{apto:"154SAB",nome:"Ana Lucia Carlier"}, {apto:"161SAB",nome:"Thiago Lira Fernandes / Lilian / Ma. Clara / Maria Beatriz / Lucas"},
+{apto:"162SAB",nome:"Harvey James Wattengel / Estela Wattengel / Adriana Wattengel / Christopher Wattengel"}, {apto:"163SAB",nome:"Tatiana M.K. Shibuya / Stefan O.S. Johansson / Pedro S. Bizzaro"},
 {apto:"171SAB",nome:"José Luis Soiser / Patricia C. Carradas / Isaac, Lorena"}, {apto:"172SAB",nome:"Lindaci de Melo Soares / Julia (filha)"},
 {apto:"173SAB",nome:"Ricardo Mair Anafe / Ana Luiza Liarte"}, {apto:"174SAB",nome:"Ivana Veltri"},
 {apto:"181SAB",nome:"Paolo Cutrona"}, {apto:"182SAB",nome:"Fabíola Belfort Mattos / Eduardo Belfort / Giovana Belfort"},
@@ -632,11 +662,31 @@ function carregarSelectAptosMorador(sigla) {
   });
 }
 
+// FORMATAR DATA DO INPUT DATE (AAAA-MM-DD) PARA COMPATIBILIDADE COM A DATA DA TELA (DD/MM/AAAA)
+function formatarDataParaComparacao(dataInput) {
+  if (!dataInput) return null;
+  const partes = dataInput.split('-'); // [AAAA, MM, DD]
+  if (partes.length !== 3) return null;
+  return `${partes[2]}/${partes[1]}/${partes[0]}`; // Retorna DD/MM/AAAA
+}
+
+function limparFiltroData(tipo) {
+  if (tipo === 'portaria') {
+    document.getElementById('filtro-data-portaria').value = '';
+    carregarTodasEncomendas();
+  } else {
+    document.getElementById(`filtro-data-${tipo}`).value = '';
+    verMinhasEncomendas(tipo);
+  }
+}
+
 function verMinhasEncomendas(sigla) {
   const indice = document.getElementById(`meu-apto-${sigla}`).value; 
   const listaEncs = sigla === 'a' ? window.encomendasA : window.encomendasB; 
   const elLista = document.getElementById(`lista-minhas-${sigla}`);
   const elNome = document.getElementById(`nome-meu-apto-${sigla}`);
+  const dataFiltroInput = document.getElementById(`filtro-data-${sigla}`).value;
+  const dataFiltroFormatada = formatarDataParaComparacao(dataFiltroInput);
 
   if(!indice) {
     elLista.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>';
@@ -645,12 +695,17 @@ function verMinhasEncomendas(sigla) {
   }
 
   const dadosApto = (sigla === 'a' ? window.BlocoA : window.BlocoB)[parseInt(indice)];
-  const minhas = listaEncs.filter(e => e.indiceOriginal === parseInt(indice));
+  let minhas = listaEncs.filter(e => e.indiceOriginal === parseInt(indice));
+
+  // Aplicar filtro de data se preenchido
+  if (dataFiltroFormatada) {
+    minhas = minhas.filter(e => e.data && e.data.startsWith(dataFiltroFormatada));
+  }
 
   elNome.innerHTML = `<strong>${dadosApto.apto}</strong> — ${dadosApto.nome || 'Vago'}`;
 
   if(minhas.length === 0) {
-    elLista.innerHTML = '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda registrada para este apartamento</p>';
+    elLista.innerHTML = '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda encontrada para este filtro</p>';
     return;
   }
 
@@ -856,12 +911,21 @@ async function marcarComoRetirada(bloco, idOuIndex) {
 }
 
 function carregarTodasEncomendas() {
-  const todas = [...window.encomendasA, ...window.encomendasB].sort((a,b) => new Date(b.data) - new Date(a.data));
+  let todas = [...window.encomendasA, ...window.encomendasB].sort((a,b) => new Date(b.data) - new Date(a.data));
   const el = document.getElementById('lista-todas');
+  const dataFiltroInput = document.getElementById('filtro-data-portaria').value;
+  const dataFiltroFormatada = formatarDataParaComparacao(dataFiltroInput);
+
+  // Aplicar filtro de data na portaria se preenchido
+  if (dataFiltroFormatada) {
+    todas = todas.filter(e => e.data && e.data.startsWith(dataFiltroFormatada));
+  }
+
   if(todas.length === 0) {
-    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';
+    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda encontrada para este filtro</p>';
     return;
   }
+
   el.innerHTML = '';
   todas.forEach((e, idx) => {
     const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : ''; 
