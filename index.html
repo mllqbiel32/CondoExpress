@@ -28,12 +28,16 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
 .btn-salvar-edicao { background: #8b5cf6; color: white; }
 .btn-cadastrar { background: #0d9488; color: white; }
+.btn-filtrar { background: #6366f1; color: white; padding: 10px 14px; font-size: 15px; width: auto; display: inline-block; margin-left: 8px; }
+.btn-limpar { background: #6b7280; color: white; padding: 10px 14px; font-size: 15px; width: auto; display: inline-block; margin-left: 8px; }
 
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 label { font-weight: 600; font-size: 14px; color: #374151; display: block; margin: 12px 0 4px; }
 input, select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px; }
 input[readonly] { background: #f3f4f6; color: #4b5563; }
+input[type="date"] { padding: 10px 12px; }
+.filtro-data { background: #eff6ff; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
 .lista-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
 .lista-item:last-child { border: none; }
 .lista-item strong { font-size: 15px; color: #111827; display: block; }
@@ -59,7 +63,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .btn-toggle-senha { position: absolute; right: 10px; background: none; border: none; font-size: 18px; cursor: pointer; color: #6b7280; padding: 5px; }
 
 /* Câmera e Upload */
-.area-camera { background: #f8fafc; border: 2px dashed #3b82f6; border-radius: 12px; padding: 14px; margin-top: 10px; text-align: center; }
+.area-camera { background: #f8fafc; border: 2px dashed #3b82f6; border-radius: 12px; padding: 14px; margin: 10px 0; text-align: center; }
 .video-preview { width: 100%; max-height: 240px; border-radius: 8px; background: #000; object-fit: cover; }
 .foto-preview { width: 100%; max-height: 240px; border-radius: 8px; object-fit: cover; border: 2px solid #16a34a; margin-top: 8px; }
 .btn-cam { background: #3b82f6; color: white; font-size: 14px; padding: 10px 14px; margin-top: 8px; }
@@ -151,6 +155,14 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <div class="card">  
         <h2>📦 Minhas Encomendas</h2>  
         <p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>  
+        
+        <!-- CALENDÁRIO DE FILTRO -->
+        <div class="filtro-data">
+          <label>📅 Filtrar por data:</label>
+          <input type="date" id="filtro-data-a" onchange="verMinhasEncomendas('a')">
+          <button type="button" class="btn btn-limpar" onclick="limparFiltroData('a')">Limpar</button>
+        </div>
+        
         <div id="lista-minhas-a">  
           <p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>  
         </div>  
@@ -185,6 +197,14 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <div class="card">  
         <h2>📦 Minhas Encomendas</h2>  
         <p id="nome-meu-apto-b" style="color:#4b5563; margin-bottom:15px"></p>  
+        
+        <!-- CALENDÁRIO DE FILTRO -->
+        <div class="filtro-data">
+          <label>📅 Filtrar por data:</label>
+          <input type="date" id="filtro-data-b" onchange="verMinhasEncomendas('b')">
+          <button type="button" class="btn btn-limpar" onclick="limparFiltroData('b')">Limpar</button>
+        </div>
+        
         <div id="lista-minhas-b">  
           <p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>  
         </div>  
@@ -213,6 +233,16 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <div class="card">  
         <h2>📦 Registrar — Bloco A</h2>  
         
+        <label>Apartamento / Morador</label>  
+        <select id="sel-apto-a" onchange="preencherMorador('a')">  
+          <option value="">-- Selecione --</option>  
+        </select>  
+        <label>Nome do Morador</label>  
+        <input type="text" id="nome-morador-a" readonly>  
+        <label>Empresa / Loja</label>  
+        <input type="text" id="empresa-a" placeholder="Ex: Shopee, Correios...">  
+
+        <!-- CÂMERA MOVIDA PARA AQUI -->
         <label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
         <div class="area-camera">
           <video id="video-a" class="video-preview hidden" autoplay playsinline></video>
@@ -228,15 +258,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
           </div>
         </div>
 
-        <label>Apartamento / Morador</label>  
-        <select id="sel-apto-a" onchange="preencherMorador('a')">  
-          <option value="">-- Selecione --</option>  
-        </select>  
-        <label>Nome do Morador</label>  
-        <input type="text" id="nome-morador-a" readonly>  
-        <label>Empresa / Loja</label>  
-        <input type="text" id="empresa-a" placeholder="Ex: Shopee, Correios...">  
-
         <label>Nota Fiscal</label>  
         <input type="text" id="nota-a" placeholder="Número">  
         <label>Código de Rastreio</label>  
@@ -251,6 +272,16 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
       <div class="card">  
         <h2>📦 Registrar — Bloco B</h2>  
         
+        <label>Apartamento / Morador</label>  
+        <select id="sel-apto-b" onchange="preencherMorador('b')">  
+          <option value="">-- Selecione --</option>  
+        </select>  
+        <label>Nome do Morador</label>  
+        <input type="text" id="nome-morador-b" readonly>  
+        <label>Empresa / Loja</label>  
+        <input type="text" id="empresa-b" placeholder="Ex: Shopee, Correios...">  
+
+        <!-- CÂMERA MOVIDA PARA AQUI -->
         <label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
         <div class="area-camera">
           <video id="video-b" class="video-preview hidden" autoplay playsinline></video>
@@ -265,15 +296,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
             ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" capture="environment" onchange="carregarFotoArquivo('b', event)" style="margin-top:5px; font-size:12px;">
           </div>
         </div>
-
-        <label>Apartamento / Morador</label>  
-        <select id="sel-apto-b" onchange="preencherMorador('b')">  
-          <option value="">-- Selecione --</option>  
-        </select>  
-        <label>Nome do Morador</label>  
-        <input type="text" id="nome-morador-b" readonly>  
-        <label>Empresa / Loja</label>  
-        <input type="text" id="empresa-b" placeholder="Ex: Shopee, Correios...">  
 
         <label>Nota Fiscal</label>  
         <input type="text" id="nota-b" placeholder="Número">  
@@ -335,6 +357,14 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
     <div id="todas-encomendas" class="aba">  
       <div class="card">  
         <h2>📋 Todas Encomendas</h2>  
+        
+        <!-- CALENDÁRIO DE FILTRO -->
+        <div class="filtro-data">
+          <label>📅 Filtrar por data:</label>
+          <input type="date" id="filtro-data-todas" onchange="carregarTodasEncomendas()">
+          <button type="button" class="btn btn-limpar" onclick="limparFiltroDataTodas()">Limpar</button>
+        </div>
+        
         <div id="lista-todas">  
           <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>  
         </div>  
@@ -462,7 +492,6 @@ function iniciarSincronizacaoNuvem() {
     if (!window.db) return;
     const { collection, onSnapshot, doc } = window.dbFunctions;
 
-    // Escuta novas encomendas em tempo real no Celular e Computador
     onSnapshot(collection(window.db, "encomendasA"), (snapshot) => {
       window.encomendasA = snapshot.docs.map(doc => doc.data());
       localStorage.setItem('condo_encomendasA', JSON.stringify(window.encomendasA));
@@ -475,7 +504,6 @@ function iniciarSincronizacaoNuvem() {
       carregarTodasEncomendas();
     });
 
-    // Escuta alterações de moradores em tempo real
     onSnapshot(doc(window.db, "condo_dados", "blocoA"), (docSnap) => {
       if (docSnap.exists()) {
         window.BlocoA = docSnap.data().lista;
@@ -522,6 +550,27 @@ function alternarVisibilidadeSenha() {
     inputSenha.type = 'password';
     btnOlho.textContent = '👁️';
   }
+}
+
+// FUNÇÃO AUXILIAR: Extrair data no formato YYYY-MM-DD da string de data
+function extrairData(dataString) {
+  if (!dataString) return null;
+  const partes = dataString.split(' ')[0].split('/');
+  if (partes.length === 3) {
+    const [dia, mes, ano] = partes;
+    return `${ano}-${mes}-${dia}`;
+  }
+  return null;
+}
+
+function limparFiltroData(sigla) {
+  document.getElementById(`filtro-data-${sigla}`).value = '';
+  verMinhasEncomendas(sigla);
+}
+
+function limparFiltroDataTodas() {
+  document.getElementById('filtro-data-todas').value = '';
+  carregarTodasEncomendas();
 }
 
 // CÂMERA E SELEÇÃO DE ARQUIVOS
@@ -576,308 +625,4 @@ function carregarFotoArquivo(sigla, event) {
       imgPreview.src = fotosBase64[sigla];
       imgPreview.classList.remove('hidden');
       document.getElementById(`btn-abrir-cam-${sigla}`).classList.add('hidden');
-      document.getElementById(`btn-refazer-foto-${sigla}`).classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-  }
-}
-
-function refazerFoto(sigla) {
-  fotosBase64[sigla] = null;
-  document.getElementById(`img-preview-${sigla}`).classList.add('hidden');
-  document.getElementById(`btn-refazer-foto-${sigla}`).classList.add('hidden');
-  document.getElementById(`file-${sigla}`).value = '';
-  document.getElementById(`btn-abrir-cam-${sigla}`).classList.remove('hidden');
-}
-
-function desligarCamera(sigla) {
-  if (streamCamera[sigla]) {
-    streamCamera[sigla].getTracks().forEach(track => track.stop());
-    streamCamera[sigla] = null;
-  }
-}
-
-function resetarCameraInterface(sigla) {
-  desligarCamera(sigla);
-  fotosBase64[sigla] = null;
-  document.getElementById(`file-${sigla}`).value = '';
-  document.getElementById(`video-${sigla}`).classList.add('hidden');
-  document.getElementById(`img-preview-${sigla}`).classList.add('hidden');
-  document.getElementById(`btn-abrir-cam-${sigla}`).classList.remove('hidden');
-  document.getElementById(`btn-tirar-foto-${sigla}`).classList.add('hidden');
-  document.getElementById(`btn-refazer-foto-${sigla}`).classList.add('hidden');
-}
-
-// NAVEGAÇÃO
-function voltarInicio() {  
-  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));  
-  document.getElementById('tela-inicio').classList.add('ativa');  
-  document.getElementById('caixa-senha').classList.add('hidden');  
-  desligarCamera('a');
-  desligarCamera('b');
-}  
-  
-function abrirMorador(sigla) {  
-  document.getElementById('tela-inicio').classList.remove('ativa');  
-  document.getElementById(`tela-morador-${sigla}`).classList.add('ativa');  
-  carregarListaMoradores(sigla);  
-  carregarSelectAptosMorador(sigla);  
-}  
-  
-function abrirPortaria() {  
-  document.getElementById('tela-inicio').classList.remove('ativa');  
-  document.getElementById('tela-portaria').classList.add('ativa');  
-  carregarSelectAptos('a');  
-  carregarSelectAptos('b');  
-  carregarSelectEdicao();  
-  carregarTodasEncomendas();  
-}  
-  
-function carregarListaMoradores(sigla) {  
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
-  const el = document.getElementById(`lista-moradores-${sigla}`);  
-  el.innerHTML = '';  
-  lista.forEach(m => {  
-    const nome = m.nome || '<span class="vago">Vago</span>';  
-    el.innerHTML += `<div class="lista-item"><strong>${m.apto}</strong><br>${nome}</div>`;  
-  });  
-}  
-  
-function carregarSelectAptosMorador(sigla) {  
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
-  const el = document.getElementById(`meu-apto-${sigla}`);  
-  el.innerHTML = '<option value="">-- Escolha seu apartamento --</option>';  
-  lista.forEach((m, idx) => {  
-    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;  
-  });  
-}  
-  
-function verMinhasEncomendas(sigla) {  
-  const indice = document.getElementById(`meu-apto-${sigla}`).value;  
-  const listaEncs = sigla === 'a' ? window.encomendasA : window.encomendasB;  
-  const elLista = document.getElementById(`lista-minhas-${sigla}`);  
-  const elNome = document.getElementById(`nome-meu-apto-${sigla}`);  
-  
-  if(!indice) {  
-    elLista.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>';  
-    elNome.innerHTML = '';  
-    return;  
-  }  
-  
-  const dadosApto = (sigla === 'a' ? window.BlocoA : window.BlocoB)[parseInt(indice)];  
-  const minhas = listaEncs.filter(e => e.indiceOriginal === parseInt(indice));  
-    
-  elNome.innerHTML = `<strong>${dadosApto.apto}</strong> — ${dadosApto.nome || 'Vago'}`;  
-  
-  if(minhas.length === 0) {  
-    elLista.innerHTML = '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda registrada para este apartamento</p>';  
-    return;  
-  }  
-  
-  elLista.innerHTML = '';  
-  minhas.forEach(e => {  
-    const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : '';
-    elLista.innerHTML += `<div class="encomenda-item">  
-      <strong>📦 ${e.empresa}</strong><br>  
-      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>  
-      <span class="encomenda-data">${e.data}</span>  
-      ${htmlFoto}
-    </div>`;  
-  });  
-}  
-  
-function carregarSelectAptos(sigla) {  
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
-  const el = document.getElementById(`sel-apto-${sigla}`);  
-  el.innerHTML = '<option value="">-- Selecione --</option>';  
-  lista.forEach((m, idx) => {  
-    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;  
-  });  
-}  
-  
-function preencherMorador(sigla) {  
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
-  const sel = document.getElementById(`sel-apto-${sigla}`).value;  
-  document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');  
-}  
-  
-function cadastrarNovoMorador() {  
-  const bloco = document.getElementById('novo-bloco').value;  
-  const apto = document.getElementById('novo-apto').value.trim();  
-  const nome = document.getElementById('novo-nome').value.trim();  
-  
-  if(!apto || !nome) {  
-    alert('Preencha o número do apartamento e o nome!');  
-    return;  
-  }  
-  
-  const lista = bloco === 'a' ? window.BlocoA : window.BlocoB;  
-  lista.push({ apto: apto, nome: nome });  
-  salvarDados();  
-  
-  carregarSelectAptos('a');  
-  carregarSelectAptos('b');  
-  carregarSelectAptosMorador('a');  
-  carregarSelectAptosMorador('b');  
-  carregarSelectEdicao();  
-  carregarListaMoradores('a');  
-  carregarListaMoradores('b');  
-  
-  document.getElementById('novo-apto').value = '';  
-  document.getElementById('novo-nome').value = '';  
-  
-  const msg = document.getElementById('msg-cadastro');  
-  msg.classList.remove('hidden');  
-  setTimeout(() => msg.classList.add('hidden'), 3000);  
-}  
-  
-let indiceEdicao = null, blocoEdicao = null;  
-  
-function carregarSelectEdicao() {  
-  blocoEdicao = document.getElementById('editar-bloco').value;  
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;  
-  const el = document.getElementById('editar-apto');  
-  el.innerHTML = '<option value="">-- Escolha --</option>';  
-  lista.forEach((m, idx) => {  
-    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;  
-  });  
-  document.getElementById('editar-numero').value = '';  
-  document.getElementById('editar-nome').value = '';  
-  indiceEdicao = null;  
-}  
-  
-function carregarDadosEdicao() {  
-  const sel = document.getElementById('editar-apto').value;  
-  if(sel === '') {  
-    document.getElementById('editar-numero').value = '';  
-    document.getElementById('editar-nome').value = '';  
-    indiceEdicao = null;  
-    return;  
-  }  
-  blocoEdicao = document.getElementById('editar-bloco').value;  
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;  
-  indiceEdicao = parseInt(sel);  
-  document.getElementById('editar-numero').value = lista[indiceEdicao].apto;  
-  document.getElementById('editar-nome').value = lista[indiceEdicao].nome;  
-}  
-  
-function salvarEdicao() {  
-  if(indiceEdicao === null) {  
-    alert('Selecione um apartamento!');  
-    return;  
-  }  
-  const novoApto = document.getElementById('editar-numero').value.trim();  
-  const novoNome = document.getElementById('editar-nome').value.trim();  
-  if(!novoApto || !novoNome) {  
-    alert('Preencha os dois campos!');  
-    return;  
-  }  
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;  
-  lista[indiceEdicao].apto = novoApto;  
-  lista[indiceEdicao].nome = novoNome;  
-  salvarDados();  
-  
-  carregarSelectEdicao();  
-  carregarSelectAptos('a');  
-  carregarSelectAptos('b');  
-  carregarSelectAptosMorador('a');  
-  carregarSelectAptosMorador('b');  
-  carregarListaMoradores('a');  
-  carregarListaMoradores('b');  
-  
-  const msg = document.getElementById('msg-edicao');  
-  msg.classList.remove('hidden');  
-  setTimeout(() => msg.classList.add('hidden'), 3000);  
-}  
-  
-function salvarEncomenda(sigla) {  
-  const selIdx = document.getElementById(`sel-apto-${sigla}`).value;  
-  if(selIdx === '') { alert('Selecione o apartamento!'); return; }  
-    
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
-  const morador = lista[parseInt(selIdx)];  
-  const empresa = document.getElementById(`empresa-${sigla}`).value.trim();  
-  if(!empresa) { alert('Digite a empresa/loja!'); return; }  
-  
-  const enc = {  
-    bloco: sigla.toUpperCase(),  
-    indiceOriginal: parseInt(selIdx),  
-    apto: morador.apto,  
-    nome: morador.nome || 'Vago',  
-    empresa: empresa,  
-    nota: document.getElementById(`nota-${sigla}`).value.trim() || 'Não informada',  
-    rastreio: document.getElementById(`rastreio-${sigla}`).value.trim() || 'Não informado',  
-    foto: fotosBase64[sigla] || null,
-    data: new Date().toLocaleString('pt-BR')  
-  };  
-  
-  if(sigla === 'a') window.encomendasA.unshift(enc);  
-  else window.encomendasB.unshift(enc);  
-    
-  salvarDados();  
-
-  // ENVIA O CADASTRO E FOTO PARA A NUVEM
-  if (window.db && window.dbFunctions) {
-    const { collection, addDoc } = window.dbFunctions;
-    addDoc(collection(window.db, sigla === 'a' ? "encomendasA" : "encomendasB"), enc);
-  }
-  
-  document.getElementById(`sel-apto-${sigla}`).value = '';  
-  document.getElementById(`nome-morador-${sigla}`).value = '';  
-  document.getElementById(`empresa-${sigla}`).value = '';  
-  document.getElementById(`nota-${sigla}`).value = '';  
-  document.getElementById(`rastreio-${sigla}`).value = '';  
-  
-  resetarCameraInterface(sigla);
-
-  const msg = document.getElementById(`msg-sucesso-${sigla}`);  
-  msg.classList.remove('hidden');  
-  setTimeout(() => msg.classList.add('hidden'), 3000);  
-  
-  carregarTodasEncomendas();  
-}  
-  
-function carregarTodasEncomendas() {  
-  const todas = [...window.encomendasA, ...window.encomendasB].sort((a,b) => new Date(b.data) - new Date(a.data));  
-  const el = document.getElementById('lista-todas');  
-  if(todas.length === 0) {  
-    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';  
-    return;  
-  }  
-  el.innerHTML = '';  
-  todas.forEach(e => {  
-    const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : '';
-    el.innerHTML += `<div class="encomenda-item">  
-      <strong>📦 ${e.empresa}</strong>  
-      <span class="tag-bloco tag-${e.bloco.toLowerCase()}" style="float:right">Bloco ${e.bloco}</span><br>  
-      ${e.apto} — ${e.nome}<br>  
-      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>  
-      <span class="encomenda-data">${e.data}</span>  
-      ${htmlFoto}
-    </div>`;  
-  });  
-}  
-  
-function mostrarAbaMoradorA(nome) {  
-  document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));  
-  document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));  
-  document.getElementById(nome).classList.add('ativa');  
-  event.target.classList.add('ativo');  
-}  
-function mostrarAbaMoradorB(nome) {  
-  document.querySelectorAll('#tela-morador-b .aba').forEach(a => a.classList.remove('ativa'));  
-  document.querySelectorAll('#tela-morador-b .btn-nav').forEach(b => b.classList.remove('ativo'));  
-  document.getElementById(nome).classList.add('ativa');  
-  event.target.classList.add('ativo');  
-}  
-function mostrarAbaPortaria(nome) {  
-  document.querySelectorAll('#tela-portaria .aba').forEach(a => a.classList.remove('ativa'));  
-  document.querySelectorAll('#tela-portaria .btn-nav').forEach(b => b.classList.remove('ativo'));  
-  document.getElementById(nome).classList.add('ativa');  
-  event.target.classList.add('ativo');  
-  desligarCamera('a');
-  desligarCamera('b');
-}  
-</script>  
-</body>  
-</html>
+      document.getElementById(`btn-refazer-foto-${sigla}`).classList.remove('hidden
