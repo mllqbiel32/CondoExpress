@@ -1,13 +1,13 @@
-<!DOCTYPE html>  
-<html lang="pt-BR">  
-<head>  
-<meta charset="UTF-8">  
-<meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<title>CondoExpress</title>  
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">  
-<style>  
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }  
-body { background: #f0f4f8; min-height: 100vh; padding: 16px; }  
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CondoExpress</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .container { max-width: 480px; margin: 0 auto; }
 
 .header { text-align: center; padding: 20px 0; }
@@ -65,424 +65,374 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .btn-cam { background: #3b82f6; color: white; font-size: 14px; padding: 10px 14px; margin-top: 8px; }
 .btn-foto { background: #ef4444; color: white; font-size: 14px; padding: 10px 14px; margin-top: 8px; }
 .foto-encomenda-thumb { width: 100%; max-height: 220px; object-fit: cover; border-radius: 8px; margin-top: 10px; border: 1px solid #d1d5db; display: block; }
-
-/* Filtro Calendário */
-.filtro-data-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-.filtro-data-box label { margin: 0; font-size: 13px; color: #475569; white-space: nowrap; }
-.filtro-data-box input[type="date"] { padding: 8px; font-size: 14px; }
-.btn-limpar-filtro { background: #e2e8f0; color: #475569; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
 </style>
+</head>
+<body>
+<div class="container">
 
-<!-- CONEXÃO DE BANCO DE DADOS EM TEMPO REAL (FIREBASE) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!-- TELA INICIAL -->
+<div id="tela-inicio" class="tela ativa">
+<div class="header">
+<h1>📦 CondoExpress</h1>
+</div>
+<div class="card">
+<p style="text-align:center; font-size:17px; color:#4b5563; margin-bottom:20px">Escolha uma opção:</p>
+<button class="btn btn-bloco-a" onclick="abrirMorador('a')">
+🏆 BLOCO A — Ouro Preto (Moradores)
+</button>
 
-  // ATENÇÃO: COLE AS SUAS CHAVES DO FIREBASE CONSOLE AQUI
-  const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_PROJETO.firebaseapp.com",
-    projectId: "SEU_PROJETO",
-    storageBucket: "SEU_PROJETO.appspot.com",
-    messagingSenderId: "SEU_SENDER_ID",
-    appId: "SEU_APP_ID"
-  };
+<button class="btn btn-bloco-b" onclick="abrirMorador('b')">
+🏆 BLOCO B — Sabará (Moradores)
+</button>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+<button class="btn btn-portaria" onclick="mostrarSenha()">
+🔑 PORTARIA — Controle Completo
+</button>
 
-  window.db = db;
-  window.dbFunctions = { collection, addDoc, onSnapshot, doc, setDoc };
-</script>
+<div id="caixa-senha" class="hidden" style="margin-top:15px;">
+<label>Digite a senha da Portaria:</label>
+<div class="campo-senha-container">
+<input type="password" id="input-senha" class="senha-input" placeholder="••••••••">
+<button type="button" class="btn-toggle-senha" onclick="alternarVisibilidadeSenha()" id="btn-olho">👁️</button>
+</div>
+<button class="btn btn-portaria" style="margin-top:10px;" onclick="verificarSenha()">✅ Entrar</button>
+<div id="msg-erro-senha" class="erro">❌ Senha incorreta!</div>
+</div>
+</div>
+</div>
 
-</head>  
-<body>  
-<div class="container">  
+<!-- TELA BLOCO A — MORADOR -->
+<div id="tela-morador-a" class="tela">
+<div class="header">
+<h1>📦 CondoExpress</h1>
+<div class="status">✅ Bloco A — Ouro Preto</div>
+</div>
+<button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
+<div class="seletor-apto">
+<label>🏠 Selecione seu apartamento para ver suas encomendas:</label>
+<select id="meu-apto-a" onchange="verMinhasEncomendas('a')">
+<option value="">-- Escolha seu apartamento --</option>
+</select>
+</div>
+<nav>
+<button class="btn btn-nav ativo" onclick="mostrarAbaMoradorA('moradores-a')">👥 Lista do Bloco</button>
+<button class="btn btn-nav" onclick="mostrarAbaMoradorA('minhas-a')">📦 Minhas Encomendas</button>
+</nav>
+<div id="moradores-a" class="aba ativa">
+<div class="card">
+<h2>👥 Moradores — Bloco A</h2>
+<div id="lista-moradores-a"></div>
+</div>
+</div>
+<div id="minhas-a" class="aba">
+<div class="card">
+<h2>📦 Minhas Encomendas</h2>
+<p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>
+<div id="lista-minhas-a">
+<p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>
+</div>
+</div>
+</div>
+</div>
 
-  <!-- TELA INICIAL -->  
-  <div id="tela-inicio" class="tela ativa">  
-    <div class="header">  
-      <h1>📦 CondoExpress</h1>  
-    </div>  
-    <div class="card">  
-      <p style="text-align:center; font-size:17px; color:#4b5563; margin-bottom:20px">Escolha uma opção:</p>  
-      <button class="btn btn-bloco-a" onclick="abrirMorador('a')">  
-        🏆 BLOCO A — Ouro Preto (Moradores)  
-      </button>  
-        
-      <button class="btn btn-bloco-b" onclick="abrirMorador('b')">  
-        🏆 BLOCO B — Sabará (Moradores)  
-      </button>  
-        
-      <button class="btn btn-portaria" onclick="mostrarSenha()">  
-        🔑 PORTARIA — Controle Completo  
-      </button>  
+<!-- TELA BLOCO B — MORADOR -->
+<div id="tela-morador-b" class="tela">
+<div class="header">
+<h1>📦 CondoExpress</h1>
+<div class="status">✅ Bloco B — Sabará</div>
+</div>
+<button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
+<div class="seletor-apto">
+<label>🏠 Selecione seu apartamento para ver suas encomendas:</label>
+<select id="meu-apto-b" onchange="verMinhasEncomendas('b')">
+<option value="">-- Escolha seu apartamento --</option>
+</select>
+</div>
+<nav>
+<button class="btn btn-nav ativo" onclick="mostrarAbaMoradorB('moradores-b')">👥 Lista do Bloco</button>
+<button class="btn btn-nav" onclick="mostrarAbaMoradorB('minhas-b')">📦 Minhas Encomendas</button>
+</nav>
+<div id="moradores-b" class="aba ativa">
+<div class="card">
+<h2>👥 Moradores — Bloco B</h2>
+<div id="lista-moradores-b"></div>
+</div>
+</div>
+<div id="minhas-b" class="aba">
+<div class="card">
+<h2>📦 Minhas Encomendas</h2>
+<p id="nome-meu-apto-b" style="color:#4b5563; margin-bottom:15px"></p>
+<div id="lista-minhas-b">
+<p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>
+</div>
+</div>
+</div>
+</div>
 
-      <div id="caixa-senha" class="hidden" style="margin-top:15px;">  
-        <label>Digite a senha da Portaria:</label>  
-        <div class="campo-senha-container">
-          <input type="password" id="input-senha" class="senha-input" placeholder="••••••••">  
-          <button type="button" class="btn-toggle-senha" onclick="alternarVisibilidadeSenha()" id="btn-olho">👁️</button>
-        </div>
-        <button class="btn btn-portaria" style="margin-top:10px;" onclick="verificarSenha()">✅ Entrar</button>  
-        <div id="msg-erro-senha" class="erro">❌ Senha incorreta!</div>  
-      </div>
-    </div>  
-  </div>  
+<!-- TELA PORTARIA -->
+<div id="tela-portaria" class="tela">
+<div class="header">
+<h1>📦 CondoExpress</h1>
+<div class="status">🔑 ACESSO — Portaria</div>
+<p class="usuario">Controle completo do sistema</p>
+</div>
+<button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
 
-  <!-- TELA BLOCO A — MORADOR -->  
-  <div id="tela-morador-a" class="tela">  
-    <div class="header">  
-      <h1>📦 CondoExpress</h1>  
-      <div class="status">✅ Bloco A — Ouro Preto</div>  
-    </div>  
-    <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>    
-    <div class="seletor-apto">  
-      <label>🏠 Selecione seu apartamento para ver suas encomendas:</label>  
-      <select id="meu-apto-a" onchange="verMinhasEncomendas('a')">  
-        <option value="">-- Escolha seu apartamento --</option>  
-      </select>  
-    </div>    
-    <nav>  
-      <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorA('moradores-a')">👥 Lista do Bloco</button>  
-      <button class="btn btn-nav" onclick="mostrarAbaMoradorA('minhas-a')">📦 Minhas Encomendas</button>  
-    </nav>    
-    <div id="moradores-a" class="aba ativa">  
-      <div class="card">  
-        <h2>👥 Moradores — Bloco A</h2>  
-        <div id="lista-moradores-a"></div>  
-      </div>  
-    </div>    
-    <div id="minhas-a" class="aba">  
-      <div class="card">  
-        <h2>📦 Minhas Encomendas</h2>  
-        <p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>  
-        
-        <div class="filtro-data-box">
-          <label>📅 Filtrar Data:</label>
-          <input type="date" id="filtro-data-minhas-a" onchange="verMinhasEncomendas('a')">
-          <button class="btn-limpar-filtro" onclick="limparFiltroData('filtro-data-minhas-a', () => verMinhasEncomendas('a'))">Limpar</button>
-        </div>
+<nav>
+<button class="btn btn-nav ativo" onclick="mostrarAbaPortaria('registrar-a')">📦 Bloco A — Encomenda</button>
+<button class="btn btn-nav" onclick="mostrarAbaPortaria('registrar-b')">📦 Bloco B — Encomenda</button>
+<button class="btn btn-nav" onclick="mostrarAbaPortaria('cadastrar')">➕ Cadastrar Morador</button>
+<button class="btn btn-nav" onclick="mostrarAbaPortaria('editar')">✏️ Editar Morador</button>
+<button class="btn btn-nav" onclick="mostrarAbaPortaria('todas-encomendas')">📋 Todas Encomendas</button>
+</nav>
 
-        <div id="lista-minhas-a">  
-          <p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>  
-        </div>  
-      </div>  
-    </div>  
-  </div>  
+<div id="registrar-a" class="aba ativa">
+<div class="card">
+<h2>📦 Registrar — Bloco A</h2>
 
-  <!-- TELA BLOCO B — MORADOR -->  
-  <div id="tela-morador-b" class="tela">  
-    <div class="header">  
-      <h1>📦 CondoExpress</h1>  
-      <div class="status">✅ Bloco B — Sabará</div>  
-    </div>  
-    <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>    
-    <div class="seletor-apto">  
-      <label>🏠 Selecione seu apartamento para ver suas encomendas:</label>  
-      <select id="meu-apto-b" onchange="verMinhasEncomendas('b')">  
-        <option value="">-- Escolha seu apartamento --</option>  
-      </select>  
-    </div>    
-    <nav>  
-      <button class="btn btn-nav ativo" onclick="mostrarAbaMoradorB('moradores-b')">👥 Lista do Bloco</button>  
-      <button class="btn btn-nav" onclick="mostrarAbaMoradorB('minhas-b')">📦 Minhas Encomendas</button>  
-    </nav>    
-    <div id="moradores-b" class="aba ativa">  
-      <div class="card">  
-        <h2>👥 Moradores — Bloco B</h2>  
-        <div id="lista-moradores-b"></div>  
-      </div>  
-    </div>    
-    <div id="minhas-b" class="aba">  
-      <div class="card">  
-        <h2>📦 Minhas Encomendas</h2>  
-        <p id="nome-meu-apto-b" style="color:#4b5563; margin-bottom:15px"></p>  
+<label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
+<div class="area-camera">
+<video id="video-a" class="video-preview hidden" autoplay playsinline></video>
+<img id="img-preview-a" class="foto-preview hidden" alt="Foto capturada">
+<canvas id="canvas-a" class="hidden"></canvas>
+<div>
+<button type="button" id="btn-abrir-cam-a" class="btn btn-cam" onclick="ligarCamera('a')">📷 Abrir Câmera</button>
+<button type="button" id="btn-tirar-foto-a" class="btn btn-cam hidden" style="background:#16a34a" onclick="capturarFoto('a')">📸 Capturar Foto</button>
+<button type="button" id="btn-refazer-foto-a" class="btn btn-foto hidden" onclick="refazerFoto('a')">🗑️ Tirar Outra</button>
+</div>
+<div style="margin-top: 10px; font-size: 13px; color: #6b7280;">
+ou selecione do aparelho: <input type="file" id="file-a" accept="image/*" capture="environment" onchange="carregarFotoArquivo('a', event)" style="margin-top:5px; font-size:12px;">
+</div>
+</div>
 
-        <div class="filtro-data-box">
-          <label>📅 Filtrar Data:</label>
-          <input type="date" id="filtro-data-minhas-b" onchange="verMinhasEncomendas('b')">
-          <button class="btn-limpar-filtro" onclick="limparFiltroData('filtro-data-minhas-b', () => verMinhasEncomendas('b'))">Limpar</button>
-        </div>
+<label>Apartamento / Morador</label>
+<select id="sel-apto-a" onchange="preencherMorador('a')">
+<option value="">-- Selecione --</option>
+</select>
+<label>Nome do Morador</label>
+<input type="text" id="nome-morador-a" readonly>
+<label>Empresa / Loja</label>
+<input type="text" id="empresa-a" placeholder="Ex: Shopee, Correios...">
 
-        <div id="lista-minhas-b">  
-          <p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>  
-        </div>  
-      </div>  
-    </div>  
-  </div>  
+<label>Nota Fiscal</label>
+<input type="text" id="nota-a" placeholder="Número">
+<label>Código de Rastreio</label>
+<input type="text" id="rastreio-a" placeholder="Código">
 
-  <!-- TELA PORTARIA -->  
-  <div id="tela-portaria" class="tela">  
-    <div class="header">  
-      <h1>📦 CondoExpress</h1>  
-      <div class="status">🔑 ACESSO — Portaria</div>  
-      <p class="usuario">Controle completo do sistema</p>  
-    </div>  
-    <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
+<button class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>
+<div id="msg-sucesso-a" class="sucesso hidden">✅ Registrada!</div>
+</div>
+</div>
 
-    <nav>  
-      <button class="btn btn-nav ativo" onclick="mostrarAbaPortaria('registrar-a')">📦 Bloco A — Encomenda</button>  
-      <button class="btn btn-nav" onclick="mostrarAbaPortaria('registrar-b')">📦 Bloco B — Encomenda</button>  
-      <button class="btn btn-nav" onclick="mostrarAbaPortaria('cadastrar')">➕ Cadastrar Morador</button>  
-      <button class="btn btn-nav" onclick="mostrarAbaPortaria('editar')">✏️ Editar Morador</button>  
-      <button class="btn btn-nav" onclick="mostrarAbaPortaria('todas-encomendas')">📋 Todas Encomendas</button>  
-    </nav>    
+<div id="registrar-b" class="aba">
+<div class="card">
+<h2>📦 Registrar — Bloco B</h2>
 
-    <div id="registrar-a" class="aba ativa">  
-      <div class="card">  
-        <h2>📦 Registrar — Bloco A</h2>  
-        
-        <label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
-        <div class="area-camera">
-          <video id="video-a" class="video-preview hidden" autoplay playsinline></video>
-          <img id="img-preview-a" class="foto-preview hidden" alt="Foto capturada">
-          <canvas id="canvas-a" class="hidden"></canvas>
-          <div>
-            <button type="button" id="btn-abrir-cam-a" class="btn btn-cam" onclick="ligarCamera('a')">📷 Abrir Câmera</button>
-            <button type="button" id="btn-tirar-foto-a" class="btn btn-cam hidden" style="background:#16a34a" onclick="capturarFoto('a')">📸 Capturar Foto</button>
-            <button type="button" id="btn-refazer-foto-a" class="btn btn-foto hidden" onclick="refazerFoto('a')">🗑️ Tirar Outra</button>
-          </div>
-          <div style="margin-top: 10px; font-size: 13px; color: #6b7280;">
-            ou selecione do aparelho: <input type="file" id="file-a" accept="image/*" capture="environment" onchange="carregarFotoArquivo('a', event)" style="margin-top:5px; font-size:12px;">
-          </div>
-        </div>
+<label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
+<div class="area-camera">
+<video id="video-b" class="video-preview hidden" autoplay playsinline></video>
+<img id="img-preview-b" class="foto-preview hidden" alt="Foto capturada">
+<canvas id="canvas-b" class="hidden"></canvas>
+<div>
+<button type="button" id="btn-abrir-cam-b" class="btn btn-cam" onclick="ligarCamera('b')">📷 Abrir Câmera</button>
+<button type="button" id="btn-tirar-foto-b" class="btn btn-cam hidden" style="background:#16a34a" onclick="capturarFoto('b')">📸 Capturar Foto</button>
+<button type="button" id="btn-refazer-foto-b" class="btn btn-foto hidden" onclick="refazerFoto('b')">🗑️ Tirar Outra</button>
+</div>
+<div style="margin-top: 10px; font-size: 13px; color: #6b7280;">
+ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" capture="environment" onchange="carregarFotoArquivo('b', event)" style="margin-top:5px; font-size:12px;">
+</div>
+</div>
 
-        <label>Apartamento / Morador</label>  
-        <select id="sel-apto-a" onchange="preencherMorador('a')">  
-          <option value="">-- Selecione --</option>  
-        </select>  
-        <label>Nome do Morador</label>  
-        <input type="text" id="nome-morador-a" readonly>  
-        <label>Empresa / Loja</label>  
-        <input type="text" id="empresa-a" placeholder="Ex: Shopee, Correios...">  
+<label>Apartamento / Morador</label>
+<select id="sel-apto-b" onchange="preencherMorador('b')">
+<option value="">-- Selecione --</option>
+</select>
+<label>Nome do Morador</label>
+<input type="text" id="nome-morador-b" readonly>
+<label>Empresa / Loja</label>
+<input type="text" id="empresa-b" placeholder="Ex: Shopee, Correios...">
 
-        <label>Nota Fiscal</label>  
-        <input type="text" id="nota-a" placeholder="Número">  
-        <label>Código de Rastreio</label>  
-        <input type="text" id="rastreio-a" placeholder="Código">  
+<label>Nota Fiscal</label>
+<input type="text" id="nota-b" placeholder="Número">
+<label>Código de Rastreio</label>
+<input type="text" id="rastreio-b" placeholder="Código">
 
-        <button class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>  
-        <div id="msg-sucesso-a" class="sucesso hidden">✅ Registrada!</div>  
-      </div>  
-    </div>    
+<button class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>
+<div id="msg-sucesso-b" class="sucesso hidden">✅ Registrada!</div>
+</div>
+</div>
 
-    <div id="registrar-b" class="aba">  
-      <div class="card">  
-        <h2>📦 Registrar — Bloco B</h2>  
-        
-        <label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
-        <div class="area-camera">
-          <video id="video-b" class="video-preview hidden" autoplay playsinline></video>
-          <img id="img-preview-b" class="foto-preview hidden" alt="Foto capturada">
-          <canvas id="canvas-b" class="hidden"></canvas>
-          <div>
-            <button type="button" id="btn-abrir-cam-b" class="btn btn-cam" onclick="ligarCamera('b')">📷 Abrir Câmera</button>
-            <button type="button" id="btn-tirar-foto-b" class="btn btn-cam hidden" style="background:#16a34a" onclick="capturarFoto('b')">📸 Capturar Foto</button>
-            <button type="button" id="btn-refazer-foto-b" class="btn btn-foto hidden" onclick="refazerFoto('b')">🗑️ Tirar Outra</button>
-          </div>
-          <div style="margin-top: 10px; font-size: 13px; color: #6b7280;">
-            ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" capture="environment" onchange="carregarFotoArquivo('b', event)" style="margin-top:5px; font-size:12px;">
-          </div>
-        </div>
+<div id="cadastrar" class="aba">
+<div class="card">
+<h2>➕ Cadastrar Novo Morador</h2>
+<div class="aviso">🔒 Apenas a Portaria pode cadastrar</div>
+<label>Bloco</label>
+<select id="novo-bloco">
+<option value="a">Bloco A — Ouro Preto</option>
+<option value="b">Bloco B — Sabará</option>
+</select>
 
-        <label>Apartamento / Morador</label>  
-        <select id="sel-apto-b" onchange="preencherMorador('b')">  
-          <option value="">-- Selecione --</option>  
-        </select>  
-        <label>Nome do Morador</label>  
-        <input type="text" id="nome-morador-b" readonly>  
-        <label>Empresa / Loja</label>  
-        <input type="text" id="empresa-b" placeholder="Ex: Shopee, Correios...">  
+<label>Número do Apartamento</label>
+<input type="text" id="novo-apto" placeholder="Ex: 205OP">
 
-        <label>Nota Fiscal</label>  
-        <input type="text" id="nota-b" placeholder="Número">  
-        <label>Código de Rastreio</label>  
-        <input type="text" id="rastreio-b" placeholder="Código">  
+<label>Nome Completo do Morador</label>
+<input type="text" id="novo-nome" placeholder="Digite o nome completo">
 
-        <button class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>  
-        <div id="msg-sucesso-b" class="sucesso hidden">✅ Registrada!</div>  
-      </div>  
-    </div>    
+<button class="btn btn-cadastrar" onclick="cadastrarNovoMorador()">✅ CADASTRAR</button>
+<div id="msg-cadastro" class="sucesso hidden">✅ Cadastrado com sucesso!</div>
+</div>
+</div>
 
-    <div id="cadastrar" class="aba">  
-      <div class="card">  
-        <h2>➕ Cadastrar Novo Morador</h2>  
-        <div class="aviso">🔒 Apenas a Portaria pode cadastrar</div>  
-        <label>Bloco</label>  
-        <select id="novo-bloco">  
-          <option value="a">Bloco A — Ouro Preto</option>  
-          <option value="b">Bloco B — Sabará</option>  
-        </select>  
-          
-        <label>Número do Apartamento</label>  
-        <input type="text" id="novo-apto" placeholder="Ex: 205OP">  
-          
-        <label>Nome Completo do Morador</label>  
-        <input type="text" id="novo-nome" placeholder="Digite o nome completo">  
-          
-        <button class="btn btn-cadastrar" onclick="cadastrarNovoMorador()">✅ CADASTRAR</button>  
-        <div id="msg-cadastro" class="sucesso hidden">✅ Cadastrado com sucesso!</div>  
-      </div>
-    </div>    
+<div id="editar" class="aba">
+<div class="card">
+<h2>✏️ Editar Morador</h2>
+<div class="aviso">🔒 Apenas a Portaria pode alterar</div>
+<label>Bloco</label>
+<select id="editar-bloco" onchange="carregarSelectEdicao()">
+<option value="a">Bloco A — Ouro Preto</option>
+<option value="b">Bloco B — Sabará</option>
+</select>
 
-    <div id="editar" class="aba">  
-      <div class="card">  
-        <h2>✏️ Editar Morador</h2>  
-        <div class="aviso">🔒 Apenas a Portaria pode alterar</div>  
-        <label>Bloco</label>  
-        <select id="editar-bloco" onchange="carregarSelectEdicao()">  
-          <option value="a">Bloco A — Ouro Preto</option>  
-          <option value="b">Bloco B — Sabará</option>  
-        </select>  
-          
-        <label>Apartamento / Morador</label>  
-        <select id="editar-apto" onchange="carregarDadosEdicao()">  
-          <option value="">-- Escolha --</option>  
-        </select>  
-          
-        <label>Número do Apartamento</label>  
-        <input type="text" id="editar-numero" placeholder="Ex: 205OP">  
-          
-        <label>Nome do Morador</label>  
-        <input type="text" id="editar-nome" placeholder="Nome completo">  
-          
-        <button class="btn btn-salvar-edicao" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>  
-        <div id="msg-edicao" class="sucesso hidden">✅ Alterado com sucesso!</div>  
-      </div>
-    </div>    
+<label>Apartamento / Morador</label>
+<select id="editar-apto" onchange="carregarDadosEdicao()">
+<option value="">-- Escolha --</option>
+</select>
 
-    <div id="todas-encomendas" class="aba">  
-      <div class="card">  
-        <h2>📋 Todas Encomendas</h2>  
-        
-        <div class="filtro-data-box">
-          <label>📅 Filtrar Data:</label>
-          <input type="date" id="filtro-data-todas" onchange="carregarTodasEncomendas()">
-          <button class="btn-limpar-filtro" onclick="limparFiltroData('filtro-data-todas', carregarTodasEncomendas)">Limpar</button>
-        </div>
+<label>Número do Apartamento</label>
+<input type="text" id="editar-numero" placeholder="Ex: 205OP">
 
-        <div id="lista-todas">  
-          <p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>  
-        </div>  
-      </div>  
-    </div>  
-  </div>  
+<label>Nome do Morador</label>
+<input type="text" id="editar-nome" placeholder="Nome completo">
 
-</div>  
+<button class="btn btn-salvar-edicao" onclick="salvarEdicao()">💾 SALVAR ALTERAÇÕES</button>
+<div id="msg-edicao" class="sucesso hidden">✅ Alterado com sucesso!</div>
+</div>
+</div>
 
-<script>  
-// SENHA PORTARIA  
-const SENHA_PORTARIA = "portaria123";  
-  
-// DADOS INICIAIS  
-const BlocoA_PADRAO = [  
-  {apto:"012OP",nome:"Claudete Conceição Rozas"}, {apto:"013OP",nome:"Cristina Filizola"},  
-  {apto:"014OP",nome:"Urias Taques Junior"}, {apto:"021OP",nome:"Pedro H. Chagas Rosseli"},  
-  {apto:"022OP",nome:"Jorge Moreira Lima Neto / Sonia Mendes M. Lima"}, {apto:"023OP",nome:"Bonnie Marie Scannella e família"},  
-  {apto:"024OP",nome:"Katia Piccioni La Farina / Walter Signorini Junior"}, {apto:"031OP",nome:"Arnaldo M. Camargo / Maria Lucia Camargo"},  
-  {apto:"032OP",nome:"Jeanette Talib Heide"}, {apto:"033OP",nome:"Renata R. Cunha Mesquita / Maria Antonia Mesquita"},  
-  {apto:"034OP",nome:"Luis Eduardo C. Pellon e família"}, {apto:"041OP",nome:"Roberto Ferraz C. Noto / Jade Sagran Landgraf"},  
-  {apto:"042OP",nome:"Marcelo Calvoso / Patricia M. Quintas Calvoso"}, {apto:"043OP",nome:"Luiz Felipe Rodrigues Fay e família"},  
-  {apto:"044OP",nome:"Heitor M. de Mendonça e família"}, {apto:"051OP",nome:"Ingo Schukze Blanck / Huguette Schulze Blanck"},  
-  {apto:"052OP",nome:"Paulo Eugenio Weinberger / Roberta Riboni Weinberg"}, {apto:"053OP",nome:"Ana Paula dos R. Pirajá e família"},  
-  {apto:"054OP",nome:"Rachel M. Z. Salomão"}, {apto:"061OP",nome:"Claudia Paiva Aragão e família"},  
-  {apto:"062OP",nome:"Caio Rafael Vernier e família"}, {apto:"063OP",nome:"Maria Nazareth Gazzotti"},  
-  {apto:"064OP",nome:"Rodrigo Freire M. Artacho / Renata Semensin de Góes"}, {apto:"071OP",nome:"Heliana M. Talmon / Eduard M. Talmon"},  
-  {apto:"072OP",nome:"Sebastião Costa Guedes / Claudete S. Guedes"}, {apto:"073OP",nome:"Tiago Maturana Loureiro e família"},  
-  {apto:"074OP",nome:"Marcos S. Aranha e família"}, {apto:"081OP",nome:"Sergio Fisch / Paula D. Fisch"},  
-  {apto:"082OP",nome:"Maria Antonieta G. Ronconi / Lucas Ronconi Raimundi"}, {apto:"083OP",nome:"Elemer Lamberto S. Arassy e família"},  
-  {apto:"084OP",nome:"Fernanda Braga / Fernando Braga"}, {apto:"091OP",nome:"João Alberto Giannetti / Sergio Tadeu Lopes"},  
-  {apto:"092OP",nome:"Vago"}, {apto:"093OP",nome:"Ricardo Dalge Lacerda / Thais Oliveira Timbó"},  
-  {apto:"094OP",nome:"Nilo Campion e família"}, {apto:"101OP",nome:"Paulo Cesar Mauro"},  
-  {apto:"103OP",nome:"Lauredo Ventura Bandeira / Elenilde Rezende Ventura"}, {apto:"104OP",nome:"Umbelina Boges Bouabci"},  
-  {apto:"111OP",nome:"José Belfort Mattos / Tereza Belfort Mattos"}, {apto:"112OP",nome:"Peter Hemik Johansson e família"},  
-  {apto:"113OP",nome:"Fernando Blecher / Roberta A. Pretoni"}, {apto:"114OP",nome:"Felipe G. P. Trevisan e família"},  
-  {apto:"121OP",nome:"Maria Cristina Lambert"}, {apto:"122OP",nome:"Eduardo Luiz Tiezzi Gomez e família"},  
-  {apto:"123OP",nome:"Marcos Istvan de Camargo / Simone Quintas"}, {apto:"131OP",nome:"Lin Chin Ping e família"},  
-  {apto:"132OP",nome:"José Paulo S. Raoul / Arminda Raoul"}, {apto:"133OP",nome:"Maria Aparecida Simões"},  
-  {apto:"134OP",nome:"Frederico Grazzinelli Costa"}, {apto:"141OP",nome:"Cícero Nunes Domingos e família"},  
-  {apto:"142OP",nome:"Alberto Esteves e família"}, {apto:"143OP",nome:"Wagner Ghirelli / Sonia Maria O. Ghirelli"},  
-  {apto:"144OP",nome:"Ricardo Mader Rodrigues e família"}, {apto:"151OP",nome:"Mario Eugenio Fruguele / Flavia Santin Fruguele"},  
-  {apto:"152OP",nome:"Sergio Tomas Atala / Maria José Torquato Janini"}, {apto:"153OP",nome:"Rafael Moi de Andrade e família"},  
-  {apto:"154OP",nome:"Marcus Vinicius Z. Campos / Juliana Spacca R. Zampar"}, {apto:"161OP",nome:"Newton Luciano e família"},  
-  {apto:"162OP",nome:"Leopoldo Francisco / Marilene Raimo"}, {apto:"163OP",nome:"Paulo Cezar Pratti / Matheus"},  
-  {apto:"164OP",nome:"Luzia Leda Lima Calfat"}, {apto:"171OP",nome:"José Francisco R. Cavalcante / Mary Ann Cavalcante"},  
-  {apto:"172OP",nome:"Michelle Priscilla P. Gallindo e família"}, {apto:"173OP",nome:"Marcos Aurélio Campos"},  
-  {apto:"174OP",nome:"Argene Maria Coli Cruz"}, {apto:"181OP",nome:"Álvaro Archer de C. Andrade e família"},  
-  {apto:"182OP",nome:"Renata Vasconcelos Emerson"}, {apto:"183OP",nome:"Daniele Marques Cotrim e família"},  
-  {apto:"184OP",nome:"Aida A. de A. Perry Vidal e família"}, {apto:"191OP",nome:"Joseph A. Antich / Ana Maria Adam"},  
-  {apto:"192OP",nome:"Vago"}, {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia"},  
-  {apto:"194OP",nome:"Vago"}  
-];  
-  
-const BlocoB_PADRAO = [  
-  {apto:"011SAB",nome:"Carlos E. Simões Duarte / Patricia Luciano"}, {apto:"012SAB",nome:"Joseph Gross"},  
-  {apto:"013SAB",nome:"Patricia Natrielli Gerhardt / Pedro, Isabel"}, {apto:"014SAB",nome:"Thamy Galupo Hugueney / Victoria Hugueney"},  
-  {apto:"021SAB",nome:"Ivone Marques Lantieri / Delaide de S Malta - Emp"}, {apto:"022SAB",nome:"Diego Quast / Alesaandra Isola Quast"},  
-  {apto:"023SAB",nome:"Marcia Vidal / Jordana (filha)"}, {apto:"024SAB",nome:"Marco Aurelio P. Lima / Maricy Regis"},  
-  {apto:"031SAB",nome:"Dalva Lucia Maffia"}, {apto:"032SAB",nome:"Mariza Ribeiro Sozzi / Orlando Sozzi Filho"},  
-  {apto:"034SAB",nome:"Renata Ferraz Castelloti / Rodrigo F. Castelloti"}, {apto:"041SAB",nome:"Marianne Erps Fleming / Mathilde Lianc Erps"},  
-  {apto:"042SAB",nome:"Aurea Silva"}, {apto:"043SAB",nome:"Celso Sampaio A. Neto / Terezinha Garret Sampaio / Andreia, Cecilia"},  
-  {apto:"044SAB",nome:"Marcio R.C. Ribeiro / Ana Marta B. Ribeiro / José Roberto (Beto)"}, {apto:"051SAB",nome:"Eric Rebouças / Poliana Fernandes / Nathan, Clara"},  
-  {apto:"052SAB",nome:"Andrea Dantas / Marcos Rosa / Bernardo, Ana Luiza"}, {apto:"053SAB",nome:"Janaina A.C. Proença / Matheus, Alice"},  
-  {apto:"054SAB",nome:"Danigly Ferreira / Roberto Ferreira / Wanei Ferreira / Rodrigo Ferreira"}, {apto:"061SAB",nome:"Gabriel Mancini Lima / Marcela de Freitas Moraes / Miguel, Ma. Júlia, Thiago"},  
-  {apto:"062SAB",nome:"Juracy Parente / Edna Parente"}, {apto:"063SAB",nome:"Carlos Eduardo J. Valencia / Cesar Augusto O. Fonseca"},  
-  {apto:"064SAB",nome:"Selma Rosa T. Garbin"}, {apto:"071SAB",nome:"Phillip Samping Sommer / Fabiana Pedrosa Sommer"},  
-  {apto:"072SAB",nome:"Geert Matnijs Albers / Thomas / Mirian Leitão"}, {apto:"073SAB",nome:"Pedro Paulo A. Gomes"},  
-  {apto:"074SAB",nome:"Carlos Alexandre Brazolin / Glaucia Brazolin / Pietra Brazolin"}, {apto:"081SAB",nome:"Antonio Carlos F. Reis / Ma. De Lourdes F. Reis / Manoela Melo Reis"},  
-  {apto:"082SAB",nome:"Jeanette A. Maman / Renato, Fernanda, Monica"}, {apto:"083SAB",nome:"Camila Cintra / M. Valentina Mangione / Luca Mangione"},  
-  {apto:"084SAB",nome:"Clemente Dias da Rocha / Stephanie Eche"}, {apto:"091SAB",nome:"Antonio Donizete B. Passos / Nilza Amodio Passos / Caroline Amodio Passos"},  
-  {apto:"092SAB",nome:"Oswaldo M.G. do Amaral / Lucila Cerro Rupp"}, {apto:"093SAB",nome:"Igor Hoffman da S. Urbano / Natalia G. Urbano / Enzo Gonçalves"},  
-  {apto:"094SAB",nome:"Luis Barreto / Glicia Barreto / Alice / Felipe"}, {apto:"101SAB",nome:"Vago"},  
-  {apto:"102SAB",nome:"Suzana Maria Petry / Wagner Petry Soares / Rafaela Soares"}, {apto:"103SAB",nome:"José Roberto P.C. Santos / Maria Camila X. Castro Santo"},  
-  {apto:"104SAB",nome:"Renner Luiz Ferreira / Mariane Vitoria B. Ferreira / Silvana F. Bastos / Willames Bastos Xavier"}, {apto:"111SAB",nome:"Raul Cruz Lima Neto / Jacqueline Sampaio Guimarães"},  
-  {apto:"112SAB",nome:"Marcelo Jacob Bomarc / Karen Lisa Bormac"}, {apto:"113SAB",nome:"Luiz Antonio Sampaio / Malva Geane Pereira Sampaio / Illa Pereira Sampaio / Nino Pereira Sampaio"},  
-  {apto:"114SAB",nome:"Vago"}, {apto:"121SAB",nome:"Graziela Elizabeth / Gustavo, Felipe"},  
-  {apto:"122SAB",nome:"Icaro de Carvalho Neto / Priscila Tavares Q. Carvalho / Neide Pratero Gonçalves"}, {apto:"123SAB",nome:"Daniel Eugenio do A. Halasz / Fernando Halasz"},  
-  {apto:"124SAB",nome:"Liliane de Nóbrega"}, {apto:"131SAB",nome:"Dulce Casarsa"},  
-  {apto:"132SAB",nome:"Odair Nigiski / Yara Lidia de M. Santos / Guilherme M. de Souza"}, {apto:"133SAB",nome:"Vago"},  
-  {apto:"134SAB",nome:"Eliana Sampaio de Abreu"}, {apto:"141SAB",nome:"Eduardo Sergio P. Antunes / Ma. Antonieta de Antunes"},  
-  {apto:"142SAB",nome:"Vago"}, {apto:"143SAB",nome:"Eduardo I. Fonseca / Thais Sozi Fonseca"},  
-  {apto:"144SAB",nome:"Flavia Pagotti Silva / Pedro Pagotti S. Leme"}, {apto:"151SAB",nome:"Norma Montagna Braga"},  
-  {apto:"152SAB",nome:"Henrique Navarro / Patricia Navarro / Alice Navarro"}, {apto:"153SAB",nome:"Sonia Beli Valquiria de Aquino / Mauricio Filho de Aquino / Lucas Aquino Souza"},  
-  {apto:"154SAB",nome:"Ana Lucia Carlier"}, {apto:"161SAB",nome:"Thiago Lira Fernandes / Lilian / Ma. Clara / Maria Beatriz / Lucas"},  
-  {apto:"162SAB",nome:"Harvey James Wattengel / Estela Wattengel / Adriana Wattengel / Christopher Wattengel"}, {apto:"163SAB",nome:"Tatiana M.K. Shibuya / Stefan O.S. Johansson / Pedro S. Bizzaro"},  
-  {apto:"171SAB",nome:"José Luis Soiser / Patricia C. Carradas / Isaac, Lorena"}, {apto:"172SAB",nome:"Lindaci de Melo Soares / Julia (filha)"},  
-  {apto:"173SAB",nome:"Ricardo Mair Anafe / Ana Luiza Liarte"}, {apto:"174SAB",nome:"Ivana Veltri"},  
-  {apto:"181SAB",nome:"Paolo Cutrona"}, {apto:"182SAB",nome:"Fabíola Belfort Mattos / Eduardo Belfort / Giovana Belfort"},  
-  {apto:"183SAB",nome:"Flávio Batista Salles / Sandra"}, {apto:"184SAB",nome:"Fábio de Oliveira Bonfim / Ana Carolina Matoso / Francisco Ayrton"},  
-  {apto:"191SAB",nome:"Ma. Aparecida Gusmão"}, {apto:"192SAB",nome:"Jean Hendriks / Adelina Hendriks"},  
-  {apto:"193SAB",nome:"Renata Salvo Vendramelli / Bruno Salvo Vendramelli / João Pedro S. Vendramelli"}, {apto:"194SAB",nome:"Vago"}  
-];  
-  
-// SALVAMENTO E SINCRONIZAÇÃO EM TEMPO REAL  
-function carregarDados() {  
-  let blocoA = localStorage.getItem('condo_blocoA');  
-  let blocoB = localStorage.getItem('condo_blocoB');  
-  let encA = localStorage.getItem('condo_encomendasA');  
-  let encB = localStorage.getItem('condo_encomendasB');  
-    
-  window.BlocoA = blocoA ? JSON.parse(blocoA) : [...BlocoA_PADRAO];  
-  window.BlocoB = blocoB ? JSON.parse(blocoB) : [...BlocoB_PADRAO];  
-  window.encomendasA = encA ? JSON.parse(encA) : [];  
-  window.encomendasB = encB ? JSON.parse(encB) : [];  
+<div id="todas-encomendas" class="aba">
+<div class="card">
+<h2>📋 Todas Encomendas</h2>
+<div id="lista-todas">
+<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<script>
+// SENHA PORTARIA
+const SENHA_PORTARIA = "portaria123";
+
+// DADOS INICIAIS
+const BlocoA_PADRAO = [
+{apto:"012OP",nome:"Claudete Conceição Rozas"}, {apto:"013OP",nome:"Cristina Filizola"},
+{apto:"014OP",nome:"Urias Taques Junior"}, {apto:"021OP",nome:"Pedro H. Chagas Rosseli"},
+{apto:"022OP",nome:"Jorge Moreira Lima Neto / Sonia Mendes M. Lima"}, {apto:"023OP",nome:"Bonnie Marie Scannella e família"},
+{apto:"024OP",nome:"Katia Piccioni La Farina / Walter Signorini Junior"}, {apto:"031OP",nome:"Arnaldo M. Camargo / Maria Lucia Camargo"},
+{apto:"032OP",nome:"Jeanette Talib Heide"}, {apto:"033OP",nome:"Renata R. Cunha Mesquita / Maria Antonia Mesquita"},
+{apto:"034OP",nome:"Luis Eduardo C. Pellon e família"}, {apto:"041OP",nome:"Roberto Ferraz C. Noto / Jade Sagran Landgraf"},
+{apto:"042OP",nome:"Marcelo Calvoso / Patricia M. Quintas Calvoso"}, {apto:"043OP",nome:"Luiz Felipe Rodrigues Fay e família"},
+{apto:"044OP",nome:"Heitor M. de Mendonça e família"}, {apto:"051OP",nome:"Ingo Schukze Blanck / Huguette Schulze Blanck"},
+{apto:"052OP",nome:"Paulo Eugenio Weinberger / Roberta Riboni Weinberg"}, {apto:"053OP",nome:"Ana Paula dos R. Pirajá e família"},
+{apto:"054OP",nome:"Rachel M. Z. Salomão"}, {apto:"061OP",nome:"Claudia Paiva Aragão e família"},
+{apto:"062OP",nome:"Caio Rafael Vernier e família"}, {apto:"063OP",nome:"Maria Nazareth Gazzotti"},
+{apto:"064OP",nome:"Rodrigo Freire M. Artacho / Renata Semensin de Góes"}, {apto:"071OP",nome:"Heliana M. Talmon / Eduard M. Talmon"},
+{apto:"072OP",nome:"Sebastião Costa Guedes / Claudete S. Guedes"}, {apto:"073OP",nome:"Tiago Maturana Loureiro e família"},
+{apto:"074OP",nome:"Marcos S. Aranha e família"}, {apto:"081OP",nome:"Sergio Fisch / Paula D. Fisch"},
+{apto:"082OP",nome:"Maria Antonieta G. Ronconi / Lucas Ronconi Raimundi"}, {apto:"083OP",nome:"Elemer Lamberto S. Arassy e família"},
+{apto:"084OP",nome:"Fernanda Braga / Fernando Braga"}, {apto:"091OP",nome:"João Alberto Giannetti / Sergio Tadeu Lopes"},
+{apto:"092OP",nome:"Vago"}, {apto:"093OP",nome:"Ricardo Dalge Lacerda / Thais Oliveira Timbó"},
+{apto:"094OP",nome:"Nilo Campion e família"}, {apto:"101OP",nome:"Paulo Cesar Mauro"},
+{apto:"103OP",nome:"Lauredo Ventura Bandeira / Elenilde Rezende Ventura"}, {apto:"104OP",nome:"Umbelina Boges Bouabci"},
+{apto:"111OP",nome:"José Belfort Mattos / Tereza Belfort Mattos"}, {apto:"112OP",nome:"Peter Hemik Johansson e família"},
+{apto:"113OP",nome:"Fernando Blecher / Roberta A. Pretoni"}, {apto:"114OP",nome:"Felipe G. P. Trevisan e família"},
+{apto:"121OP",nome:"Maria Cristina Lambert"}, {apto:"122OP",nome:"Eduardo Luiz Tiezzi Gomez e família"},
+{apto:"123OP",nome:"Marcos Istvan de Camargo / Simone Quintas"}, {apto:"131OP",nome:"Lin Chin Ping e família"},
+{apto:"132OP",nome:"José Paulo S. Raoul / Arminda Raoul"}, {apto:"133OP",nome:"Maria Aparecida Simões"},
+{apto:"134OP",nome:"Frederico Grazzinelli Costa"}, {apto:"141OP",nome:"Cícero Nunes Domingos e família"},
+{apto:"142OP",nome:"Alberto Esteves e família"}, {apto:"143OP",nome:"Wagner Ghirelli / Sonia Maria O. Ghirelli"},
+{apto:"144OP",nome:"Ricardo Mader Rodrigues e família"}, {apto:"151OP",nome:"Mario Eugenio Fruguele / Flavia Santin Fruguele"},
+{apto:"152OP",nome:"Sergio Tomas Atala / Maria José Torquato Janini"}, {apto:"153OP",nome:"Rafael Moi de Andrade e família"},
+{apto:"154OP",nome:"Marcus Vinicius Z. Campos / Juliana Spacca R. Zampar"}, {apto:"161OP",nome:"Newton Luciano e família"},
+{apto:"162OP",nome:"Leopoldo Francisco / Marilene Raimo"}, {apto:"163OP",nome:"Paulo Cezar Pratti / Matheus"},
+{apto:"164OP",nome:"Luzia Leda Lima Calfat"}, {apto:"171OP",nome:"José Francisco R. Cavalcante / Mary Ann Cavalcante"},
+{apto:"172OP",nome:"Michelle Priscilla P. Gallindo e família"}, {apto:"173OP",nome:"Marcos Aurélio Campos"},
+{apto:"174OP",nome:"Argene Maria Coli Cruz"}, {apto:"181OP",nome:"Álvaro Archer de C. Andrade e família"},
+{apto:"182OP",nome:"Renata Vasconcelos Emerson"}, {apto:"183OP",nome:"Daniele Marques Cotrim e família"},
+{apto:"184OP",nome:"Aida A. de A. Perry Vidal e família"}, {apto:"191OP",nome:"Joseph A. Antich / Ana Maria Adam"},
+{apto:"192OP",nome:"Vago"}, {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia"},
+{apto:"194OP",nome:"Vago"}
+];
+
+const BlocoB_PADRAO = [
+{apto:"011SAB",nome:"Carlos E. Simões Duarte / Patricia Luciano"}, {apto:"012SAB",nome:"Joseph Gross"},
+{apto:"013SAB",nome:"Patricia Natrielli Gerhardt / Pedro, Isabel"}, {apto:"014SAB",nome:"Thamy Galupo Hugueney / Victoria Hugueney"},
+{apto:"021SAB",nome:"Ivone Marques Lantieri / Delaide de S Malta - Emp"}, {apto:"022SAB",nome:"Diego Quast / Alesaandra Isola Quast"},
+{apto:"023SAB",nome:"Marcia Vidal / Jordana (filha)"}, {apto:"024SAB",nome:"Marco Aurelio P. Lima / Maricy Regis"},
+{apto:"031SAB",nome:"Dalva Lucia Maffia"}, {apto:"032SAB",nome:"Mariza Ribeiro Sozzi / Orlando Sozzi Filho"},
+{apto:"034SAB",nome:"Renata Ferraz Castelloti / Rodrigo F. Castelloti"}, {apto:"041SAB",nome:"Marianne Erps Fleming / Mathilde Lianc Erps"},
+{apto:"042SAB",nome:"Aurea Silva"}, {apto:"043SAB",nome:"Celso Sampaio A. Neto / Terezinha Garret Sampaio / Andreia, Cecilia"},
+{apto:"044SAB",nome:"Marcio R.C. Ribeiro / Ana Marta B. Ribeiro / José Roberto (Beto)"}, {apto:"051SAB",nome:"Eric Rebouças / Poliana Fernandes / Nathan, Clara"},
+{apto:"052SAB",nome:"Andrea Dantas / Marcos Rosa / Bernardo, Ana Luiza"}, {apto:"053SAB",nome:"Janaina A.C. Proença / Matheus, Alice"},
+{apto:"054SAB",nome:"Danigly Ferreira / Roberto Ferreira / Wanei Ferreira / Rodrigo Ferreira"}, {apto:"061SAB",nome:"Gabriel Mancini Lima / Marcela de Freitas Moraes / Miguel, Ma. Júlia, Thiago"},
+{apto:"062SAB",nome:"Juracy Parente / Edna Parente"}, {apto:"063SAB",nome:"Carlos Eduardo J. Valencia / Cesar Augusto O. Fonseca"},
+{apto:"064SAB",nome:"Selma Rosa T. Garbin"}, {apto:"071SAB",nome:"Phillip Samping Sommer / Fabiana Pedrosa Sommer"},
+{apto:"072SAB",nome:"Geert Matnijs Albers / Thomas / Mirian Leitão"}, {apto:"073SAB",nome:"Pedro Paulo A. Gomes"},
+{apto:"074SAB",nome:"Carlos Alexandre Brazolin / Glaucia Brazolin / Pietra Brazolin"}, {apto:"081SAB",nome:"Antonio Carlos F. Reis / Ma. De Lourdes F. Reis / Manoela Melo Reis"},
+{apto:"082SAB",nome:"Jeanette A. Maman / Renato, Fernanda, Monica"}, {apto:"083SAB",nome:"Camila Cintra / M. Valentina Mangione / Luca Mangione"},
+{apto:"084SAB",nome:"Clemente Dias da Rocha / Stephanie Eche"}, {apto:"091SAB",nome:"Antonio Donizete B. Passos / Nilza Amodio Passos / Caroline Amodio Passos"},
+{apto:"092SAB",nome:"Oswaldo M.G. do Amaral / Lucila Cerro Rupp"}, {apto:"093SAB",nome:"Igor Hoffman da S. Urbano / Natalia G. Urbano / Enzo Gonçalves"},
+{apto:"094SAB",nome:"Luis Barreto / Glicia Barreto / Alice / Felipe"}, {apto:"101SAB",nome:"Vago"},
+{apto:"102SAB",nome:"Suzana Maria Petry / Wagner Petry Soares / Rafaela Soares"}, {apto:"103SAB",nome:"José Roberto P.C. Santos / Maria Camila X. Castro Santo"},
+{apto:"104SAB",nome:"Renner Luiz Ferreira / Mariane Vitoria B. Ferreira / Silvana F. Bastos / Willames Bastos Xavier"}, {apto:"111SAB",nome:"Raul Cruz Lima Neto / Jacqueline Sampaio Guimarães"},
+{apto:"112SAB",nome:"Marcelo Jacob Bomarc / Karen Lisa Bormac"}, {apto:"113SAB",nome:"Luiz Antonio Sampaio / Malva Geane Pereira Sampaio / Illa Pereira Sampaio / Nino Pereira Sampaio"},
+{apto:"114SAB",nome:"Vago"}, {apto:"121SAB",nome:"Graziela Elizabeth / Gustavo, Felipe"},
+{apto:"122SAB",nome:"Icaro de Carvalho Neto / Priscila Tavares Q. Carvalho / Neide Pratero Gonçalves"}, {apto:"123SAB",nome:"Daniel Eugenio do A. Halasz / Fernando Halasz"},
+{apto:"124SAB",nome:"Liliane de Nóbrega"}, {apto:"131SAB",nome:"Dulce Casarsa"},
+{apto:"132SAB",nome:"Odair Nigiski / Yara Lidia de M. Santos / Guilherme M. de Souza"}, {apto:"133SAB",nome:"Vago"},
+{apto:"134SAB",nome:"Eliana Sampaio de Abreu"}, {apto:"141SAB",nome:"Eduardo Sergio P. Antunes / Ma. Antonieta de Antunes"},
+{apto:"142SAB",nome:"Vago"}, {apto:"143SAB",nome:"Eduardo I. Fonseca / Thais Sozi Fonseca"},
+{apto:"144SAB",nome:"Flavia Pagotti Silva / Pedro Pagotti S. Leme"}, {apto:"151SAB",nome:"Norma Montagna Braga"},
+{apto:"152SAB",nome:"Henrique Navarro / Patricia Navarro / Alice Navarro"}, {apto:"153SAB",nome:"Sonia Beli Valquiria de Aquino / Mauricio Filho de Aquino / Lucas Aquino Souza"},
+{apto:"154SAB",nome:"Ana Lucia Carlier"}, {apto:"161SAB",nome:"Thiago Lira Fernandes / Lilian / Ma. Clara / Maria Beatriz / Lucas"},
+{apto:"162SAB",nome:"Harvey James Wattengel / Estela Wattengel / Adriana Wattengel / Christopher Wattengel"}, {apto:"163SAB",nome:"Tatiana M.K. Shibuya / Stefan O.S. Johansson / Pedro S. Bizzaro"},
+{apto:"171SAB",nome:"José Luis Soiser / Patricia C. Carradas / Isaac, Lorena"}, {apto:"172SAB",nome:"Lindaci de Melo Soares / Julia (filha)"},
+{apto:"173SAB",nome:"Ricardo Mair Anafe / Ana Luiza Liarte"}, {apto:"174SAB",nome:"Ivana Veltri"},
+{apto:"181SAB",nome:"Paolo Cutrona"}, {apto:"182SAB",nome:"Fabíola Belfort Mattos / Eduardo Belfort / Giovana Belfort"},
+{apto:"183SAB",nome:"Flávio Batista Salles / Sandra"}, {apto:"184SAB",nome:"Fábio de Oliveira Bonfim / Ana Carolina Matoso / Francisco Ayrton"},
+{apto:"191SAB",nome:"Ma. Aparecida Gusmão"}, {apto:"192SAB",nome:"Jean Hendriks / Adelina Hendriks"},
+{apto:"193SAB",nome:"Renata Salvo Vendramelli / Bruno Salvo Vendramelli / João Pedro S. Vendramelli"}, {apto:"194SAB",nome:"Vago"}
+];
+
+// SALVAMENTO E SINCRONIZAÇÃO EM TEMPO REAL
+function carregarDados() {
+  let blocoA = localStorage.getItem('condo_blocoA');
+  let blocoB = localStorage.getItem('condo_blocoB');
+  let encA = localStorage.getItem('condo_encomendasA');
+  let encB = localStorage.getItem('condo_encomendasB');
+
+  window.BlocoA = blocoA ? JSON.parse(blocoA) : [...BlocoA_PADRAO];
+  window.BlocoB = blocoB ? JSON.parse(blocoB) : [...BlocoB_PADRAO];
+  window.encomendasA = encA ? JSON.parse(encA) : [];
+  window.encomendasB = encB ? JSON.parse(encB) : [];
 
   iniciarSincronizacaoNuvem();
-}  
-  
-function salvarDados() {  
-  localStorage.setItem('condo_blocoA', JSON.stringify(window.BlocoA));  
-  localStorage.setItem('condo_blocoB', JSON.stringify(window.BlocoB));  
-  localStorage.setItem('condo_encomendasA', JSON.stringify(window.encomendasA));  
-  localStorage.setItem('condo_encomendasB', JSON.stringify(window.encomendasB));  
+}
+
+function salvarDados() {
+  localStorage.setItem('condo_blocoA', JSON.stringify(window.BlocoA));
+  localStorage.setItem('condo_blocoB', JSON.stringify(window.BlocoB));
+  localStorage.setItem('condo_encomendasA', JSON.stringify(window.encomendasA));
+  localStorage.setItem('condo_encomendasB', JSON.stringify(window.encomendasB));
 
   if (window.db && window.dbFunctions) {
     const { doc, setDoc } = window.dbFunctions;
     setDoc(doc(window.db, "condo_dados", "blocoA"), { lista: window.BlocoA });
     setDoc(doc(window.db, "condo_dados", "blocoB"), { lista: window.BlocoB });
   }
-}  
+}
 
 function iniciarSincronizacaoNuvem() {
   setTimeout(() => {
@@ -520,24 +470,24 @@ function iniciarSincronizacaoNuvem() {
     });
   }, 1000);
 }
-  
-carregarDados();  
-  
-// SENHA DA PORTARIA  
-function mostrarSenha() {  
-  document.getElementById('caixa-senha').classList.remove('hidden');  
-  document.getElementById('input-senha').value = '';  
-  document.getElementById('msg-erro-senha').style.display = 'none';  
-}  
-  
-function verificarSenha() {  
-  const digitada = document.getElementById('input-senha').value;  
-  if(digitada === SENHA_PORTARIA) {  
-    abrirPortaria();  
-  } else {  
-    document.getElementById('msg-erro-senha').style.display = 'block';  
-  }  
-}  
+
+carregarDados();
+
+// SENHA DA PORTARIA
+function mostrarSenha() {
+  document.getElementById('caixa-senha').classList.remove('hidden');
+  document.getElementById('input-senha').value = '';
+  document.getElementById('msg-erro-senha').style.display = 'none';
+}
+
+function verificarSenha() {
+  const digitada = document.getElementById('input-senha').value;
+  if(digitada === SENHA_PORTARIA) {
+    abrirPortaria();
+  } else {
+    document.getElementById('msg-erro-senha').style.display = 'block';
+  }
+}
 
 function alternarVisibilidadeSenha() {
   const inputSenha = document.getElementById('input-senha');
@@ -561,9 +511,9 @@ async function ligarCamera(sigla) {
     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
     streamCamera[sigla] = stream;
     video.srcObject = stream;
-    
+
     video.classList.remove('hidden');
-    document.getElementById(`img-preview-${sigla}`).classList.add('hidden');
+    document.getElementById(`img-preview-${sigla}`).classList.add('hidden'); 
     document.getElementById(`btn-abrir-cam-${sigla}`).classList.add('hidden');
     document.getElementById(`btn-tirar-foto-${sigla}`).classList.remove('hidden');
   } catch (err) {
@@ -572,24 +522,24 @@ async function ligarCamera(sigla) {
 }
 
 function capturarFoto(sigla) {
-  const video = document.getElementById(`video-${sigla}`);
+  const video = document.getElementById(`video-${sigla}`); 
   const canvas = document.getElementById(`canvas-${sigla}`);
   const imgPreview = document.getElementById(`img-preview-${sigla}`);
 
   canvas.width = video.videoWidth || 640;
   canvas.height = video.videoHeight || 480;
-  
+
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
+
   fotosBase64[sigla] = canvas.toDataURL('image/jpeg', 0.6);
   imgPreview.src = fotosBase64[sigla];
 
   desligarCamera(sigla);
-  
+
   video.classList.add('hidden');
   imgPreview.classList.remove('hidden');
-  document.getElementById(`btn-tirar-foto-${sigla}`).classList.add('hidden');
+  document.getElementById(`btn-tirar-foto-${sigla}`).classList.add('hidden'); 
   document.getElementById(`btn-refazer-foto-${sigla}`).classList.remove('hidden');
 }
 
@@ -599,11 +549,10 @@ function carregarFotoArquivo(sigla, event) {
     const reader = new FileReader();
     reader.onload = function(e) {
       fotosBase64[sigla] = e.target.result;
-      const imgPreview = document.getElementById(`img-preview-${sigla}`);
-      imgPreview.src = fotosBase64[sigla];
-      imgPreview.classList.remove('hidden');
-      document.getElementById(`btn-abrir-cam-${sigla}`).classList.add('hidden');
-      document.getElementById(`btn-refazer-foto-${sigla}`).classList.remove('hidden');
+      const imgPreview = document.getElementById(`img-preview-${sigla}`); 
+      imgPreview.src = fotosBase64[sigla]; 
+      imgPreview.classList.remove('hidden'); 
+      document.getElementById(`btn-abrir-cam-${sigla}`).classList.remove('hidden');
     };
     reader.readAsDataURL(file);
   }
@@ -611,9 +560,9 @@ function carregarFotoArquivo(sigla, event) {
 
 function refazerFoto(sigla) {
   fotosBase64[sigla] = null;
-  document.getElementById(`img-preview-${sigla}`).classList.add('hidden');
+  document.getElementById(`img-preview-${sigla}`).classList.add('hidden'); 
   document.getElementById(`btn-refazer-foto-${sigla}`).classList.add('hidden');
-  document.getElementById(`file-${sigla}`).value = '';
+  document.getElementById(`file-${sigla}`).value = ''; 
   document.getElementById(`btn-abrir-cam-${sigla}`).classList.remove('hidden');
 }
 
@@ -627,313 +576,311 @@ function desligarCamera(sigla) {
 function resetarCameraInterface(sigla) {
   desligarCamera(sigla);
   fotosBase64[sigla] = null;
-  document.getElementById(`file-${sigla}`).value = '';
+  document.getElementById(`file-${sigla}`).value = ''; 
   document.getElementById(`video-${sigla}`).classList.add('hidden');
-  document.getElementById(`img-preview-${sigla}`).classList.add('hidden');
+  document.getElementById(`img-preview-${sigla}`).classList.add('hidden'); 
   document.getElementById(`btn-abrir-cam-${sigla}`).classList.remove('hidden');
-  document.getElementById(`btn-tirar-foto-${sigla}`).classList.add('hidden');
-  document.getElementById(`btn-refazer-foto-${sigla}`).classList.remove('hidden');
-}
-
-// FILTRO DE DATAS
-function limparFiltroData(inputId, funcaoCallback) {
-  document.getElementById(inputId).value = '';
-  funcaoCallback();
-}
-
-function formatarDataParaComparar(dataString) {
-  if (!dataString) return '';
-  const partes = dataString.split(',')[0].trim().split('/');
-  if (partes.length === 3) {
-    const dia = partes[0].padStart(2, '0');
-    const mes = partes[1].padStart(2, '0');
-    const ano = partes[2];
-    return `${ano}-${mes}-${dia}`;
-  }
-  return '';
+  document.getElementById(`btn-tirar-foto-${sigla}`).classList.add('hidden'); 
+  document.getElementById(`btn-refazer-foto-${sigla}`).classList.add('hidden');
 }
 
 // NAVEGAÇÃO
-function voltarInicio() {  
-  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));  
-  document.getElementById('tela-inicio').classList.add('ativa');  
-  document.getElementById('caixa-senha').classList.add('hidden');  
+function voltarInicio() {
+  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+  document.getElementById('tela-inicio').classList.add('ativa');
+  document.getElementById('caixa-senha').classList.add('hidden');
   desligarCamera('a');
   desligarCamera('b');
-}  
-  
-function abrirMorador(sigla) {  
-  document.getElementById('tela-inicio').classList.remove('ativa');  
-  document.getElementById(`tela-morador-${sigla}`).classList.add('ativa');  
-  carregarListaMoradores(sigla);  
-  carregarSelectAptosMorador(sigla);  
-}  
-  
-function abrirPortaria() {  
-  document.getElementById('tela-inicio').classList.remove('ativa');  
-  document.getElementById('tela-portaria').classList.add('ativa');  
-  carregarSelectAptos('a');  
-  carregarSelectAptos('b');  
-  carregarSelectEdicao();  
-  carregarTodasEncomendas();  
-}  
-  
-function carregarListaMoradores(sigla) {  
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
-  const el = document.getElementById(`lista-moradores-${sigla}`);  
-  el.innerHTML = '';  
-  lista.forEach(m => {  
-    const nome = m.nome || '<span class="vago">Vago</span>';  
-    el.innerHTML += `<div class="lista-item"><strong>${m.apto}</strong><br>${nome}</div>`;  
-  });  
-}  
-  
-function carregarSelectAptosMorador(sigla) {  
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
-  const el = document.getElementById(`meu-apto-${sigla}`);  
-  el.innerHTML = '<option value="">-- Escolha seu apartamento --</option>';  
-  lista.forEach((m, idx) => {  
-    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;  
-  });  
-}  
-  
-function verMinhasEncomendas(sigla) {  
-  const indice = document.getElementById(`meu-apto-${sigla}`).value;  
-  const listaEncs = sigla === 'a' ? window.encomendasA : window.encomendasB;  
-  const elLista = document.getElementById(`lista-minhas-${sigla}`);  
-  const elNome = document.getElementById(`nome-meu-apto-${sigla}`);  
-  const filtroData = document.getElementById(`filtro-data-minhas-${sigla}`).value;
-  
-  if(!indice) {  
-    elLista.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>';  
-    elNome.innerHTML = '';  
-    return;  
-  }  
-  
-  const dadosApto = (sigla === 'a' ? window.BlocoA : window.BlocoB)[parseInt(indice)];  
-  let minhas = listaEncs.filter(e => e.indiceOriginal === parseInt(indice));  
-  
-  if (filtroData) {
-    minhas = minhas.filter(e => formatarDataParaComparar(e.data) === filtroData);
+}
+
+function abrirMorador(sigla) {
+  document.getElementById('tela-inicio').classList.remove('ativa');
+  document.getElementById(`tela-morador-${sigla}`).classList.add('ativa');
+  carregarListaMoradores(sigla);
+  carregarSelectAptosMorador(sigla);
+}
+
+function abrirPortaria() {
+  document.getElementById('tela-inicio').classList.remove('ativa');
+  document.getElementById('tela-portaria').classList.add('ativa');
+  carregarSelectAptos('a');
+  carregarSelectAptos('b');
+  carregarSelectEdicao();
+  carregarTodasEncomendas();
+}
+
+function carregarListaMoradores(sigla) {
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+  const el = document.getElementById(`lista-moradores-${sigla}`); 
+  el.innerHTML = ''; 
+  lista.forEach(m => { 
+    const nome = m.nome || '<span class="vago">Vago</span>'; 
+    el.innerHTML += `<div class="lista-item"><strong>${m.apto}</strong> — ${nome}</div>`;
+  });
+}
+
+function carregarSelectAptosMorador(sigla) {
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+  const el = document.getElementById(`meu-apto-${sigla}`); 
+  el.innerHTML = '<option value="">-- Escolha seu apartamento --</option>'; 
+  lista.forEach((m, idx) => { 
+    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
+  });
+}
+
+function verMinhasEncomendas(sigla) {
+  const indice = document.getElementById(`meu-apto-${sigla}`).value; 
+  const listaEncs = sigla === 'a' ? window.encomendasA : window.encomendasB; 
+  const elLista = document.getElementById(`lista-minhas-${sigla}`);
+  const elNome = document.getElementById(`nome-meu-apto-${sigla}`);
+
+  if(!indice) {
+    elLista.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Selecione seu apartamento acima 👆</p>';
+    elNome.innerHTML = '';
+    return;
   }
 
-  elNome.innerHTML = `<strong>${dadosApto.apto}</strong> — ${dadosApto.nome || 'Vago'}`;  
-  
-  if(minhas.length === 0) {  
-    elLista.innerHTML = `<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda encontrada ${filtroData ? 'para esta data' : 'registrada'}</p>`;  
-    return;  
-  }  
-  
-  elLista.innerHTML = '';  
-  minhas.forEach(e => {  
-    const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : '';
-    elLista.innerHTML += `<div class="encomenda-item">  
-      <strong>📦 ${e.empresa}</strong><br>  
-      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>  
-      <span class="encomenda-data">${e.data}</span>  
-      ${htmlFoto}
-    </div>`;  
-  });  
-}  
-  
-function carregarSelectAptos(sigla) {  
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
-  const el = document.getElementById(`sel-apto-${sigla}`);  
-  el.innerHTML = '<option value="">-- Selecione --</option>';  
-  lista.forEach((m, idx) => {  
-    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;  
-  });  
-}  
-  
-function preencherMorador(sigla) {  
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
-  const sel = document.getElementById(`sel-apto-${sigla}`).value;  
-  document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');  
-}  
-  
-function cadastrarNovoMorador() {  
-  const bloco = document.getElementById('novo-bloco').value;  
-  const apto = document.getElementById('novo-apto').value.trim();  
-  const nome = document.getElementById('novo-nome').value.trim();  
-  
-  if(!apto || !nome) {  
-    alert('Preencha o número do apartamento e o nome!');  
-    return;  
-  }  
-  
-  const lista = bloco === 'a' ? window.BlocoA : window.BlocoB;  
-  lista.push({ apto: apto, nome: nome });  
-  salvarDados();  
-  
-  carregarSelectAptos('a');  
-  carregarSelectAptos('b');  
-  carregarSelectAptosMorador('a');  
-  carregarSelectAptosMorador('b');  
-  carregarSelectEdicao();  
-  carregarListaMoradores('a');  
-  carregarListaMoradores('b');  
-  
-  document.getElementById('novo-apto').value = '';  
-  document.getElementById('novo-nome').value = '';  
-  
-  const msg = document.getElementById('msg-cadastro');  
-  msg.classList.remove('hidden');  
-  setTimeout(() => msg.classList.add('hidden'), 3000);  
-}  
-  
-let indiceEdicao = null, blocoEdicao = null;  
-  
-function carregarSelectEdicao() {  
-  blocoEdicao = document.getElementById('editar-bloco').value;  
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;  
-  const el = document.getElementById('editar-apto');  
-  el.innerHTML = '<option value="">-- Escolha --</option>';  
-  lista.forEach((m, idx) => {  
-    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;  
-  });  
-  document.getElementById('editar-numero').value = '';  
-  document.getElementById('editar-nome').value = '';  
-  indiceEdicao = null;  
-}  
-  
-function carregarDadosEdicao() {  
-  const sel = document.getElementById('editar-apto').value;  
-  if(sel === '') {  
-    document.getElementById('editar-numero').value = '';  
-    document.getElementById('editar-nome').value = '';  
-    indiceEdicao = null;  
-    return;  
-  }  
-  blocoEdicao = document.getElementById('editar-bloco').value;  
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;  
-  indiceEdicao = parseInt(sel);  
-  document.getElementById('editar-numero').value = lista[indiceEdicao].apto;  
-  document.getElementById('editar-nome').value = lista[indiceEdicao].nome;  
-}  
-  
-function salvarEdicao() {  
-  if(indiceEdicao === null) {  
-    alert('Selecione um apartamento!');  
-    return;  
-  }  
-  const novoApto = document.getElementById('editar-numero').value.trim();  
-  const novoNome = document.getElementById('editar-nome').value.trim();  
-  if(!novoApto || !novoNome) {  
-    alert('Preencha os dois campos!');  
-    return;  
-  }  
-  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;  
-  lista[indiceEdicao].apto = novoApto;  
-  lista[indiceEdicao].nome = novoNome;  
-  salvarDados();  
-  
-  carregarSelectEdicao();  
-  carregarSelectAptos('a');  
-  carregarSelectAptos('b');  
-  carregarSelectAptosMorador('a');  
-  carregarSelectAptosMorador('b');  
-  carregarListaMoradores('a');  
-  carregarListaMoradores('b');  
-  
-  const msg = document.getElementById('msg-edicao');  
-  msg.classList.remove('hidden');  
-  setTimeout(() => msg.classList.add('hidden'), 3000);  
-}  
-  
-function salvarEncomenda(sigla) {  
-  const selIdx = document.getElementById(`sel-apto-${sigla}`).value;  
-  if(selIdx === '') { alert('Selecione o apartamento!'); return; }  
-    
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;  
-  const morador = lista[parseInt(selIdx)];  
-  const empresa = document.getElementById(`empresa-${sigla}`).value.trim();  
-  if(!empresa) { alert('Digite a empresa/loja!'); return; }  
-  
-  const enc = {  
-    bloco: sigla.toUpperCase(),  
-    indiceOriginal: parseInt(selIdx),  
-    apto: morador.apto,  
-    nome: morador.nome || 'Vago',  
-    empresa: empresa,  
-    nota: document.getElementById(`nota-${sigla}`).value.trim() || 'Não informada',  
-    rastreio: document.getElementById(`rastreio-${sigla}`).value.trim() || 'Não informado',  
+  const dadosApto = (sigla === 'a' ? window.BlocoA : window.BlocoB)[parseInt(indice)];
+  const minhas = listaEncs.filter(e => e.indiceOriginal === parseInt(indice));
+
+  elNome.innerHTML = `<strong>${dadosApto.apto}</strong> — ${dadosApto.nome || 'Vago'}`;
+
+  if(minhas.length === 0) {
+    elLista.innerHTML = '<p style="text-align:center; color:#16a34a; padding:20px">✅ Nenhuma encomenda registrada para este apartamento</p>';
+    return;
+  }
+
+  elLista.innerHTML = '';
+  minhas.forEach(e => {
+    const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : ''; 
+    elLista.innerHTML += `<div class="encomenda-item">
+      <strong>📦 ${e.empresa}</strong><br>
+      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
+      <span class="encomenda-data">${e.data}</span>
+      ${htmlFoto} 
+    </div>`;
+  });
+}
+
+function carregarSelectAptos(sigla) {
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+  const el = document.getElementById(`sel-apto-${sigla}`); 
+  el.innerHTML = '<option value="">-- Selecione --</option>'; 
+  lista.forEach((m, idx) => { 
+    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
+  });
+}
+
+function preencherMorador(sigla) {
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+  const sel = document.getElementById(`sel-apto-${sigla}`).value; 
+  document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');
+}
+
+function cadastrarNovoMorador() {
+  const bloco = document.getElementById('novo-bloco').value;
+  const apto = document.getElementById('novo-apto').value.trim();
+  const nome = document.getElementById('novo-nome').value.trim();
+
+  if(!apto || !nome) {
+    alert('Preencha o número do apartamento e o nome!');
+    return;
+  }
+
+  const lista = bloco === 'a' ? window.BlocoA : window.BlocoB;
+  lista.push({ apto: apto, nome: nome });
+  salvarDados();
+
+  carregarSelectAptos('a');
+  carregarSelectAptos('b');
+  carregarSelectAptosMorador('a');
+  carregarSelectAptosMorador('b');
+  carregarSelectEdicao();
+  carregarListaMoradores('a');
+  carregarListaMoradores('b');
+
+  document.getElementById('novo-apto').value = '';
+  document.getElementById('novo-nome').value = '';
+
+  const msg = document.getElementById('msg-cadastro');
+  msg.classList.remove('hidden');
+  setTimeout(() => msg.classList.add('hidden'), 3000);
+}
+
+let indiceEdicao = null, blocoEdicao = null;
+
+function carregarSelectEdicao() {
+  blocoEdicao = document.getElementById('editar-bloco').value;
+  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;
+  const el = document.getElementById('editar-apto');
+  el.innerHTML = '<option value="">-- Escolha --</option>';
+  lista.forEach((m, idx) => {
+    el.innerHTML += `<option value="${idx}">${m.apto} — ${m.nome || 'Vago'}</option>`;
+  });
+  document.getElementById('editar-numero').value = '';
+  document.getElementById('editar-nome').value = '';
+  indiceEdicao = null;
+}
+
+function carregarDadosEdicao() {
+  const sel = document.getElementById('editar-apto').value;
+  if(sel === '') {
+    document.getElementById('editar-numero').value = '';
+    document.getElementById('editar-nome').value = '';
+    indiceEdicao = null;
+    return;
+  }
+  blocoEdicao = document.getElementById('editar-bloco').value;
+  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;
+  indiceEdicao = parseInt(sel);
+  document.getElementById('editar-numero').value = lista[indiceEdicao].apto;
+  document.getElementById('editar-nome').value = lista[indiceEdicao].nome;
+}
+
+function salvarEdicao() {
+  if(indiceEdicao === null) {
+    alert('Selecione um apartamento!');
+    return;
+  }
+  const novoApto = document.getElementById('editar-numero').value.trim();
+  const novoNome = document.getElementById('editar-nome').value.trim();
+  if(!novoApto || !novoNome) {
+    alert('Preencha os dois campos!');
+    return;
+  }
+  const lista = blocoEdicao === 'a' ? window.BlocoA : window.BlocoB;
+  lista[indiceEdicao].apto = novoApto;
+  lista[indiceEdicao].nome = novoNome;
+  salvarDados();
+
+  carregarSelectEdicao();
+  carregarSelectAptos('a');
+  carregarSelectAptos('b');
+  carregarSelectAptosMorador('a');
+  carregarSelectAptosMorador('b');
+  carregarListaMoradores('a');
+  carregarListaMoradores('b');
+
+  const msg = document.getElementById('msg-edicao');
+  msg.classList.remove('hidden');
+  setTimeout(() => msg.classList.add('hidden'), 3000);
+}
+
+function salvarEncomenda(sigla) {
+  const selIdx = document.getElementById(`sel-apto-${sigla}`).value;
+  if(selIdx === '') { alert('Selecione o apartamento!'); return; }
+
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+  const morador = lista[parseInt(selIdx)];
+  const empresa = document.getElementById(`empresa-${sigla}`).value.trim();
+  if(!empresa) { alert('Digite a empresa/loja!'); return; }
+
+  const enc = {
+    bloco: sigla.toUpperCase(),
+    indiceOriginal: parseInt(selIdx),
+    apto: morador.apto,
+    nome: morador.nome || 'Vago',
+    empresa: empresa,
+    nota: document.getElementById(`nota-${sigla}`).value.trim() || 'Não informada', 
+    rastreio: document.getElementById(`rastreio-${sigla}`).value.trim() || 'Não informado',
     foto: fotosBase64[sigla] || null,
-    data: new Date().toLocaleString('pt-BR')  
-  };  
-  
-  if(sigla === 'a') window.encomendasA.unshift(enc);  
-  else window.encomendasB.unshift(enc);  
-    
-  salvarDados();  
+    data: new Date().toLocaleString('pt-BR')
+  };
+
+  if(sigla === 'a') window.encomendasA.unshift(enc);
+  else window.encomendasB.unshift(enc);
+
+  salvarDados();
 
   // ENVIA O CADASTRO E FOTO PARA A NUVEM
   if (window.db && window.dbFunctions) {
     const { collection, addDoc } = window.dbFunctions;
     addDoc(collection(window.db, sigla === 'a' ? "encomendasA" : "encomendasB"), enc);
   }
-  
-  document.getElementById(`sel-apto-${sigla}`).value = '';  
-  document.getElementById(`nome-morador-${sigla}`).value = '';  
-  document.getElementById(`empresa-${sigla}`).value = '';  
-  document.getElementById(`nota-${sigla}`).value = '';  
-  document.getElementById(`rastreio-${sigla}`).value = '';  
-  
+
+  document.getElementById(`sel-apto-${sigla}`).value = ''; 
+  document.getElementById(`nome-morador-${sigla}`).value = '';
+  document.getElementById(`empresa-${sigla}`).value = ''; 
+  document.getElementById(`nota-${sigla}`).value = '';
+  document.getElementById(`rastreio-${sigla}`).value = '';
+
   resetarCameraInterface(sigla);
 
-  const msg = document.getElementById(`msg-sucesso-${sigla}`);  
-  msg.classList.remove('hidden');  
-  setTimeout(() => msg.classList.add('hidden'), 3000);  
-  
-  carregarTodasEncomendas();  
-}  
-  
-function carregarTodasEncomendas() {  
-  let todas = [...window.encomendasA, ...window.encomendasB].sort((a,b) => new Date(b.data) - new Date(a.data));  
-  const el = document.getElementById('lista-todas');  
-  const filtroData = document.getElementById('filtro-data-todas') ? document.getElementById('filtro-data-todas').value : '';
+  const msg = document.getElementById(`msg-sucesso-${sigla}`);
+  msg.classList.remove('hidden');
+  setTimeout(() => msg.classList.add('hidden'), 3000);
 
-  if (filtroData) {
-    todas = todas.filter(e => formatarDataParaComparar(e.data) === filtroData);
+  carregarTodasEncomendas();
+}
+
+function carregarTodasEncomendas() {
+  const todas = [...window.encomendasA, ...window.encomendasB].sort((a,b) => new Date(b.data) - new Date(a.data));
+  const el = document.getElementById('lista-todas');
+  if(todas.length === 0) {
+    el.innerHTML = '<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda registrada ainda</p>';
+    return;
   }
+  el.innerHTML = '';
+  todas.forEach(e => {
+    const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : ''; 
+    el.innerHTML += `<div class="encomenda-item">
+      <strong>📦 ${e.empresa}</strong> <span class="tag-bloco tag-${e.bloco.toLowerCase()}" style="float:right">Bloco ${e.bloco}</span><br> 
+      ${e.apto} — ${e.nome}<br> 
+      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br> 
+      <span class="encomenda-data">${e.data}</span>
+      ${htmlFoto} 
+    </div>`;
+  });
+}
 
-  if(todas.length === 0) {  
-    el.innerHTML = `<p style="text-align:center; color:#6b7280; padding:20px">Nenhuma encomenda encontrada ${filtroData ? 'para esta data' : 'registrada'}</p>`;  
-    return;  
-  }  
-  el.innerHTML = '';  
-  todas.forEach(e => {  
-    const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : '';
-    el.innerHTML += `<div class="encomenda-item">  
-      <strong>📦 ${e.empresa}</strong>  
-      <span class="tag-bloco tag-${e.bloco.toLowerCase()}" style="float:right">Bloco ${e.bloco}</span><br>  
-      ${e.apto} — ${e.nome}<br>  
-      Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>  
-      <span class="encomenda-data">${e.data}</span>  
-      ${htmlFoto}
-    </div>`;  
-  });  
-}  
-  
-function mostrarAbaMoradorA(nome) {  
-  document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));  
-  document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));  
-  document.getElementById(nome).classList.add('ativa');  
-  event.target.classList.add('ativo');  
-}  
-function mostrarAbaMoradorB(nome) {  
-  document.querySelectorAll('#tela-morador-b .aba').forEach(a => a.classList.remove('ativa'));  
-  document.querySelectorAll('#tela-morador-b .btn-nav').forEach(b => b.classList.remove('ativo'));  
-  document.getElementById(nome).classList.add('ativa');  
-  event.target.classList.add('ativo');  
-}  
-function mostrarAbaPortaria(nome) {  
-  document.querySelectorAll('#tela-portaria .aba').forEach(a => a.classList.remove('ativa'));  
-  document.querySelectorAll('#tela-portaria .btn-nav').forEach(b => b.classList.remove('ativo'));  
-  document.getElementById(nome).classList.add('ativa');  
-  event.target.classList.add('ativo');  
-  desligarCamera('a');
-  desligarCamera('b');
-}  
-</script>  
-</body>  
+function mostrarAbaMoradorA(nome) {
+  document.querySelectorAll('#tela-morador-a .aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('#tela-morador-a .btn-nav').forEach(b => b.classList.remove('ativo'));
+  document.getElementById(nome).classList.add('ativa');
+  event.target.classList.add('ativo');
+}
+
+function mostrarAbaMoradorB(nome) {
+  document.querySelectorAll('#tela-morador-b .aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('#tela-morador-b .btn-nav').forEach(b => b.classList.remove('ativo'));
+  document.getElementById(nome).classList.add('ativa');
+  event.target.classList.add('ativo');
+}
+
+function mostrarAbaPortaria(nome) {
+  document.querySelectorAll('#tela-portaria .aba').forEach(a => a.classList.remove('ativa'));
+  document.querySelectorAll('#tela-portaria .btn-nav').forEach(b => b.classList.remove('ativo'));
+  document.getElementById(nome).classList.add('ativa');
+  event.target.classList.add('ativo');
+}
+</script>
+
+<!-- INICIALIZAÇÃO E CONEXÃO COM O FIREBASE FIRESTORE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
+  import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBK3ptWyBo5nxB9SjFZkMLVvP",
+    authDomain: "condoexpress-a20e0.firebaseapp.com",
+    projectId: "condoexpress-a20e0",
+    storageBucket: "condoexpress-a20e0.firebasestorage.app",
+    messagingSenderId: "800579097935",
+    appId: "1:800579097935:web:7ef0b0de349b3",
+    measurementId: "G-9E1MW2B2VY"
+  };
+
+  // Inicializa o Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+  // Inicializa o Cloud Firestore e disponibiliza globalmente
+  const db = getFirestore(app);
+  window.db = db;
+  window.dbFunctions = { collection, addDoc, onSnapshot, doc, setDoc };
+
+  console.log("Firebase e Firestore conectados com sucesso!");
+</script>
+</body>
 </html>
