@@ -28,6 +28,8 @@ body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
 .btn-enviar { background: #16a34a; color: white; margin-top: 15px; font-size: 17px; padding: 16px; }
 .btn-salvar-edicao { background: #8b5cf6; color: white; }
 .btn-cadastrar { background: #0d9488; color: white; }
+.btn-retirar { background: #2563eb; color: white; font-size: 14px; padding: 10px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; margin-top: 10px; width: 100%; }
+.btn-retirar:hover { background: #1d4ed8; }
 
 .card { background: white; border-radius: 16px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .card h2 { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
@@ -44,6 +46,9 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .tag-bloco { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; color: white; margin-left: 8px; }
 .tag-a { background: #1e40af; }
 .tag-b { background: #16a34a; }
+.badge-status { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-top: 6px; }
+.status-pendente { background: #fef3c7; color: #92400e; }
+.status-retirado { background: #e5e7eb; color: #374151; }
 .vago { color: #9ca3af; font-style: italic; }
 .tela { display: none; }
 .tela.ativa { display: block; }
@@ -396,8 +401,7 @@ const BlocoB_PADRAO = [
 {apto:"142SAB",nome:"Vago"}, {apto:"143SAB",nome:"Eduardo I. Fonseca / Thais Sozi Fonseca"},
 {apto:"144SAB",nome:"Flavia Pagotti Silva / Pedro Pagotti S. Leme"}, {apto:"151SAB",nome:"Norma Montagna Braga"},
 {apto:"152SAB",nome:"Henrique Navarro / Patricia Navarro / Alice Navarro"}, {apto:"153SAB",nome:"Sonia Beli Valquiria de Aquino / Mauricio Filho de Aquino / Lucas Aquino Souza"},
-{apto:"154SAB",nome:"Ana Lucia Carlier"}, {apto:"161SAB",nome:"Thiago Lira Fernandes / Lilian / Ma. Clara / Maria Beatriz / Lucas"},
-{apto:"162SAB",nome:"Harvey James Wattengel / Estela Wattengel / Adriana Wattengel / Christopher Wattengel"}, {apto:"163SAB",nome:"Tatiana M.K. Shibuya / Stefan O.S. Johansson / Pedro S. Bizzaro"},
+{apto:"154SAB",nome:"Ana Lucia Carlier"}, {apto:"161SAB",nome:"Thiago Lira Fernandes / Lilian / Ma. Clara / Maria Beatriz / Lucas"}, {apto:"162SAB",nome:"Harvey James Wattengel / Estela Wattengel / Adriana Wattengel / Christopher Wattengel"}, {apto:"163SAB",nome:"Tatiana M.K. Shibuya / Stefan O.S. Johansson / Pedro S. Bizzaro"},
 {apto:"171SAB",nome:"José Luis Soiser / Patricia C. Carradas / Isaac, Lorena"}, {apto:"172SAB",nome:"Lindaci de Melo Soares / Julia (filha)"},
 {apto:"173SAB",nome:"Ricardo Mair Anafe / Ana Luiza Liarte"}, {apto:"174SAB",nome:"Ivana Veltri"},
 {apto:"181SAB",nome:"Paolo Cutrona"}, {apto:"182SAB",nome:"Fabíola Belfort Mattos / Eduardo Belfort / Giovana Belfort"},
@@ -441,13 +445,13 @@ function iniciarSincronizacaoNuvem() {
 
     // Escuta novas encomendas em tempo real no Celular e Computador
     onSnapshot(collection(window.db, "encomendasA"), (snapshot) => {
-      window.encomendasA = snapshot.docs.map(doc => doc.data());
+      window.encomendasA = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       localStorage.setItem('condo_encomendasA', JSON.stringify(window.encomendasA));
       carregarTodasEncomendas();
     });
 
     onSnapshot(collection(window.db, "encomendasB"), (snapshot) => {
-      window.encomendasB = snapshot.docs.map(doc => doc.data());
+      window.encomendasB = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       localStorage.setItem('condo_encomendasB', JSON.stringify(window.encomendasB));
       carregarTodasEncomendas();
     });
@@ -653,10 +657,15 @@ function verMinhasEncomendas(sigla) {
   elLista.innerHTML = '';
   minhas.forEach(e => {
     const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : ''; 
+    const statusHtml = e.retirada 
+      ? `<span class="badge-status status-retirado">⚪ Retirada por ${e.retiradoPor} em ${e.dataRetirada}</span>`
+      : `<span class="badge-status status-pendente">🟢 Aguardando Retirada</span>`;
+
     elLista.innerHTML += `<div class="encomenda-item">
       <strong>📦 ${e.empresa}</strong><br>
+      ${statusHtml}<br>
       Nota: ${e.nota} | Rastreio: ${e.rastreio}<br>
-      <span class="encomenda-data">${e.data}</span>
+      <span class="encomenda-data">Chegou em: ${e.data}</span>
       ${htmlFoto} 
     </div>`;
   });
@@ -784,7 +793,10 @@ function salvarEncomenda(sigla) {
     nota: document.getElementById(`nota-${sigla}`).value.trim() || 'Não informada', 
     rastreio: document.getElementById(`rastreio-${sigla}`).value.trim() || 'Não informado',
     foto: fotosBase64[sigla] || null,
-    data: new Date().toLocaleString('pt-BR')
+    data: new Date().toLocaleString('pt-BR'),
+    retirada: false,
+    retiradoPor: null,
+    dataRetirada: null
   };
 
   if(sigla === 'a') window.encomendasA.unshift(enc);
@@ -813,6 +825,36 @@ function salvarEncomenda(sigla) {
   carregarTodasEncomendas();
 }
 
+// MARCAR ENCOMENDA COMO RETIRADA
+async function marcarComoRetirada(bloco, idOuIndex) {
+  const quem = prompt("Digite o nome de quem está retirando a encomenda:");
+  if (!quem || quem.trim() === "") return;
+
+  const dataHora = new Date().toLocaleString('pt-BR');
+  const colecao = bloco === 'A' ? 'encomendasA' : 'encomendasB';
+  const lista = bloco === 'A' ? window.encomendasA : window.encomendasB;
+
+  // Atualização no Firestore
+  if (window.db && window.dbFunctions && typeof idOuIndex === 'string') {
+    const { doc, updateDoc } = window.dbFunctions;
+    await updateDoc(doc(window.db, colecao, idOuIndex), {
+      retirada: true,
+      retiradoPor: quem.trim(),
+      dataRetirada: dataHora
+    });
+  } else {
+    // Fallback Local
+    const enc = lista[idOuIndex];
+    if (enc) {
+      enc.retirada = true;
+      enc.retiradoPor = quem.trim();
+      enc.dataRetirada = dataHora;
+      salvarDados();
+      carregarTodasEncomendas();
+    }
+  }
+}
+
 function carregarTodasEncomendas() {
   const todas = [...window.encomendasA, ...window.encomendasB].sort((a,b) => new Date(b.data) - new Date(a.data));
   const el = document.getElementById('lista-todas');
@@ -821,14 +863,26 @@ function carregarTodasEncomendas() {
     return;
   }
   el.innerHTML = '';
-  todas.forEach(e => {
+  todas.forEach((e, idx) => {
     const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : ''; 
+    const idRef = e.id ? `'${e.id}'` : idx;
+    
+    const statusHtml = e.retirada 
+      ? `<span class="badge-status status-retirado">⚪ Retirada por ${e.retiradoPor} em ${e.dataRetirada}</span>`
+      : `<span class="badge-status status-pendente">🟢 Aguardando Retirada</span>`;
+
+    const botaoRetirar = !e.retirada 
+      ? `<button class="btn-retirar" onclick="marcarComoRetirada('${e.bloco}', ${idRef})">✅ Marcar como Retirada</button>`
+      : '';
+
     el.innerHTML += `<div class="encomenda-item">
       <strong>📦 ${e.empresa}</strong> <span class="tag-bloco tag-${e.bloco.toLowerCase()}" style="float:right">Bloco ${e.bloco}</span><br> 
       ${e.apto} — ${e.nome}<br> 
       Nota: ${e.nota} | Rastreio: ${e.rastreio}<br> 
-      <span class="encomenda-data">${e.data}</span>
+      ${statusHtml}<br>
+      <span class="encomenda-data">Chegou em: ${e.data}</span>
       ${htmlFoto} 
+      ${botaoRetirar}
     </div>`;
   });
 }
@@ -859,7 +913,7 @@ function mostrarAbaPortaria(nome) {
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
-  import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBK3ptWyBo5nxB9SjFZkMLVvP",
@@ -878,7 +932,7 @@ function mostrarAbaPortaria(nome) {
   // Inicializa o Cloud Firestore e disponibiliza globalmente
   const db = getFirestore(app);
   window.db = db;
-  window.dbFunctions = { collection, addDoc, onSnapshot, doc, setDoc };
+  window.dbFunctions = { collection, addDoc, onSnapshot, doc, setDoc, updateDoc };
 
   console.log("Firebase e Firestore conectados com sucesso!");
 </script>
