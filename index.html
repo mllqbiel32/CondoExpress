@@ -4,8 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CondoExpress</title>
+
+<!-- Configurações da PWA para instalação como Aplicativo -->
 <link rel="manifest" href="/CondoExpress/manifest.json">
+<meta name="theme-color" content="#2196F3">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
 body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
@@ -138,7 +142,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div class="card">
 <h2>📦 Minhas Encomendas</h2>
 <p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>
-
 
 <!-- CALENDÁRIO FILTRO BLCO A -->
 <div class="filtro-data-container">
@@ -474,7 +477,6 @@ function iniciarSincronizacaoNuvem() {
     if (!window.db) return;
     const { collection, onSnapshot, doc } = window.dbFunctions;
 
-    // Escuta novas encomendas em tempo real no Celular e Computador
     onSnapshot(collection(window.db, "encomendasA"), (snapshot) => {
       window.encomendasA = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       localStorage.setItem('condo_encomendasA', JSON.stringify(window.encomendasA));
@@ -487,7 +489,6 @@ function iniciarSincronizacaoNuvem() {
       carregarTodasEncomendas();
     });
 
-    // Escuta alterações de moradores em tempo real
     onSnapshot(doc(window.db, "condo_dados", "blocoA"), (docSnap) => {
       if (docSnap.exists()) {
         window.BlocoA = docSnap.data().lista;
@@ -663,12 +664,11 @@ function carregarSelectAptosMorador(sigla) {
   });
 }
 
-// FORMATAR DATA DO INPUT DATE (AAAA-MM-DD) PARA COMPATIBILIDADE COM A DATA DA TELA (DD/MM/AAAA)
 function formatarDataParaComparacao(dataInput) {
   if (!dataInput) return null;
-  const partes = dataInput.split('-'); // [AAAA, MM, DD]
+  const partes = dataInput.split('-'); 
   if (partes.length !== 3) return null;
-  return `${partes[2]}/${partes[1]}/${partes[0]}`; // Retorna DD/MM/AAAA
+  return `${partes[2]}/${partes[1]}/${partes[0]}`; 
 }
 
 function limparFiltroData(tipo) {
@@ -698,7 +698,6 @@ function verMinhasEncomendas(sigla) {
   const dadosApto = (sigla === 'a' ? window.BlocoA : window.BlocoB)[parseInt(indice)];
   let minhas = listaEncs.filter(e => e.indiceOriginal === parseInt(indice));
 
-  // Aplicar filtro de data se preenchido
   if (dataFiltroFormatada) {
     minhas = minhas.filter(e => e.data && e.data.startsWith(dataFiltroFormatada));
   }
@@ -860,7 +859,6 @@ function salvarEncomenda(sigla) {
 
   salvarDados();
 
-  // ENVIA O CADASTRO E FOTO PARA A NUVEM
   if (window.db && window.dbFunctions) {
     const { collection, addDoc } = window.dbFunctions;
     addDoc(collection(window.db, sigla === 'a' ? "encomendasA" : "encomendasB"), enc);
@@ -881,7 +879,6 @@ function salvarEncomenda(sigla) {
   carregarTodasEncomendas();
 }
 
-// MARCAR ENCOMENDA COMO RETIRADA
 async function marcarComoRetirada(bloco, idOuIndex) {
   const quem = prompt("Digite o nome de quem está retirando a encomenda:");
   if (!quem || quem.trim() === "") return;
@@ -890,7 +887,6 @@ async function marcarComoRetirada(bloco, idOuIndex) {
   const colecao = bloco === 'A' ? 'encomendasA' : 'encomendasB';
   const lista = bloco === 'A' ? window.encomendasA : window.encomendasB;
 
-  // Atualização no Firestore
   if (window.db && window.dbFunctions && typeof idOuIndex === 'string') {
     const { doc, updateDoc } = window.dbFunctions;
     await updateDoc(doc(window.db, colecao, idOuIndex), {
@@ -899,7 +895,6 @@ async function marcarComoRetirada(bloco, idOuIndex) {
       dataRetirada: dataHora
     });
   } else {
-    // Fallback Local
     const enc = lista[idOuIndex];
     if (enc) {
       enc.retirada = true;
@@ -917,7 +912,6 @@ function carregarTodasEncomendas() {
   const dataFiltroInput = document.getElementById('filtro-data-portaria').value;
   const dataFiltroFormatada = formatarDataParaComparacao(dataFiltroInput);
 
-  // Aplicar filtro de data na portaria se preenchido
   if (dataFiltroFormatada) {
     todas = todas.filter(e => e.data && e.data.startsWith(dataFiltroFormatada));
   }
@@ -974,6 +968,17 @@ function mostrarAbaPortaria(nome) {
 }
 </script>
 
+<!-- Registo do Service Worker para destravar a instalação como App -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/CondoExpress/sw.js')
+        .then(reg => console.log('Service Worker registado com sucesso!', reg))
+        .catch(err => console.log('Erro ao registar Service Worker:', err));
+    });
+  }
+</script>
+
 <!-- INICIALIZAÇÃO E CONEXÃO COM O FIREBASE FIRESTORE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -990,11 +995,9 @@ function mostrarAbaPortaria(nome) {
     measurementId: "G-9E1MW2B2VY"
   };
 
-  // Inicializa o Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
 
-  // Inicializa o Cloud Firestore e disponibiliza globalmente
   const db = getFirestore(app);
   window.db = db;
   window.dbFunctions = { collection, addDoc, onSnapshot, doc, setDoc, updateDoc };
