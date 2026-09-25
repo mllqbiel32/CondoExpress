@@ -9,7 +9,8 @@
     {
       "src": "/CondoExpress/arquivo_000000001e5c820ebf00d45df39a9c63.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
