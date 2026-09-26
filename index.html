@@ -221,12 +221,12 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div class="card">
 <h2>📦 Registrar — Bloco A</h2>
 
-<label>📸 Foto da Etiqueta (Reconhecimento Automático do Nome)</label>
+<label>📸 Foto da Etiqueta (Busca Automática pelo "Destinatário")</label>
 <div class="area-camera">
 <video id="video-a" class="video-preview hidden" autoplay playsinline></video>
 <img id="img-preview-a" class="foto-preview hidden" alt="Foto capturada">
 <canvas id="canvas-a" class="hidden"></canvas>
-<div id="loading-ocr-a" class="loading-ocr">🔍 Lendo nome na etiqueta... Aguarde um instante...</div>
+<div id="loading-ocr-a" class="loading-ocr">🔍 Buscando o nome do destinatário... Aguarde...</div>
 <div>
 <button type="button" id="btn-abrir-cam-a" class="btn btn-cam" onclick="tirarFotoELeitorOCR('a')">📸 Tirar Foto da Etiqueta</button>
 <button type="button" id="btn-refazer-foto-a" class="btn btn-foto hidden" onclick="refazerFoto('a')">🗑️ Tirar Outra / Refazer</button>
@@ -259,12 +259,12 @@ ou envie imagem da galeria: <input type="file" id="file-a" accept="image/*" onch
 <div class="card">
 <h2>📦 Registrar — Bloco B</h2>
 
-<label>📸 Foto da Etiqueta (Reconhecimento Automático do Nome)</label>
+<label>📸 Foto da Etiqueta (Busca Automática pelo "Destinatário")</label>
 <div class="area-camera">
 <video id="video-b" class="video-preview hidden" autoplay playsinline></video>
 <img id="img-preview-b" class="foto-preview hidden" alt="Foto capturada">
 <canvas id="canvas-b" class="hidden"></canvas>
-<div id="loading-ocr-b" class="loading-ocr">🔍 Lendo nome na etiqueta... Aguarde um instante...</div>
+<div id="loading-ocr-b" class="loading-ocr">🔍 Buscando o nome do destinatário... Aguarde...</div>
 <div>
 <button type="button" id="btn-abrir-cam-b" class="btn btn-cam" onclick="tirarFotoELeitorOCR('b')">📸 Tirar Foto da Etiqueta</button>
 <button type="button" id="btn-refazer-foto-b" class="btn btn-foto hidden" onclick="refazerFoto('b')">🗑️ Tirar Outra / Refazer</button>
@@ -533,7 +533,7 @@ function alternarVisibilidadeSenha() {
   }
 }
 
-// CÂMERA E OCR (RECONHECIMENTO DE TEXTO DO NOME NA ETIQUETA)
+// CÂMERA E OCR (FOCO NO "DESTINATÁRIO")
 let fotosBase64 = { a: null, b: null };
 let activeStream = { a: null, b: null };
 
@@ -546,7 +546,6 @@ async function tirarFotoELeitorOCR(sigla) {
 
   try {
     if (!activeStream[sigla]) {
-      // Abre a câmera
       video.classList.remove('hidden');
       imgPreview.classList.add('hidden');
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
@@ -556,7 +555,6 @@ async function tirarFotoELeitorOCR(sigla) {
       return;
     }
 
-    // Se a câmera já estiver aberta, captura o frame atual
     const canvas = document.getElementById(`canvas-${sigla}`);
     canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
@@ -568,12 +566,10 @@ async function tirarFotoELeitorOCR(sigla) {
     imgPreview.classList.remove('hidden');
     video.classList.add('hidden');
 
-    // Desliga a câmera
     pararCamera(sigla);
     btnAbrirCam.classList.add('hidden');
     btnRefazer.classList.remove('hidden');
 
-    // Executa OCR para ler o nome do morador
     loadingOcr.style.display = 'block';
     
     const worker = await Tesseract.createWorker('por');
@@ -584,8 +580,7 @@ async function tirarFotoELeitorOCR(sigla) {
     const textoLido = ret.data.text;
     console.log("Texto extraído da etiqueta:", textoLido);
 
-    // Tenta encontrar o morador correspondente na lista
-    processarTextoOCR(sigla, textoLido);
+    processarTextoOCRInteligente(sigla, textoLido);
 
   } catch (err) {
     console.error("Erro na câmera ou OCR:", err);
@@ -615,7 +610,7 @@ function carregarFotoArquivo(sigla, event) {
         const ret = await worker.recognize(fotosBase64[sigla]);
         await worker.terminate();
         loadingOcr.style.display = 'none';
-        processarTextoOCR(sigla, ret.data.text);
+        processarTextoOCRInteligente(sigla, ret.data.text);
       } catch(err) {
         loadingOcr.style.display = 'none';
         alert("Erro ao ler texto da imagem.");
@@ -625,22 +620,43 @@ function carregarFotoArquivo(sigla, event) {
   }
 }
 
-function processarTextoOCR(sigla, texto) {
+function processarTextoOCRInteligente(sigla, texto) {
   const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
-  const textoLimpo = texto.toLowerCase();
+  const linhas = texto.split('\n');
   
+  let nomeEncontrado = "";
+
+  // Procura a linha que contém "destinatario" ou palavras parecidas (ex: "destinatario:")
+  for (let i = 0; i < linhas.length; i++) {
+    const linhaLimpa = linhas[i].toLowerCase();
+    if (linhaLimpa.includes('destinatario') || linhaLimpa.includes('destinatário')) {
+      // Pega o texto após a palavra destinatario na mesma linha
+      let partes = linhas[i].split(/[:–-]/);
+      if (partes.length > 1) {
+        nomeEncontrado = partes.slice(1).join(' ').trim();
+      }
+      // Se a linha seguinte existir e tiver tamanho bom, pode ser o nome
+      if ((!nomeEncontrado || nomeEncontrado.length < 3) && linhas[i + 1]) {
+        nomeEncontrado = linhas[i + 1].trim();
+      }
+      break;
+    }
+  }
+
+  // Se não achou pelo rótulo exato, procura direto por correspondência com os moradores cadastrados
   let melhorIndice = -1;
   let maiorPontuacao = 0;
+
+  const textoCompletoMinusculo = texto.toLowerCase();
 
   lista.forEach((morador, idx) => {
     if (!morador.nome || morador.nome === 'Vago') return;
     
-    // Divide o nome do morador em partes (primeiro nome, sobrenome)
     const partesNome = morador.nome.toLowerCase().split(/[\s/]+/);
     let pontuacao = 0;
 
     partesNome.forEach(parte => {
-      if (parte.length > 3 && textoLimpo.includes(parte)) {
+      if (parte.length > 2 && textoCompletoMinusculo.includes(parte)) {
         pontuacao++;
       }
     });
@@ -651,7 +667,7 @@ function processarTextoOCR(sigla, texto) {
     }
   });
 
-  if (melhorIndice !== -1 && maiorPontuacao > 0) {
+  if (melhorIndice !== -1 && maiorPontuacao >= 2) {
     document.getElementById(`sel-apto-${sigla}`).value = melhorIndice;
     preencherMorador(sigla);
     alert(`✨ Morador reconhecido automaticamente: ${lista[melhorIndice].nome} (${lista[melhorIndice].apto})`);
