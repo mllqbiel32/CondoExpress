@@ -10,8 +10,8 @@
 <meta name="theme-color" content="#2196F3">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
 
-<!-- Biblioteca ZXing para Leitura de Código de Barras -->
-<script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
+<!-- Biblioteca Tesseract.js para OCR (Leitura de texto na foto da etiqueta) -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
@@ -74,13 +74,14 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 .campo-senha-container input { padding-right: 45px; }
 .btn-toggle-senha { position: absolute; right: 10px; background: none; border: none; font-size: 18px; cursor: pointer; color: #6b7280; padding: 5px; }
 
-/* Câmera e Upload */
+/* Câmera e OCR */
 .area-camera { background: #f8fafc; border: 2px dashed #3b82f6; border-radius: 12px; padding: 14px; margin-top: 10px; text-align: center; }
 .video-preview { width: 100%; max-height: 240px; border-radius: 8px; background: #000; object-fit: cover; }
 .foto-preview { width: 100%; max-height: 240px; border-radius: 8px; object-fit: cover; border: 2px solid #16a34a; margin-top: 8px; }
-.btn-cam { background: #3b82f6; color: white; font-size: 14px; padding: 10px 14px; margin-top: 8px; }
+.btn-cam { background: #3b82f6; color: white; font-size: 14px; padding: 12px 14px; margin-top: 8px; }
 .btn-foto { background: #ef4444; color: white; font-size: 14px; padding: 10px 14px; margin-top: 8px; }
 .foto-encomenda-thumb { width: 100%; max-height: 220px; object-fit: cover; border-radius: 8px; margin-top: 10px; border: 1px solid #d1d5db; display: block; }
+.loading-ocr { font-size: 13px; color: #2563eb; font-weight: 600; margin-top: 8px; display: none; }
 </style>
 </head>
 <body>
@@ -145,7 +146,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <h2>📦 Minhas Encomendas</h2>
 <p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>
 
-<!-- CALENDÁRIO FILTRO BLCO A -->
 <div class="filtro-data-container">
   <label for="filtro-data-a">📅 Filtrar por data de chegada:</label>
   <input type="date" id="filtro-data-a" onchange="verMinhasEncomendas('a')">
@@ -187,7 +187,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <h2>📦 Minhas Encomendas</h2>
 <p id="nome-meu-apto-b" style="color:#4b5563; margin-bottom:15px"></p>
 
-<!-- CALENDÁRIO FILTRO BLOCO B -->
 <div class="filtro-data-container">
   <label for="filtro-data-b">📅 Filtrar por data de chegada:</label>
   <input type="date" id="filtro-data-b" onchange="verMinhasEncomendas('b')">
@@ -222,17 +221,18 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div class="card">
 <h2>📦 Registrar — Bloco A</h2>
 
-<label>📷 Câmera / Leitor de Código de Barras</label>
+<label>📸 Foto da Etiqueta (Reconhecimento Automático do Nome)</label>
 <div class="area-camera">
 <video id="video-a" class="video-preview hidden" autoplay playsinline></video>
 <img id="img-preview-a" class="foto-preview hidden" alt="Foto capturada">
 <canvas id="canvas-a" class="hidden"></canvas>
+<div id="loading-ocr-a" class="loading-ocr">🔍 Lendo nome na etiqueta... Aguarde um instante...</div>
 <div>
-<button type="button" id="btn-abrir-cam-a" class="btn btn-cam" onclick="ligarCamera('a')">📷 Abrir Câmera e Ler Código</button>
+<button type="button" id="btn-abrir-cam-a" class="btn btn-cam" onclick="tirarFotoELeitorOCR('a')">📸 Tirar Foto da Etiqueta</button>
 <button type="button" id="btn-refazer-foto-a" class="btn btn-foto hidden" onclick="refazerFoto('a')">🗑️ Tirar Outra / Refazer</button>
 </div>
 <div style="margin-top: 10px; font-size: 13px; color: #6b7280;">
-ou selecione do aparelho: <input type="file" id="file-a" accept="image/*" capture="environment" onchange="carregarFotoArquivo('a', event)" style="margin-top:5px; font-size:12px;">
+ou envie imagem da galeria: <input type="file" id="file-a" accept="image/*" onchange="carregarFotoArquivo('a', event)" style="margin-top:5px; font-size:12px;">
 </div>
 </div>
 
@@ -248,7 +248,7 @@ ou selecione do aparelho: <input type="file" id="file-a" accept="image/*" captur
 <label>Nota Fiscal</label>
 <input type="text" id="nota-a" placeholder="Número">
 <label>Código de Rastreio</label>
-<input type="text" id="rastreio-a" placeholder="Código preenchido automaticamente pela câmera">
+<input type="text" id="rastreio-a" placeholder="Número de rastreio opcional">
 
 <button class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>
 <div id="msg-sucesso-a" class="sucesso hidden">✅ Registrada!</div>
@@ -259,17 +259,18 @@ ou selecione do aparelho: <input type="file" id="file-a" accept="image/*" captur
 <div class="card">
 <h2>📦 Registrar — Bloco B</h2>
 
-<label>📷 Câmera / Leitor de Código de Barras</label>
+<label>📸 Foto da Etiqueta (Reconhecimento Automático do Nome)</label>
 <div class="area-camera">
 <video id="video-b" class="video-preview hidden" autoplay playsinline></video>
 <img id="img-preview-b" class="foto-preview hidden" alt="Foto capturada">
 <canvas id="canvas-b" class="hidden"></canvas>
+<div id="loading-ocr-b" class="loading-ocr">🔍 Lendo nome na etiqueta... Aguarde um instante...</div>
 <div>
-<button type="button" id="btn-abrir-cam-b" class="btn btn-cam" onclick="ligarCamera('b')">📷 Abrir Câmera e Ler Código</button>
+<button type="button" id="btn-abrir-cam-b" class="btn btn-cam" onclick="tirarFotoELeitorOCR('b')">📸 Tirar Foto da Etiqueta</button>
 <button type="button" id="btn-refazer-foto-b" class="btn btn-foto hidden" onclick="refazerFoto('b')">🗑️ Tirar Outra / Refazer</button>
 </div>
 <div style="margin-top: 10px; font-size: 13px; color: #6b7280;">
-ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" capture="environment" onchange="carregarFotoArquivo('b', event)" style="margin-top:5px; font-size:12px;">
+ou envie imagem da galeria: <input type="file" id="file-b" accept="image/*" onchange="carregarFotoArquivo('b', event)" style="margin-top:5px; font-size:12px;">
 </div>
 </div>
 
@@ -285,7 +286,7 @@ ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" captur
 <label>Nota Fiscal</label>
 <input type="text" id="nota-b" placeholder="Número">
 <label>Código de Rastreio</label>
-<input type="text" id="rastreio-b" placeholder="Código preenchido automaticamente pela câmera">
+<input type="text" id="rastreio-b" placeholder="Número de rastreio opcional">
 
 <button class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>
 <div id="msg-sucesso-b" class="sucesso hidden">✅ Registrada!</div>
@@ -343,7 +344,6 @@ ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" captur
 <div class="card">
 <h2>📋 Todas Encomendas</h2>
 
-<!-- CALENDÁRIO FILTRO PORTARIA -->
 <div class="filtro-data-container">
   <label for="filtro-data-portaria">📅 Filtrar por data de chegada:</label>
   <input type="date" id="filtro-data-portaria" onchange="carregarTodasEncomendas()">
@@ -360,10 +360,8 @@ ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" captur
 </div>
 
 <script>
-// SENHA PORTARIA
 const SENHA_PORTARIA = "portaria123";
 
-// DADOS INICIAIS
 const BlocoA_PADRAO = [
 {apto:"012OP",nome:"Claudete Conceição Rozas"}, {apto:"013OP",nome:"Cristina Filizola"},
 {apto:"014OP",nome:"Urias Taques Junior"}, {apto:"021OP",nome:"Pedro H. Chagas Rosseli"},
@@ -444,7 +442,6 @@ const BlocoB_PADRAO = [
 {apto:"193SAB",nome:"Renata Salvo Vendramelli / Bruno Salvo Vendramelli / João Pedro S. Vendramelli"}, {apto:"194SAB",nome:"Vago"}
 ];
 
-// SALVAMENTO E SINCRONIZAÇÃO EM TEMPO REAL
 function carregarDados() {
   let blocoA = localStorage.getItem('condo_blocoA');
   let blocoB = localStorage.getItem('condo_blocoB');
@@ -509,7 +506,6 @@ function iniciarSincronizacaoNuvem() {
 
 carregarDados();
 
-// SENHA DA PORTARIA
 function mostrarSenha() {
   document.getElementById('caixa-senha').classList.remove('hidden');
   document.getElementById('input-senha').value = '';
@@ -537,119 +533,160 @@ function alternarVisibilidadeSenha() {
   }
 }
 
-// CÂMERA E LEITURA AO VIVO DE CÓDIGO DE BARRAS (ZXING)
-let codeReader = null;
+// CÂMERA E OCR (RECONHECIMENTO DE TEXTO DO NOME NA ETIQUETA)
 let fotosBase64 = { a: null, b: null };
+let activeStream = { a: null, b: null };
 
-async function ligarCamera(sigla) {
+async function tirarFotoELeitorOCR(sigla) {
+  const video = document.getElementById(`video-${sigla}`);
+  const imgPreview = document.getElementById(`img-preview-${sigla}`);
+  const btnAbrirCam = document.getElementById(`btn-abrir-cam-${sigla}`);
+  const btnRefazer = document.getElementById(`btn-refazer-foto-${sigla}`);
+  const loadingOcr = document.getElementById(`loading-ocr-${sigla}`);
+
   try {
-    const video = document.getElementById(`video-${sigla}`);
-    video.classList.remove('hidden');
-    document.getElementById(`img-preview-${sigla}`).classList.add('hidden'); 
-    document.getElementById(`btn-abrir-cam-${sigla}`).classList.add('hidden');
-    document.getElementById(`btn-refazer-foto-${sigla}`).classList.remove('hidden');
-
-    if (!codeReader) {
-      codeReader = new ZXing.BrowserBarcodeReader();
+    if (!activeStream[sigla]) {
+      // Abre a câmera
+      video.classList.remove('hidden');
+      imgPreview.classList.add('hidden');
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      activeStream[sigla] = stream;
+      video.srcObject = stream;
+      btnAbrirCam.textContent = "📸 Capturar Foto Agora";
+      return;
     }
 
-    codeReader.decodeFromVideoDevice(undefined, `video-${sigla}`, (result, err) => {
-      if (result) {
-        const codigoDetectado = result.text;
-        console.log("Código de barras detectado:", codigoDetectado);
+    // Se a câmera já estiver aberta, captura o frame atual
+    const canvas = document.getElementById(`canvas-${sigla}`);
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Preenche automaticamente o campo de rastreio
-        document.getElementById(`rastreio-${sigla}`).value = codigoDetectado;
+    fotosBase64[sigla] = canvas.toDataURL('image/jpeg', 0.8);
+    imgPreview.src = fotosBase64[sigla];
+    imgPreview.classList.remove('hidden');
+    video.classList.add('hidden');
 
-        // Tira a foto automática do momento para servir de evidência
-        capturarFotoAutomatica(sigla);
-        
-        // Para a leitura assim que encontrar o código
-        pararLeituraCamera(sigla);
-      }
-      if (err && !(err instanceof ZXing.NotFoundException)) {
-        // Ignora erros de "não encontrado" enquanto a câmera procura ativamente
-      }
-    });
+    // Desliga a câmera
+    pararCamera(sigla);
+    btnAbrirCam.classList.add('hidden');
+    btnRefazer.classList.remove('hidden');
+
+    // Executa OCR para ler o nome do morador
+    loadingOcr.style.display = 'block';
+    
+    const worker = await Tesseract.createWorker('por');
+    const ret = await worker.recognize(fotosBase64[sigla]);
+    await worker.terminate();
+    
+    loadingOcr.style.display = 'none';
+    const textoLido = ret.data.text;
+    console.log("Texto extraído da etiqueta:", textoLido);
+
+    // Tenta encontrar o morador correspondente na lista
+    processarTextoOCR(sigla, textoLido);
 
   } catch (err) {
-    alert("Erro ao acessar a câmera para leitura. Verifique as permissões do navegador.");
+    console.error("Erro na câmera ou OCR:", err);
+    loadingOcr.style.display = 'none';
+    alert("Não foi possível acessar a câmera ou ler a foto. Selecione o morador manualmente.");
+    pararCamera(sigla);
   }
-}
-
-function pararLeituraCamera(sigla) {
-  if (codeReader) {
-    codeReader.reset();
-  }
-  const video = document.getElementById(`video-${sigla}`);
-  const stream = video.srcObject;
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    video.srcObject = null;
-  }
-}
-
-function capturarFotoAutomatica(sigla) {
-  const video = document.getElementById(`video-${sigla}`); 
-  const canvas = document.getElementById(`canvas-${sigla}`);
-  const imgPreview = document.getElementById(`img-preview-${sigla}`);
-
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
-
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  fotosBase64[sigla] = canvas.toDataURL('image/jpeg', 0.6);
-  imgPreview.src = fotosBase64[sigla];
-
-  video.classList.add('hidden');
-  imgPreview.classList.remove('hidden');
 }
 
 function carregarFotoArquivo(sigla, event) {
   const file = event.target.files[0];
   if (file) {
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
       fotosBase64[sigla] = e.target.result;
       const imgPreview = document.getElementById(`img-preview-${sigla}`); 
       imgPreview.src = fotosBase64[sigla]; 
       imgPreview.classList.remove('hidden'); 
-      document.getElementById(`btn-abrir-cam-${sigla}`).classList.remove('hidden');
+      document.getElementById(`btn-abrir-cam-${sigla}`).classList.add('hidden');
+      document.getElementById(`btn-refazer-foto-${sigla}`).classList.remove('hidden');
+
+      const loadingOcr = document.getElementById(`loading-ocr-${sigla}`);
+      loadingOcr.style.display = 'block';
+
+      try {
+        const worker = await Tesseract.createWorker('por');
+        const ret = await worker.recognize(fotosBase64[sigla]);
+        await worker.terminate();
+        loadingOcr.style.display = 'none';
+        processarTextoOCR(sigla, ret.data.text);
+      } catch(err) {
+        loadingOcr.style.display = 'none';
+        alert("Erro ao ler texto da imagem.");
+      }
     };
     reader.readAsDataURL(file);
   }
 }
 
+function processarTextoOCR(sigla, texto) {
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+  const textoLimpo = texto.toLowerCase();
+  
+  let melhorIndice = -1;
+  let maiorPontuacao = 0;
+
+  lista.forEach((morador, idx) => {
+    if (!morador.nome || morador.nome === 'Vago') return;
+    
+    // Divide o nome do morador em partes (primeiro nome, sobrenome)
+    const partesNome = morador.nome.toLowerCase().split(/[\s/]+/);
+    let pontuacao = 0;
+
+    partesNome.forEach(parte => {
+      if (parte.length > 3 && textoLimpo.includes(parte)) {
+        pontuacao++;
+      }
+    });
+
+    if (pontuacao > maiorPontuacao) {
+      maiorPontuacao = pontuacao;
+      melhorIndice = idx;
+    }
+  });
+
+  if (melhorIndice !== -1 && maiorPontuacao > 0) {
+    document.getElementById(`sel-apto-${sigla}`).value = melhorIndice;
+    preencherMorador(sigla);
+    alert(`✨ Morador reconhecido automaticamente: ${lista[melhorIndice].nome} (${lista[melhorIndice].apto})`);
+  } else {
+    alert("⚠️ Não foi possível identificar o nome com precisão na etiqueta. Por favor, selecione o morador manualmente no campo abaixo.");
+  }
+}
+
+function pararCamera(sigla) {
+  if (activeStream[sigla]) {
+    activeStream[sigla].getTracks().forEach(track => track.stop());
+    activeStream[sigla] = null;
+  }
+}
+
 function refazerFoto(sigla) {
-  pararLeituraCamera(sigla);
+  pararCamera(sigla);
   fotosBase64[sigla] = null;
   document.getElementById(`img-preview-${sigla}`).classList.add('hidden'); 
   document.getElementById(`video-${sigla}`).classList.add('hidden');
   document.getElementById(`btn-refazer-foto-${sigla}`).classList.add('hidden');
   document.getElementById(`file-${sigla}`).value = ''; 
-  document.getElementById(`btn-abrir-cam-${sigla}`).classList.remove('hidden');
-  document.getElementById(`rastreio-${sigla}`).value = ''; // Limpa o código lido se refizer
+  const btnCam = document.getElementById(`btn-abrir-cam-${sigla}`);
+  btnCam.classList.remove('hidden');
+  btnCam.textContent = "📸 Tirar Foto da Etiqueta";
+  document.getElementById(`sel-apto-${sigla}`).value = '';
+  document.getElementById(`nome-morador-${sigla}`).value = '';
 }
 
-function resetarCameraInterface(sigla) {
-  pararLeituraCamera(sigla);
-  fotosBase64[sigla] = null;
-  document.getElementById(`file-${sigla}`).value = ''; 
-  document.getElementById(`video-${sigla}`).classList.add('hidden');
-  document.getElementById(`img-preview-${sigla}`).classList.add('hidden'); 
-  document.getElementById(`btn-abrir-cam-${sigla}`).classList.remove('hidden');
-  document.getElementById(`btn-refazer-foto-${sigla}`).classList.add('hidden');
-}
-
-// NAVEGAÇÃO
 function voltarInicio() {
   document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
   document.getElementById('tela-inicio').classList.add('ativa');
   document.getElementById('caixa-senha').classList.add('hidden');
-  pararLeituraCamera('a');
-  pararLeituraCamera('b');
+  pararCamera('a');
+  pararCamera('b');
 }
 
 function abrirMorador(sigla) {
@@ -863,12 +900,12 @@ function salvarEdicao() {
 
 function salvarEncomenda(sigla) {
   const selIdx = document.getElementById(`sel-apto-${sigla}`).value;
-  if(selIdx === '') { alert('Selecione o apartamento!'); return; }
+  if(selIdx === '') { alert('Selecione o apartamento ou tire a foto da etiqueta!'); return; }
 
   const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
   const morador = lista[parseInt(selIdx)];
   const empresa = document.getElementById(`empresa-${sigla}`).value.trim();
-  if(!empresa) { alert('Digite a empresa/loja!'); return; }
+  if(!empresa) { alert('Digite a empresa/loja (ex: Shopee, Correios)!'); return; }
 
   const enc = {
     bloco: sigla.toUpperCase(),
@@ -901,7 +938,7 @@ function salvarEncomenda(sigla) {
   document.getElementById(`nota-${sigla}`).value = '';
   document.getElementById(`rastreio-${sigla}`).value = '';
 
-  resetarCameraInterface(sigla);
+  refazerFoto(sigla);
 
   const msg = document.getElementById(`msg-sucesso-${sigla}`);
   msg.classList.remove('hidden');
@@ -999,7 +1036,6 @@ function mostrarAbaPortaria(nome) {
 }
 </script>
 
-<!-- Registo do Service Worker para destravar a instalação como App -->
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -1010,7 +1046,6 @@ function mostrarAbaPortaria(nome) {
   }
 </script>
 
-<!-- INICIALIZAÇÃO E CONEXÃO COM O FIREBASE FIRESTORE E MESSAGING -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
@@ -1036,7 +1071,6 @@ function mostrarAbaPortaria(nome) {
   window.db = db;
   window.dbFunctions = { collection, addDoc, onSnapshot, doc, setDoc, updateDoc };
 
-  // Função para solicitar permissão e salvar o token FCM do morador no banco
   window.salvarTokenPush = async function(sigla, indice) {
     try {
       const permission = await Notification.requestPermission();
@@ -1055,25 +1089,16 @@ function mostrarAbaPortaria(nome) {
             apto: aptoObj.apto,
             nome: aptoObj.nome
           }, { merge: true });
-
-          console.log("Token FCM salvo com sucesso para o apto:", aptoObj.apto);
-        } else {
-          console.log("Não foi possível obter o token de inscrição.");
         }
-      } else {
-        console.log("Permissão de notificação negada pelo usuário.");
       }
     } catch (err) {
-      console.error("Erro ao recuperar token de segurança:", err);
+      console.error("Erro ao recuperar token:", err);
     }
   };
 
   onMessage(messaging, (payload) => {
-    console.log('Mensagem recebida em primeiro plano: ', payload);
     alert(`Nova Notificação: ${payload.notification.title} - ${payload.notification.body}`);
   });
-
-  console.log("Firebase, Firestore e Messaging conectados com sucesso!");
 </script>
 </body>
 </html>
