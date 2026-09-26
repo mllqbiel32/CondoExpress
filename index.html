@@ -1017,9 +1017,8 @@ function mostrarAbaPortaria(nome) {
     try {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
-        // Substitua abaixo pela sua Chave Pública VAPID gerada no Firebase Console (Cloud Messaging)
         const currentToken = await getToken(messaging, { 
-          vapidKey: "SUA_CHAVE_VAPID_PUBLICA_AQUI" 
+          vapidKey: "BArVbNkQqZSyH9DKx1Ew5DYsSQfG8_mYD3_J_2dFPTEc1tH2ezm_Zjnv3PfjjA2x6zyMP_5cDTPDaO4BTjTmv-U" 
         });
 
         if (currentToken) {
