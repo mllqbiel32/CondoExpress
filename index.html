@@ -44,7 +44,6 @@ input, select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-ra
 input[readonly] { background: #f3f4f6; color: #4b5563; }
 .lista-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
 .lista-item:last-child { border: none; }
-.lista-item strong { font-size: 15px; color: #111827; display: block; }
 .encomenda-item { padding: 14px 0; border-bottom: 1px solid #e5e7eb; }
 .encomenda-data { font-size: 12px; color: #9ca3af; margin-top: 4px; }
 .sucesso { background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; margin-top: 12px; text-align: center; font-weight: 600; }
@@ -124,7 +123,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
 <div class="seletor-apto">
 <label>🏠 Selecione seu apartamento para ver suas encomendas:</label>
-<select id="meu-apto-a" onchange="verMinhasEncomendas('a')">
+<select id="meu-apto-a" onchange="aoSelecionarAptoMorador('a')">
 <option value="">-- Escolha seu apartamento --</option>
 </select>
 </div>
@@ -166,7 +165,7 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <button class="btn btn-sair" onclick="voltarInicio()">⬅️ Voltar</button>
 <div class="seletor-apto">
 <label>🏠 Selecione seu apartamento para ver suas encomendas:</label>
-<select id="meu-apto-b" onchange="verMinhasEncomendas('b')">
+<select id="meu-apto-b" onchange="aoSelecionarAptoMorador('b')">
 <option value="">-- Escolha seu apartamento --</option>
 </select>
 </div>
@@ -681,6 +680,14 @@ function limparFiltroData(tipo) {
   }
 }
 
+function aoSelecionarAptoMorador(sigla) {
+  verMinhasEncomendas(sigla);
+  const indice = document.getElementById(`meu-apto-${sigla}`).value;
+  if (indice !== "" && window.salvarTokenPush) {
+    window.salvarTokenPush(sigla, parseInt(indice));
+  }
+}
+
 function verMinhasEncomendas(sigla) {
   const indice = document.getElementById(`meu-apto-${sigla}`).value; 
   const listaEncs = sigla === 'a' ? window.encomendasA : window.encomendasB; 
@@ -979,11 +986,12 @@ function mostrarAbaPortaria(nome) {
   }
 </script>
 
-<!-- INICIALIZAÇÃO E CONEXÃO COM O FIREBASE FIRESTORE -->
+<!-- INICIALIZAÇÃO E CONEXÃO COM O FIREBASE FIRESTORE E MESSAGING -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
   import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBK3ptWyBo5nxB9SjFZkMLVvP",
@@ -999,10 +1007,52 @@ function mostrarAbaPortaria(nome) {
   const analytics = getAnalytics(app);
 
   const db = getFirestore(app);
+  const messaging = getMessaging(app);
+
   window.db = db;
   window.dbFunctions = { collection, addDoc, onSnapshot, doc, setDoc, updateDoc };
 
-  console.log("Firebase e Firestore conectados com sucesso!");
+  // Função para solicitar permissão e salvar o token FCM do morador no banco
+  window.salvarTokenPush = async function(sigla, indice) {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        // Substitua abaixo pela sua Chave Pública VAPID gerada no Firebase Console (Cloud Messaging)
+        const currentToken = await getToken(messaging, { 
+          vapidKey: "SUA_CHAVE_VAPID_PUBLICA_AQUI" 
+        });
+
+        if (currentToken) {
+          const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+          const aptoObj = lista[indice];
+          
+          // Salva o token FCM vinculado ao apartamento no Firestore
+          await setDoc(doc(db, "tokens_push", `${sigla.toUpperCase()}_${aptoObj.apto}`), {
+            token: currentToken,
+            bloco: sigla.toUpperCase(),
+            apto: aptoObj.apto,
+            nome: aptoObj.nome
+          }, { merge: true });
+
+          console.log("Token FCM salvo com sucesso para o apto:", aptoObj.apto);
+        } else {
+          console.log("Não foi possível obter o token de inscrição.");
+        }
+      } else {
+        console.log("Permissão de notificação negada pelo usuário.");
+      }
+    } catch (err) {
+      console.error("Erro ao recuperar token de segurança:", err);
+    }
+  };
+
+  // Escuta mensagens quando o app está aberto em primeiro plano
+  onMessage(messaging, (payload) => {
+    console.log('Mensagem recebida em primeiro plano: ', payload);
+    alert(`Nova Notificação: ${payload.notification.title} - ${payload.notification.body}`);
+  });
+
+  console.log("Firebase, Firestore e Messaging conectados com sucesso!");
 </script>
 </body>
 </html>
