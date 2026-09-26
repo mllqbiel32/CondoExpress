@@ -10,6 +10,9 @@
 <meta name="theme-color" content="#2196F3">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
 
+<!-- Biblioteca ZXing para Leitura de Código de Barras -->
+<script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
+
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
 body { background: #f0f4f8; min-height: 100vh; padding: 16px; }
@@ -219,15 +222,14 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div class="card">
 <h2>📦 Registrar — Bloco A</h2>
 
-<label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
+<label>📷 Câmera / Leitor de Código de Barras</label>
 <div class="area-camera">
 <video id="video-a" class="video-preview hidden" autoplay playsinline></video>
 <img id="img-preview-a" class="foto-preview hidden" alt="Foto capturada">
 <canvas id="canvas-a" class="hidden"></canvas>
 <div>
-<button type="button" id="btn-abrir-cam-a" class="btn btn-cam" onclick="ligarCamera('a')">📷 Abrir Câmera</button>
-<button type="button" id="btn-tirar-foto-a" class="btn btn-cam hidden" style="background:#16a34a" onclick="capturarFoto('a')">📸 Capturar Foto</button>
-<button type="button" id="btn-refazer-foto-a" class="btn btn-foto hidden" onclick="refazerFoto('a')">🗑️ Tirar Outra</button>
+<button type="button" id="btn-abrir-cam-a" class="btn btn-cam" onclick="ligarCamera('a')">📷 Abrir Câmera e Ler Código</button>
+<button type="button" id="btn-refazer-foto-a" class="btn btn-foto hidden" onclick="refazerFoto('a')">🗑️ Tirar Outra / Refazer</button>
 </div>
 <div style="margin-top: 10px; font-size: 13px; color: #6b7280;">
 ou selecione do aparelho: <input type="file" id="file-a" accept="image/*" capture="environment" onchange="carregarFotoArquivo('a', event)" style="margin-top:5px; font-size:12px;">
@@ -246,7 +248,7 @@ ou selecione do aparelho: <input type="file" id="file-a" accept="image/*" captur
 <label>Nota Fiscal</label>
 <input type="text" id="nota-a" placeholder="Número">
 <label>Código de Rastreio</label>
-<input type="text" id="rastreio-a" placeholder="Código">
+<input type="text" id="rastreio-a" placeholder="Código preenchido automaticamente pela câmera">
 
 <button class="btn btn-enviar" onclick="salvarEncomenda('a')">✅ REGISTRAR ENCOMENDA</button>
 <div id="msg-sucesso-a" class="sucesso hidden">✅ Registrada!</div>
@@ -257,15 +259,14 @@ ou selecione do aparelho: <input type="file" id="file-a" accept="image/*" captur
 <div class="card">
 <h2>📦 Registrar — Bloco B</h2>
 
-<label>📷 Foto da Encomenda (Tirar Foto ou Galeria)</label>
+<label>📷 Câmera / Leitor de Código de Barras</label>
 <div class="area-camera">
 <video id="video-b" class="video-preview hidden" autoplay playsinline></video>
 <img id="img-preview-b" class="foto-preview hidden" alt="Foto capturada">
 <canvas id="canvas-b" class="hidden"></canvas>
 <div>
-<button type="button" id="btn-abrir-cam-b" class="btn btn-cam" onclick="ligarCamera('b')">📷 Abrir Câmera</button>
-<button type="button" id="btn-tirar-foto-b" class="btn btn-cam hidden" style="background:#16a34a" onclick="capturarFoto('b')">📸 Capturar Foto</button>
-<button type="button" id="btn-refazer-foto-b" class="btn btn-foto hidden" onclick="refazerFoto('b')">🗑️ Tirar Outra</button>
+<button type="button" id="btn-abrir-cam-b" class="btn btn-cam" onclick="ligarCamera('b')">📷 Abrir Câmera e Ler Código</button>
+<button type="button" id="btn-refazer-foto-b" class="btn btn-foto hidden" onclick="refazerFoto('b')">🗑️ Tirar Outra / Refazer</button>
 </div>
 <div style="margin-top: 10px; font-size: 13px; color: #6b7280;">
 ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" capture="environment" onchange="carregarFotoArquivo('b', event)" style="margin-top:5px; font-size:12px;">
@@ -284,7 +285,7 @@ ou selecione do aparelho: <input type="file" id="file-b" accept="image/*" captur
 <label>Nota Fiscal</label>
 <input type="text" id="nota-b" placeholder="Número">
 <label>Código de Rastreio</label>
-<input type="text" id="rastreio-b" placeholder="Código">
+<input type="text" id="rastreio-b" placeholder="Código preenchido automaticamente pela câmera">
 
 <button class="btn btn-enviar" onclick="salvarEncomenda('b')">✅ REGISTRAR ENCOMENDA</button>
 <div id="msg-sucesso-b" class="sucesso hidden">✅ Registrada!</div>
@@ -536,27 +537,59 @@ function alternarVisibilidadeSenha() {
   }
 }
 
-// CÂMERA E SELEÇÃO DE ARQUIVOS
-let streamCamera = { a: null, b: null };
+// CÂMERA E LEITURA AO VIVO DE CÓDIGO DE BARRAS (ZXING)
+let codeReader = null;
 let fotosBase64 = { a: null, b: null };
 
 async function ligarCamera(sigla) {
   try {
     const video = document.getElementById(`video-${sigla}`);
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-    streamCamera[sigla] = stream;
-    video.srcObject = stream;
-
     video.classList.remove('hidden');
     document.getElementById(`img-preview-${sigla}`).classList.add('hidden'); 
     document.getElementById(`btn-abrir-cam-${sigla}`).classList.add('hidden');
-    document.getElementById(`btn-tirar-foto-${sigla}`).classList.remove('hidden');
+    document.getElementById(`btn-refazer-foto-${sigla}`).classList.remove('hidden');
+
+    if (!codeReader) {
+      codeReader = new ZXing.BrowserBarcodeReader();
+    }
+
+    codeReader.decodeFromVideoDevice(undefined, `video-${sigla}`, (result, err) => {
+      if (result) {
+        const codigoDetectado = result.text;
+        console.log("Código de barras detectado:", codigoDetectado);
+
+        // Preenche automaticamente o campo de rastreio
+        document.getElementById(`rastreio-${sigla}`).value = codigoDetectado;
+
+        // Tira a foto automática do momento para servir de evidência
+        capturarFotoAutomatica(sigla);
+        
+        // Para a leitura assim que encontrar o código
+        pararLeituraCamera(sigla);
+      }
+      if (err && !(err instanceof ZXing.NotFoundException)) {
+        // Ignora erros de "não encontrado" enquanto a câmera procura ativamente
+      }
+    });
+
   } catch (err) {
-    alert("Erro ao acessar a câmera. Tente usar o botão de selecionar arquivo abaixo!");
+    alert("Erro ao acessar a câmera para leitura. Verifique as permissões do navegador.");
   }
 }
 
-function capturarFoto(sigla) {
+function pararLeituraCamera(sigla) {
+  if (codeReader) {
+    codeReader.reset();
+  }
+  const video = document.getElementById(`video-${sigla}`);
+  const stream = video.srcObject;
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    video.srcObject = null;
+  }
+}
+
+function capturarFotoAutomatica(sigla) {
   const video = document.getElementById(`video-${sigla}`); 
   const canvas = document.getElementById(`canvas-${sigla}`);
   const imgPreview = document.getElementById(`img-preview-${sigla}`);
@@ -570,12 +603,8 @@ function capturarFoto(sigla) {
   fotosBase64[sigla] = canvas.toDataURL('image/jpeg', 0.6);
   imgPreview.src = fotosBase64[sigla];
 
-  desligarCamera(sigla);
-
   video.classList.add('hidden');
   imgPreview.classList.remove('hidden');
-  document.getElementById(`btn-tirar-foto-${sigla}`).classList.add('hidden'); 
-  document.getElementById(`btn-refazer-foto-${sigla}`).classList.remove('hidden');
 }
 
 function carregarFotoArquivo(sigla, event) {
@@ -594,28 +623,23 @@ function carregarFotoArquivo(sigla, event) {
 }
 
 function refazerFoto(sigla) {
+  pararLeituraCamera(sigla);
   fotosBase64[sigla] = null;
   document.getElementById(`img-preview-${sigla}`).classList.add('hidden'); 
+  document.getElementById(`video-${sigla}`).classList.add('hidden');
   document.getElementById(`btn-refazer-foto-${sigla}`).classList.add('hidden');
   document.getElementById(`file-${sigla}`).value = ''; 
   document.getElementById(`btn-abrir-cam-${sigla}`).classList.remove('hidden');
-}
-
-function desligarCamera(sigla) {
-  if (streamCamera[sigla]) {
-    streamCamera[sigla].getTracks().forEach(track => track.stop());
-    streamCamera[sigla] = null;
-  }
+  document.getElementById(`rastreio-${sigla}`).value = ''; // Limpa o código lido se refizer
 }
 
 function resetarCameraInterface(sigla) {
-  desligarCamera(sigla);
+  pararLeituraCamera(sigla);
   fotosBase64[sigla] = null;
   document.getElementById(`file-${sigla}`).value = ''; 
   document.getElementById(`video-${sigla}`).classList.add('hidden');
   document.getElementById(`img-preview-${sigla}`).classList.add('hidden'); 
   document.getElementById(`btn-abrir-cam-${sigla}`).classList.remove('hidden');
-  document.getElementById(`btn-tirar-foto-${sigla}`).classList.add('hidden'); 
   document.getElementById(`btn-refazer-foto-${sigla}`).classList.add('hidden');
 }
 
@@ -624,8 +648,8 @@ function voltarInicio() {
   document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
   document.getElementById('tela-inicio').classList.add('ativa');
   document.getElementById('caixa-senha').classList.add('hidden');
-  desligarCamera('a');
-  desligarCamera('b');
+  pararLeituraCamera('a');
+  pararLeituraCamera('b');
 }
 
 function abrirMorador(sigla) {
@@ -1025,7 +1049,6 @@ function mostrarAbaPortaria(nome) {
           const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
           const aptoObj = lista[indice];
           
-          // Salva o token FCM vinculado ao apartamento no Firestore
           await setDoc(doc(db, "tokens_push", `${sigla.toUpperCase()}_${aptoObj.apto}`), {
             token: currentToken,
             bloco: sigla.toUpperCase(),
@@ -1045,7 +1068,6 @@ function mostrarAbaPortaria(nome) {
     }
   };
 
-  // Escuta mensagens quando o app está aberto em primeiro plano
   onMessage(messaging, (payload) => {
     console.log('Mensagem recebida em primeiro plano: ', payload);
     alert(`Nova Notificação: ${payload.notification.title} - ${payload.notification.body}`);
