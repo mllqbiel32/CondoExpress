@@ -221,12 +221,12 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div class="card">
 <h2>📦 Registrar — Bloco A</h2>
 
-<label>📸 Foto da Etiqueta (Busca Automática pelo "Destinatário")</label>
+<label>📸 Foto da Etiqueta (Reconhecimento Automático Inteligente)</label>
 <div class="area-camera">
 <video id="video-a" class="video-preview hidden" autoplay playsinline></video>
 <img id="img-preview-a" class="foto-preview hidden" alt="Foto capturada">
 <canvas id="canvas-a" class="hidden"></canvas>
-<div id="loading-ocr-a" class="loading-ocr">🔍 Buscando o nome do destinatário... Aguarde...</div>
+<div id="loading-ocr-a" class="loading-ocr">🔍 Analisando etiqueta e ignorando maiúsculas... Aguarde...</div>
 <div>
 <button type="button" id="btn-abrir-cam-a" class="btn btn-cam" onclick="tirarFotoELeitorOCR('a')">📸 Tirar Foto da Etiqueta</button>
 <button type="button" id="btn-refazer-foto-a" class="btn btn-foto hidden" onclick="refazerFoto('a')">🗑️ Tirar Outra / Refazer</button>
@@ -259,12 +259,12 @@ ou envie imagem da galeria: <input type="file" id="file-a" accept="image/*" onch
 <div class="card">
 <h2>📦 Registrar — Bloco B</h2>
 
-<label>📸 Foto da Etiqueta (Busca Automática pelo "Destinatário")</label>
+<label>📸 Foto da Etiqueta (Reconhecimento Automático Inteligente)</label>
 <div class="area-camera">
 <video id="video-b" class="video-preview hidden" autoplay playsinline></video>
 <img id="img-preview-b" class="foto-preview hidden" alt="Foto capturada">
 <canvas id="canvas-b" class="hidden"></canvas>
-<div id="loading-ocr-b" class="loading-ocr">🔍 Buscando o nome do destinatário... Aguarde...</div>
+<div id="loading-ocr-b" class="loading-ocr">🔍 Analisando etiqueta e ignorando maiúsculas... Aguarde...</div>
 <div>
 <button type="button" id="btn-abrir-cam-b" class="btn btn-cam" onclick="tirarFotoELeitorOCR('b')">📸 Tirar Foto da Etiqueta</button>
 <button type="button" id="btn-refazer-foto-b" class="btn btn-foto hidden" onclick="refazerFoto('b')">🗑️ Tirar Outra / Refazer</button>
@@ -442,6 +442,14 @@ const BlocoB_PADRAO = [
 {apto:"193SAB",nome:"Renata Salvo Vendramelli / Bruno Salvo Vendramelli / João Pedro S. Vendramelli"}, {apto:"194SAB",nome:"Vago"}
 ];
 
+function normalizarTexto(str) {
+  if (!str) return "";
+  return str.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/g, " ");
+}
+
 function carregarDados() {
   let blocoA = localStorage.getItem('condo_blocoA');
   let blocoB = localStorage.getItem('condo_blocoB');
@@ -533,7 +541,6 @@ function alternarVisibilidadeSenha() {
   }
 }
 
-// CÂMERA E OCR (FOCO NO "DESTINATÁRIO")
 let fotosBase64 = { a: null, b: null };
 let activeStream = { a: null, b: null };
 
@@ -578,7 +585,7 @@ async function tirarFotoELeitorOCR(sigla) {
     
     loadingOcr.style.display = 'none';
     const textoLido = ret.data.text;
-    console.log("Texto extraído da etiqueta:", textoLido);
+    console.log("Texto extraído:", textoLido);
 
     processarTextoOCRInteligente(sigla, textoLido);
 
@@ -622,41 +629,19 @@ function carregarFotoArquivo(sigla, event) {
 
 function processarTextoOCRInteligente(sigla, texto) {
   const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
-  const linhas = texto.split('\n');
+  const textoNormalizado = normalizarTexto(texto);
   
-  let nomeEncontrado = "";
-
-  // Procura a linha que contém "destinatario" ou palavras parecidas (ex: "destinatario:")
-  for (let i = 0; i < linhas.length; i++) {
-    const linhaLimpa = linhas[i].toLowerCase();
-    if (linhaLimpa.includes('destinatario') || linhaLimpa.includes('destinatário')) {
-      // Pega o texto após a palavra destinatario na mesma linha
-      let partes = linhas[i].split(/[:–-]/);
-      if (partes.length > 1) {
-        nomeEncontrado = partes.slice(1).join(' ').trim();
-      }
-      // Se a linha seguinte existir e tiver tamanho bom, pode ser o nome
-      if ((!nomeEncontrado || nomeEncontrado.length < 3) && linhas[i + 1]) {
-        nomeEncontrado = linhas[i + 1].trim();
-      }
-      break;
-    }
-  }
-
-  // Se não achou pelo rótulo exato, procura direto por correspondência com os moradores cadastrados
   let melhorIndice = -1;
   let maiorPontuacao = 0;
-
-  const textoCompletoMinusculo = texto.toLowerCase();
 
   lista.forEach((morador, idx) => {
     if (!morador.nome || morador.nome === 'Vago') return;
     
-    const partesNome = morador.nome.toLowerCase().split(/[\s/]+/);
+    const partesNome = normalizarTexto(morador.nome).split(/\s+/);
     let pontuacao = 0;
 
     partesNome.forEach(parte => {
-      if (parte.length > 2 && textoCompletoMinusculo.includes(parte)) {
+      if (parte.length > 2 && textoNormalizado.includes(parte)) {
         pontuacao++;
       }
     });
@@ -667,7 +652,7 @@ function processarTextoOCRInteligente(sigla, texto) {
     }
   });
 
-  if (melhorIndice !== -1 && maiorPontuacao >= 2) {
+  if (melhorIndice !== -1 && maiorPontuacao >= 1) {
     document.getElementById(`sel-apto-${sigla}`).value = melhorIndice;
     preencherMorador(sigla);
     alert(`✨ Morador reconhecido automaticamente: ${lista[melhorIndice].nome} (${lista[melhorIndice].apto})`);
