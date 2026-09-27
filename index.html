@@ -132,7 +132,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <option value="">-- Escolha seu apartamento --</option>
 </select>
 
-<!-- Caixa de verificação de senha fornecida pela portaria -->
 <div id="bloco-senha-apto-a" class="hidden" style="margin-top: 12px;">
 <label>🔑 Digite sua senha:</label>
 <div class="campo-senha-container">
@@ -143,7 +142,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div id="msg-erro-senha-a" class="erro">❌ Senha incorreta!</div>
 </div>
 
-<!-- Caixa para o morador cadastrar sua senha nova no primeiro acesso -->
 <div id="bloco-nova-senha-a" class="hidden" style="margin-top: 12px; background: #e0f2fe; padding: 12px; border-radius: 8px;">
 <label style="color:#0369a1;">✨ Primeiro Acesso: Crie sua senha pessoal</label>
 <p style="font-size: 13px; color: #0284c7; margin-bottom: 8px;">Substitua a senha provisória por uma senha segura de sua preferência:</p>
@@ -155,13 +153,11 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 </div>
 </div>
 
-<!-- Conteúdo exclusivo do morador autenticado -->
 <div id="painel-morador-a" class="hidden">
 <div class="card">
 <h2>📦 Suas Encomendas</h2>
 <p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>
 
-<!-- Opção de Alterar Senha -->
 <div style="background: #f8fafc; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e2e8f0;">
   <label style="color: #1e40af; margin-top:0;">🔒 Alterar Senha</label>
   <div style="margin-top: 8px;">
@@ -196,7 +192,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <option value="">-- Escolha seu apartamento --</option>
 </select>
 
-<!-- Caixa de verificação de senha fornecida pela portaria -->
 <div id="bloco-senha-apto-b" class="hidden" style="margin-top: 12px;">
 <label>🔑 Digite sua senha:</label>
 <div class="campo-senha-container">
@@ -207,7 +202,6 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div id="msg-erro-senha-b" class="erro">❌ Senha incorreta!</div>
 </div>
 
-<!-- Caixa para o morador cadastrar sua senha nova no primeiro acesso -->
 <div id="bloco-nova-senha-b" class="hidden" style="margin-top: 12px; background: #dcfce7; padding: 12px; border-radius: 8px;">
 <label style="color:#166534;">✨ Primeiro Acesso: Crie sua senha pessoal</label>
 <p style="font-size: 13px; color: #15803d; margin-bottom: 8px;">Substitua a senha provisória por uma senha segura de sua preferência:</p>
@@ -219,13 +213,11 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 </div>
 </div>
 
-<!-- Conteúdo exclusivo do morador autenticado -->
 <div id="painel-morador-b" class="hidden">
 <div class="card">
 <h2>📦 Suas Encomendas</h2>
 <p id="nome-meu-apto-b" style="color:#4b5563; margin-bottom:15px"></p>
 
-<!-- Opção de Alterar Senha -->
 <div style="background: #f8fafc; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e2e8f0;">
   <label style="color: #16a34a; margin-top:0;">🔒 Alterar Senha</label>
   <div style="margin-top: 8px;">
@@ -343,7 +335,7 @@ ou envie imagem da galeria: <input type="file" id="file-b" accept="image/*" onch
 <div id="senhas-iniciais" class="aba">
 <div class="card">
 <h2>📋 Consulta de Senhas Iniciais</h2>
-<div class="aviso">ℹ️ Aqui o porteiro visualiza as senhas provisórias para enviar aos moradores. Se o morador já personalizou a senha dele, aparecerá atualizado.</div>
+<div class="aviso">ℹ️ Aqui o porteiro visualiza as senhas dos moradores para enviar aos moradores. Se o morador já personalizou a senha dele, aparecerá a senha atualizada.</div>
 
 <label>Selecione o Bloco:</label>
 <select id="filtro-bloco-senhas" onchange="carregarListaSenhasPortaria()">
@@ -807,6 +799,10 @@ function limparFiltroData(tipo) {
   }
 }
 
+/* =========================================================
+   SENHAS DOS MORADORES — ALTERADO
+   ========================================================= */
+
 function aoSelecionarAptoMorador(sigla) {
   const indice = document.getElementById(`meu-apto-${sigla}`).value;
   const blocoSenha = document.getElementById(`bloco-senha-apto-${sigla}`);
@@ -821,9 +817,29 @@ function aoSelecionarAptoMorador(sigla) {
     return;
   }
 
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+  const morador = lista[parseInt(indice)];
+
+  /*
+   * Se o morador não possuir senha, gera uma senha aleatória.
+   * A senha NÃO é regenerada toda vez que o morador entrar.
+   */
+  if (!morador.senha) {
+    morador.senha = gerarSenhaAleatoria();
+    morador.primeiroAcesso = true;
+    salvarDados();
+  }
+
   blocoSenha.classList.remove('hidden');
+
   document.getElementById(`input-senha-apto-${sigla}`).value = '';
   document.getElementById(`msg-erro-senha-${sigla}`).style.display = 'none';
+
+  /*
+   * Atualiza a lista da Portaria para mostrar a senha
+   * imediatamente.
+   */
+  carregarListaSenhasPortaria();
 }
 
 function validarSenhaApto(sigla) {
@@ -867,6 +883,12 @@ function salvarNovaSenhaMorador(sigla) {
   document.getElementById(`bloco-nova-senha-${sigla}`).classList.add('hidden');
   document.getElementById(`painel-morador-${sigla}`).classList.remove('hidden');
   verMinhasEncomendas(sigla);
+
+  /*
+   * Atualiza imediatamente a senha que a Portaria visualiza.
+   */
+  carregarListaSenhasPortaria();
+
   alert("✨ Senha pessoal cadastrada com sucesso! Nas próximas vezes, utilize esta nova senha.");
 
   if (window.salvarTokenPush) {
@@ -892,10 +914,17 @@ function alterarSenhaMorador(sigla) {
   }
 
   morador.senha = novaSenhaInput;
+  morador.primeiroAcesso = false;
   salvarDados();
 
   document.getElementById(`senha-atual-${sigla}`).value = '';
   document.getElementById(`nova-senha-pessoal-${sigla}`).value = '';
+
+  /*
+   * Atualiza imediatamente a senha atual na Portaria.
+   */
+  carregarListaSenhasPortaria();
+
   alert("✅ Senha alterada com sucesso!");
 }
 
@@ -930,7 +959,7 @@ function verMinhasEncomendas(sigla) {
 
   elLista.innerHTML = '';
   minhas.forEach(e => {
-    const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">` : ''; 
+    const htmlFoto = e.foto ? `<img src="${e.foto}" class="foto-encomenda-thumb" alt="Foto da Encomenda">`; 
     const statusHtml = e.retirada 
       ? `<span class="badge-status status-retirado">⚪ Retirada por ${e.retiradoPor} em ${e.dataRetirada}</span>`
       : `<span class="badge-status status-pendente">🟢 Aguardando Retirada</span>`;
@@ -960,24 +989,59 @@ function preencherMorador(sigla) {
   document.getElementById(`nome-morador-${sigla}`).value = sel === '' ? '' : (lista[parseInt(sel)].nome || 'Vago');
 }
 
+/* =========================================================
+   LISTA DE SENHAS DA PORTARIA — ALTERADO
+   ========================================================= */
+
 function carregarListaSenhasPortaria() {
-  const bloco = document.getElementById('filtro-bloco-senhas').value;
+  const filtro = document.getElementById('filtro-bloco-senhas');
+
+  /*
+   * Essa proteção evita erro enquanto a tela da Portaria
+   * ainda não estiver carregada.
+   */
+  if (!filtro) return;
+
+  const bloco = filtro.value;
   const lista = bloco === 'a' ? window.BlocoA : window.BlocoB;
   const el = document.getElementById('lista-senhas-portaria');
 
+  if (!el) return;
+
   el.innerHTML = '';
+
   lista.forEach(m => {
     let statusSenha = '';
+
+    /*
+     * Morador ainda não alterou a senha:
+     * mostra a senha provisória que a Portaria deve enviar.
+     */
     if (m.primeiroAcesso !== false) {
-      statusSenha = `<span style="background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px; font-weight: bold; font-size: 13px;">🔑 Senha Provisória: ${m.senha}</span>`;
-    } else {
-      statusSenha = `<span style="background: #e5e7eb; color: #374151; padding: 3px 8px; border-radius: 6px; font-size: 13px;">🔒 Morador já alterou a senha</span>`;
+      statusSenha = `
+        <span style="display:inline-block; background:#fef3c7; color:#92400e; padding:6px 10px; border-radius:6px; font-weight:bold; font-size:13px;">
+          🔑 Senha para enviar ao morador: ${m.senha}
+        </span>`;
     }
 
-    el.innerHTML += `<div class="lista-item">
-      <strong>🏠 ${m.apto}</strong> — ${m.nome || 'Vago'}<br>
-      <div style="margin-top: 6px;">${statusSenha}</div>
-    </div>`;
+    /*
+     * Morador já alterou:
+     * mostra a senha atual cadastrada.
+     */
+    else {
+      statusSenha = `
+        <span style="display:inline-block; background:#dcfce7; color:#166534; padding:6px 10px; border-radius:6px; font-weight:bold; font-size:13px;">
+          🔒 Senha atual: ${m.senha}
+        </span>`;
+    }
+
+    el.innerHTML += `
+      <div class="lista-item">
+        <strong>🏠 ${m.apto}</strong> — ${m.nome || 'Vago'}<br>
+        <div style="margin-top:8px;">
+          ${statusSenha}
+        </div>
+      </div>`;
   });
 }
 
@@ -1225,7 +1289,7 @@ function mostrarAbaPortaria(nome) {
   import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyBK3ptWyBo5nxB9SjFZkMLVvP",
+    apiKey: "AIzaSyBK3ptWyBo5nxB9SjFZKMLVvP",
     authDomain: "condoexpress-a20e0.firebaseapp.com",
     projectId: "condoexpress-a20e0",
     storageBucket: "condoexpress-a20e0.firebasestorage.app",
