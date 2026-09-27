@@ -134,9 +134,9 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
 <!-- Caixa de verificação de senha fornecida pela portaria -->
 <div id="bloco-senha-apto-a" class="hidden" style="margin-top: 12px;">
-<label>🔑 Digite a senha fornecida pela Portaria:</label>
+<label>🔑 Digite sua senha:</label>
 <div class="campo-senha-container">
-<input type="password" id="input-senha-apto-a" class="senha-input" placeholder="Senha provisória">
+<input type="password" id="input-senha-apto-a" class="senha-input" placeholder="Sua senha">
 <button type="button" class="btn-toggle-senha" onclick="alternarVisibilidadeSenha('input-senha-apto-a', 'btn-olho-apto-a')" id="btn-olho-apto-a">👁️</button>
 </div>
 <button class="btn btn-bloco-a" style="margin-top:8px; padding: 12px;" onclick="validarSenhaApto('a')">🔓 Continuar</button>
@@ -160,6 +160,16 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div class="card">
 <h2>📦 Suas Encomendas</h2>
 <p id="nome-meu-apto-a" style="color:#4b5563; margin-bottom:15px"></p>
+
+<!-- Opção de Alterar Senha -->
+<div style="background: #f8fafc; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e2e8f0;">
+  <label style="color: #1e40af; margin-top:0;">🔒 Alterar Senha</label>
+  <div style="margin-top: 8px;">
+    <input type="password" id="senha-atual-a" placeholder="Senha atual" style="margin-bottom: 8px;">
+    <input type="password" id="nova-senha-pessoal-a" placeholder="Nova senha" style="margin-bottom: 8px;">
+    <button type="button" class="btn btn-bloco-a" style="padding: 10px; font-size: 14px; margin:0;" onclick="alterarSenhaMorador('a')">Alterar Senha</button>
+  </div>
+</div>
 
 <div class="filtro-data-container">
   <label for="filtro-data-a">📅 Filtrar por data de chegada (opcional):</label>
@@ -188,9 +198,9 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 
 <!-- Caixa de verificação de senha fornecida pela portaria -->
 <div id="bloco-senha-apto-b" class="hidden" style="margin-top: 12px;">
-<label>🔑 Digite a senha fornecida pela Portaria:</label>
+<label>🔑 Digite sua senha:</label>
 <div class="campo-senha-container">
-<input type="password" id="input-senha-apto-b" class="senha-input" placeholder="Senha provisória">
+<input type="password" id="input-senha-apto-b" class="senha-input" placeholder="Sua senha">
 <button type="button" class="btn-toggle-senha" onclick="alternarVisibilidadeSenha('input-senha-apto-b', 'btn-olho-apto-b')" id="btn-olho-apto-b">👁️</button>
 </div>
 <button class="btn btn-bloco-b" style="margin-top:8px; padding: 12px;" onclick="validarSenhaApto('b')">🔓 Continuar</button>
@@ -214,6 +224,16 @@ input[readonly] { background: #f3f4f6; color: #4b5563; }
 <div class="card">
 <h2>📦 Suas Encomendas</h2>
 <p id="nome-meu-apto-b" style="color:#4b5563; margin-bottom:15px"></p>
+
+<!-- Opção de Alterar Senha -->
+<div style="background: #f8fafc; padding: 12px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e2e8f0;">
+  <label style="color: #16a34a; margin-top:0;">🔒 Alterar Senha</label>
+  <div style="margin-top: 8px;">
+    <input type="password" id="senha-atual-b" placeholder="Senha atual" style="margin-bottom: 8px;">
+    <input type="password" id="nova-senha-pessoal-b" placeholder="Nova senha" style="margin-bottom: 8px;">
+    <button type="button" class="btn btn-bloco-b" style="padding: 10px; font-size: 14px; margin:0;" onclick="alterarSenhaMorador('b')">Alterar Senha</button>
+  </div>
+</div>
 
 <div class="filtro-data-container">
   <label for="filtro-data-b">📅 Filtrar por data de chegada (opcional):</label>
@@ -394,84 +414,88 @@ ou envie imagem da galeria: <input type="file" id="file-b" accept="image/*" onch
 <script>
 const SENHA_PORTARIA = "portaria123";
 
+function gerarSenhaAleatoria() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
 const BlocoA_PADRAO = [
-{apto:"012OP",nome:"Claudete Conceição Rozas", senha:"123", primeiroAcesso: true}, {apto:"013OP",nome:"Cristina Filizola", senha:"123", primeiroAcesso: true},
-{apto:"014OP",nome:"Urias Taques Junior", senha:"123", primeiroAcesso: true}, {apto:"021OP",nome:"Pedro H. Chagas Rosseli", senha:"123", primeiroAcesso: true},
-{apto:"022OP",nome:"Jorge Moreira Lima Neto / Sonia Mendes M. Lima", senha:"123", primeiroAcesso: true}, {apto:"023OP",nome:"Bonnie Marie Scannella e família", senha:"123", primeiroAcesso: true},
-{apto:"024OP",nome:"Katia Piccioni La Farina / Walter Signorini Junior", senha:"123", primeiroAcesso: true}, {apto:"031OP",nome:"Arnaldo M. Camargo / Maria Lucia Camargo", senha:"123", primeiroAcesso: true},
-{apto:"032OP",nome:"Jeanette Talib Heide", senha:"123", primeiroAcesso: true}, {apto:"033OP",nome:"Renata R. Cunha Mesquita / Maria Antonia Mesquita", senha:"123", primeiroAcesso: true},
-{apto:"034OP",nome:"Luis Eduardo C. Pellon e família", senha:"123", primeiroAcesso: true}, {apto:"041OP",nome:"Roberto Ferraz C. Noto / Jade Sagran Landgraf", senha:"123", primeiroAcesso: true},
-{apto:"042OP",nome:"Marcelo Calvoso / Patricia M. Quintas Calvoso", senha:"123", primeiroAcesso: true}, {apto:"043OP",nome:"Luiz Felipe Rodrigues Fay e família", senha:"123", primeiroAcesso: true},
-{apto:"044OP",nome:"Heitor M. de Mendonça e família", senha:"123", primeiroAcesso: true}, {apto:"051OP",nome:"Ingo Schukze Blanck / Huguette Schulze Blanck", senha:"123", primeiroAcesso: true},
-{apto:"052OP",nome:"Paulo Eugenio Weinberger / Roberta Riboni Weinberg", senha:"123", primeiroAcesso: true}, {apto:"053OP",nome:"Ana Paula dos R. Pirajá e família", senha:"123", primeiroAcesso: true},
-{apto:"054OP",nome:"Rachel M. Z. Salomão", senha:"123", primeiroAcesso: true}, {apto:"061OP",nome:"Claudia Paiva Aragão e família", senha:"123", primeiroAcesso: true},
-{apto:"062OP",nome:"Caio Rafael Vernier e família", senha:"123", primeiroAcesso: true}, {apto:"063OP",nome:"Maria Nazareth Gazzotti", senha:"123", primeiroAcesso: true},
-{apto:"064OP",nome:"Rodrigo Freire M. Artacho / Renata Semensin de Góes", senha:"123", primeiroAcesso: true}, {apto:"071OP",nome:"Heliana M. Talmon / Eduard M. Talmon", senha:"123", primeiroAcesso: true},
-{apto:"072OP",nome:"Sebastião Costa Guedes / Claudete S. Guedes", senha:"123", primeiroAcesso: true}, {apto:"073OP",nome:"Tiago Maturana Loureiro e família", senha:"123", primeiroAcesso: true},
-{apto:"074OP",nome:"Marcos S. Aranha e família", senha:"123", primeiroAcesso: true}, {apto:"081OP",nome:"Sergio Fisch / Paula D. Fisch", senha:"123", primeiroAcesso: true},
-{apto:"082OP",nome:"Maria Antonieta G. Ronconi / Lucas Ronconi Raimundi", senha:"123", primeiroAcesso: true}, {apto:"083OP",nome:"Elemer Lamberto S. Arassy e família", senha:"123", primeiroAcesso: true},
-{apto:"084OP",nome:"Fernanda Braga / Fernando Braga", senha:"123", primeiroAcesso: true}, {apto:"091OP",nome:"João Alberto Giannetti / Sergio Tadeu Lopes", senha:"123", primeiroAcesso: true},
-{apto:"092OP",nome:"Vago", senha:"123", primeiroAcesso: true}, {apto:"093OP",nome:"Ricardo Dalge Lacerda / Thais Oliveira Timbó", senha:"123", primeiroAcesso: true},
-{apto:"094OP",nome:"Nilo Campion e família", senha:"123", primeiroAcesso: true}, {apto:"101OP",nome:"Paulo Cesar Mauro", senha:"123", primeiroAcesso: true},
-{apto:"103OP",nome:"Lauredo Ventura Bandeira / Elenilde Rezende Ventura", senha:"123", primeiroAcesso: true}, {apto:"104OP",nome:"Umbelina Boges Bouabci", senha:"123", primeiroAcesso: true},
-{apto:"111OP",nome:"José Belfort Mattos / Tereza Belfort Mattos", senha:"123", primeiroAcesso: true}, {apto:"112OP",nome:"Peter Hemik Johansson e família", senha:"123", primeiroAcesso: true},
-{apto:"113OP",nome:"Fernando Blecher / Roberta A. Pretoni", senha:"123", primeiroAcesso: true}, {apto:"114OP",nome:"Felipe G. P. Trevisan e família", senha:"123", primeiroAcesso: true},
-{apto:"121OP",nome:"Maria Cristina Lambert", senha:"123", primeiroAcesso: true}, {apto:"122OP",nome:"Eduardo Luiz Tiezzi Gomez e família", senha:"123", primeiroAcesso: true},
-{apto:"123OP",nome:"Marcos Istvan de Camargo / Simone Quintas", senha:"123", primeiroAcesso: true}, {apto:"131OP",nome:"Lin Chin Ping e família", senha:"123", primeiroAcesso: true},
-{apto:"132OP",nome:"José Paulo S. Raoul / Arminda Raoul", senha:"123", primeiroAcesso: true}, {apto:"133OP",nome:"Maria Aparecida Simões", senha:"123", primeiroAcesso: true},
-{apto:"134OP",nome:"Frederico Grazzinelli Costa", senha:"123", primeiroAcesso: true}, {apto:"141OP",nome:"Cícero Nunes Domingos e família", senha:"123", primeiroAcesso: true},
-{apto:"142OP",nome:"Alberto Esteves e família", senha:"123", primeiroAcesso: true}, {apto:"143OP",nome:"Wagner Ghirelli / Sonia Maria O. Ghirelli", senha:"123", primeiroAcesso: true},
-{apto:"144OP",nome:"Ricardo Mader Rodrigues e família", senha:"123", primeiroAcesso: true}, {apto:"151OP",nome:"Mario Eugenio Fruguele / Flavia Santin Fruguele", senha:"123", primeiroAcesso: true},
-{apto:"152OP",nome:"Sergio Tomas Atala / Maria José Torquato Janini", senha:"123", primeiroAcesso: true}, {apto:"153OP",nome:"Rafael Moi de Andrade e família", senha:"123", primeiroAcesso: true},
-{apto:"154OP",nome:"Marcus Vinicius Z. Campos / Juliana Spacca R. Zampar", senha:"123", primeiroAcesso: true}, {apto:"161OP",nome:"Newton Luciano e família", senha:"123", primeiroAcesso: true},
-{apto:"162OP",nome:"Leopoldo Francisco / Marilene Raimo", senha:"123", primeiroAcesso: true}, {apto:"163OP",nome:"Paulo Cezar Pratti / Matheus", senha:"123", primeiroAcesso: true},
-{apto:"164OP",nome:"Luzia Leda Lima Calfat", senha:"123", primeiroAcesso: true}, {apto:"171OP",nome:"José Francisco R. Cavalcante / Mary Ann Cavalcante", senha:"123", primeiroAcesso: true},
-{apto:"172OP",nome:"Michelle Priscilla P. Gallindo e família", senha:"123", primeiroAcesso: true}, {apto:"173OP",nome:"Marcos Aurélio Campos", senha:"123", primeiroAcesso: true},
-{apto:"174OP",nome:"Argene Maria Coli Cruz", senha:"123", primeiroAcesso: true}, {apto:"181OP",nome:"Álvaro Archer de C. Andrade e família", senha:"123", primeiroAcesso: true},
-{apto:"182OP",nome:"Renata Vasconcelos Emerson", senha:"123", primeiroAcesso: true}, {apto:"183OP",nome:"Daniele Marques Cotrim e família", senha:"123", primeiroAcesso: true},
-{apto:"184OP",nome:"Aida A. de A. Perry Vidal e família", senha:"123", primeiroAcesso: true}, {apto:"191OP",nome:"Joseph A. Antich / Ana Maria Adam", senha:"123", primeiroAcesso: true},
-{apto:"192OP",nome:"Vago", senha:"123", primeiroAcesso: true}, {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia", senha:"123", primeiroAcesso: true},
-{apto:"194OP",nome:"Vago", senha:"123", primeiroAcesso: true}
+{apto:"012OP",nome:"Claudete Conceição Rozas", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"013OP",nome:"Cristina Filizola", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"014OP",nome:"Urias Taques Junior", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"021OP",nome:"Pedro H. Chagas Rosseli", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"022OP",nome:"Jorge Moreira Lima Neto / Sonia Mendes M. Lima", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"023OP",nome:"Bonnie Marie Scannella e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"024OP",nome:"Katia Piccioni La Farina / Walter Signorini Junior", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"031OP",nome:"Arnaldo M. Camargo / Maria Lucia Camargo", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"032OP",nome:"Jeanette Talib Heide", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"033OP",nome:"Renata R. Cunha Mesquita / Maria Antonia Mesquita", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"034OP",nome:"Luis Eduardo C. Pellon e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"041OP",nome:"Roberto Ferraz C. Noto / Jade Sagran Landgraf", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"042OP",nome:"Marcelo Calvoso / Patricia M. Quintas Calvoso", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"043OP",nome:"Luiz Felipe Rodrigues Fay e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"044OP",nome:"Heitor M. de Mendonça e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"051OP",nome:"Ingo Schukze Blanck / Huguette Schulze Blanck", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"052OP",nome:"Paulo Eugenio Weinberger / Roberta Riboni Weinberg", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"053OP",nome:"Ana Paula dos R. Pirajá e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"054OP",nome:"Rachel M. Z. Salomão", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"061OP",nome:"Claudia Paiva Aragão e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"062OP",nome:"Caio Rafael Vernier e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"063OP",nome:"Maria Nazareth Gazzotti", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"064OP",nome:"Rodrigo Freire M. Artacho / Renata Semensin de Góes", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"071OP",nome:"Heliana M. Talmon / Eduard M. Talmon", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"072OP",nome:"Sebastião Costa Guedes / Claudete S. Guedes", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"073OP",nome:"Tiago Maturana Loureiro e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"074OP",nome:"Marcos S. Aranha e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"081OP",nome:"Sergio Fisch / Paula D. Fisch", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"082OP",nome:"Maria Antonieta G. Ronconi / Lucas Ronconi Raimundi", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"083OP",nome:"Elemer Lamberto S. Arassy e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"084OP",nome:"Fernanda Braga / Fernando Braga", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"091OP",nome:"João Alberto Giannetti / Sergio Tadeu Lopes", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"092OP",nome:"Vago", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"093OP",nome:"Ricardo Dalge Lacerda / Thais Oliveira Timbó", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"094OP",nome:"Nilo Campion e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"101OP",nome:"Paulo Cesar Mauro", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"103OP",nome:"Lauredo Ventura Bandeira / Elenilde Rezende Ventura", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"104OP",nome:"Umbelina Boges Bouabci", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"111OP",nome:"José Belfort Mattos / Tereza Belfort Mattos", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"112OP",nome:"Peter Hemik Johansson e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"113OP",nome:"Fernando Blecher / Roberta A. Pretoni", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"114OP",nome:"Felipe G. P. Trevisan e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"121OP",nome:"Maria Cristina Lambert", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"122OP",nome:"Eduardo Luiz Tiezzi Gomez e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"123OP",nome:"Marcos Istvan de Camargo / Simone Quintas", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"131OP",nome:"Lin Chin Ping e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"132OP",nome:"José Paulo S. Raoul / Arminda Raoul", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"133OP",nome:"Maria Aparecida Simões", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"134OP",nome:"Frederico Grazzinelli Costa", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"141OP",nome:"Cícero Nunes Domingos e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"142OP",nome:"Alberto Esteves e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"143OP",nome:"Wagner Ghirelli / Sonia Maria O. Ghirelli", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"144OP",nome:"Ricardo Mader Rodrigues e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"151OP",nome:"Mario Eugenio Fruguele / Flavia Santin Fruguele", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"152OP",nome:"Sergio Tomas Atala / Maria José Torquato Janini", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"153OP",nome:"Rafael Moi de Andrade e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"154OP",nome:"Marcus Vinicius Z. Campos / Juliana Spacca R. Zampar", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"161OP",nome:"Newton Luciano e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"162OP",nome:"Leopoldo Francisco / Marilene Raimo", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"163OP",nome:"Paulo Cezar Pratti / Matheus", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"164OP",nome:"Luzia Leda Lima Calfat", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"171OP",nome:"José Francisco R. Cavalcante / Mary Ann Cavalcante", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"172OP",nome:"Michelle Priscilla P. Gallindo e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"173OP",nome:"Marcos Aurélio Campos", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"174OP",nome:"Argene Maria Coli Cruz", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"181OP",nome:"Álvaro Archer de C. Andrade e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"182OP",nome:"Renata Vasconcelos Emerson", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"183OP",nome:"Daniele Marques Cotrim e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"184OP",nome:"Aida A. de A. Perry Vidal e família", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"191OP",nome:"Joseph A. Antich / Ana Maria Adam", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"192OP",nome:"Vago", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"193OP",nome:"José Carlos Batelli Correia / Ita Regina Batelli Correia", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"194OP",nome:"Vago", senha:gerarSenhaAleatoria(), primeiroAcesso: true}
 ];
 
 const BlocoB_PADRAO = [
-{apto:"011SAB",nome:"Carlos E. Simões Duarte / Patricia Luciano", senha:"123", primeiroAcesso: true}, {apto:"012SAB",nome:"Joseph Gross", senha:"123", primeiroAcesso: true},
-{apto:"013SAB",nome:"Patricia Natrielli Gerhardt / Pedro, Isabel", senha:"123", primeiroAcesso: true}, {apto:"014SAB",nome:"Thamy Galupo Hugueney / Victoria Hugueney", senha:"123", primeiroAcesso: true},
-{apto:"021SAB",nome:"Ivone Marques Lantieri / Delaide de S Malta - Emp", senha:"123", primeiroAcesso: true}, {apto:"022SAB",nome:"Diego Quast / Alesaandra Isola Quast", senha:"123", primeiroAcesso: true},
-{apto:"023SAB",nome:"Marcia Vidal / Jordana (filha)", senha:"123", primeiroAcesso: true}, {apto:"024SAB",nome:"Marco Aurelio P. Lima / Maricy Regis", senha:"123", primeiroAcesso: true},
-{apto:"031SAB",nome:"Dalva Lucia Maffia", senha:"123", primeiroAcesso: true}, {apto:"032SAB",nome:"Mariza Ribeiro Sozzi / Orlando Sozzi Filho", senha:"123", primeiroAcesso: true},
-{apto:"034SAB",nome:"Renata Ferraz Castelloti / Rodrigo F. Castelloti", senha:"123", primeiroAcesso: true}, {apto:"041SAB",nome:"Marianne Erps Fleming / Mathilde Lianc Erps", senha:"123", primeiroAcesso: true},
-{apto:"042SAB",nome:"Aurea Silva", senha:"123", primeiroAcesso: true}, {apto:"043SAB",nome:"Celso Sampaio A. Neto / Terezinha Garret Sampaio / Andreia, Cecilia", senha:"123", primeiroAcesso: true},
-{apto:"044SAB",nome:"Marcio R.C. Ribeiro / Ana Marta B. Ribeiro / José Roberto (Beto)", senha:"123", primeiroAcesso: true}, {apto:"051SAB",nome:"Eric Rebouças / Poliana Fernandes / Nathan, Clara", senha:"123", primeiroAcesso: true},
-{apto:"052SAB",nome:"Andrea Dantas / Marcos Rosa / Bernardo, Ana Luiza", senha:"123", primeiroAcesso: true}, {apto:"053SAB",nome:"Janaina A.C. Proença / Matheus, Alice", senha:"123", primeiroAcesso: true},
-{apto:"054SAB",nome:"Danigly Ferreira / Roberto Ferreira / Wanei Ferreira / Rodrigo Ferreira", senha:"123", primeiroAcesso: true}, {apto:"061SAB",nome:"Gabriel Mancini Lima / Marcela de Freitas Moraes / Miguel, Ma. Júlia, Thiago", senha:"123", primeiroAcesso: true},
-{apto:"062SAB",nome:"Juracy Parente / Edna Parente", senha:"123", primeiroAcesso: true}, {apto:"063SAB",nome:"Carlos Eduardo J. Valencia / Cesar Augusto O. Fonseca", senha:"123", primeiroAcesso: true},
-{apto:"064SAB",nome:"Selma Rosa T. Garbin", senha:"123", primeiroAcesso: true}, {apto:"071SAB",nome:"Phillip Samping Sommer / Fabiana Pedrosa Sommer", senha:"123", primeiroAcesso: true},
-{apto:"072SAB",nome:"Geert Matnijs Albers / Thomas / Mirian Leitão", senha:"123", primeiroAcesso: true}, {apto:"073SAB",nome:"Pedro Paulo A. Gomes", senha:"123", primeiroAcesso: true},
-{apto:"074SAB",nome:"Carlos Alexandre Brazolin / Glaucia Brazolin / Pietra Brazolin", senha:"123", primeiroAcesso: true}, {apto:"081SAB",nome:"Antonio Carlos F. Reis / Ma. De Lourdes F. Reis / Manoela Melo Reis", senha:"123", primeiroAcesso: true},
-{apto:"082SAB",nome:"Jeanette A. Maman / Renato, Fernanda, Monica", senha:"123", primeiroAcesso: true}, {apto:"083SAB",nome:"Camila Cintra / M. Valentina Mangione / Luca Mangione", senha:"123", primeiroAcesso: true},
-{apto:"084SAB",nome:"Clemente Dias da Rocha / Stephanie Eche", senha:"123", primeiroAcesso: true}, {apto:"091SAB",nome:"Antonio Donizete B. Passos / Nilza Amodio Passos / Caroline Amodio Passos", senha:"123", primeiroAcesso: true},
-{apto:"092SAB",nome:"Oswaldo M.G. do Amaral / Lucila Cerro Rupp", senha:"123", primeiroAcesso: true}, {apto:"093SAB",nome:"Igor Hoffman da S. Urbano / Natalia G. Urbano / Enzo Gonçalves", senha:"123", primeiroAcesso: true},
-{apto:"094SAB",nome:"Luis Barreto / Glicia Barreto / Alice / Felipe", senha:"123", primeiroAcesso: true}, {apto:"101SAB",nome:"Vago", senha:"123", primeiroAcesso: true},
-{apto:"102SAB",nome:"Suzana Maria Petry / Wagner Petry Soares / Rafaela Soares", senha:"123", primeiroAcesso: true}, {apto:"103SAB",nome:"José Roberto P.C. Santos / Maria Camila X. Castro Santo", senha:"123", primeiroAcesso: true},
-{apto:"104SAB",nome:"Renner Luiz Ferreira / Mariane Vitoria B. Ferreira / Silvana F. Bastos / Willames Bastos Xavier", senha:"123", primeiroAcesso: true}, {apto:"111SAB",nome:"Raul Cruz Lima Neto / Jacqueline Sampaio Guimarães", senha:"123", primeiroAcesso: true},
-{apto:"112SAB",nome:"Marcelo Jacob Bomarc / Karen Lisa Bormac", senha:"123", primeiroAcesso: true}, {apto:"113SAB",nome:"Luiz Antonio Sampaio / Malva Geane Pereira Sampaio / Illa Pereira Sampaio / Nino Pereira Sampaio", senha:"123", primeiroAcesso: true},
-{apto:"114SAB",nome:"Vago", senha:"123", primeiroAcesso: true}, {apto:"121SAB",nome:"Graziela Elizabeth / Gustavo, Felipe", senha:"123", primeiroAcesso: true},
-{apto:"122SAB",nome:"Icaro de Carvalho Neto / Priscila Tavares Q. Carvalho / Neide Pratero Gonçalves", senha:"123", primeiroAcesso: true}, {apto:"123SAB",nome:"Daniel Eugenio do A. Halasz / Fernando Halasz", senha:"123", primeiroAcesso: true},
-{apto:"124SAB",nome:"Liliane de Nóbrega", senha:"123", primeiroAcesso: true}, {apto:"131SAB",nome:"Dulce Casarsa", senha:"123", primeiroAcesso: true},
-{apto:"132SAB",nome:"Odair Nigiski / Yara Lidia de M. Santos / Guilherme M. de Souza", senha:"123", primeiroAcesso: true}, {apto:"133SAB",nome:"Vago", senha:"123", primeiroAcesso: true},
-{apto:"134SAB",nome:"Eliana Sampaio de Abreu", senha:"123", primeiroAcesso: true}, {apto:"141SAB",nome:"Eduardo Sergio P. Antunes / Ma. Antonieta de Antunes", senha:"123", primeiroAcesso: true},
-{apto:"142SAB",nome:"Vago", senha:"123", primeiroAcesso: true}, {apto:"143SAB",nome:"Eduardo I. Fonseca / Thais Sozi Fonseca", senha:"123", primeiroAcesso: true},
-{apto:"144SAB",nome:"Flavia Pagotti Silva / Pedro Pagotti S. Leme", senha:"123", primeiroAcesso: true}, {apto:"151SAB",nome:"Norma Montagna Braga", senha:"123", primeiroAcesso: true},
-{apto:"152SAB",nome:"Henrique Navarro / Patricia Navarro / Alice Navarro", senha:"123", primeiroAcesso: true}, {apto:"153SAB",nome:"Sonia Beli Valquiria de Aquino / Mauricio Filho de Aquino / Lucas Aquino Souza", senha:"123", primeiroAcesso: true},
-{apto:"154SAB",nome:"Ana Lucia Carlier", senha:"123", primeiroAcesso: true}, {apto:"161SAB",nome:"Thiago Lira Fernandes / Lilian / Ma. Clara / Maria Beatriz / Lucas", senha:"123", primeiroAcesso: true},
-{apto:"162SAB",nome:"Harvey James Wattengel / Estela Wattengel / Adriana Wattengel / Christopher Wattengel", senha:"123", primeiroAcesso: true}, {apto:"163SAB",nome:"Tatiana M.K. Shibuya / Stefan O.S. Johansson / Pedro S. Bizzaro", senha:"123", primeiroAcesso: true},
-{apto:"171SAB",nome:"José Luis Soiser / Patricia C. Carradas / Isaac, Lorena", senha:"123", primeiroAcesso: true}, {apto:"172SAB",nome:"Lindaci de Melo Soares / Julia (filha)", senha:"123", primeiroAcesso: true},
-{apto:"173SAB",nome:"Ricardo Mair Anafe / Ana Luiza Liarte", senha:"123", primeiroAcesso: true}, {apto:"174SAB",nome:"Ivana Veltri", senha:"123", primeiroAcesso: true},
-{apto:"181SAB",nome:"Paolo Cutrona", senha:"123", primeiroAcesso: true}, {apto:"182SAB",nome:"Fabíola Belfort Mattos / Eduardo Belfort / Giovana Belfort", senha:"123", primeiroAcesso: true},
-{apto:"183SAB",nome:"Flávio Batista Salles / Sandra", senha:"123", primeiroAcesso: true}, {apto:"184SAB",nome:"Fábio de Oliveira Bonfim / Ana Carolina Matoso / Francisco Ayrton", senha:"123", primeiroAcesso: true},
-{apto:"191SAB",nome:"Ma. Aparecida Gusmão", senha:"123", primeiroAcesso: true}, {apto:"192SAB",nome:"Jean Hendriks / Adelina Hendriks", senha:"123", primeiroAcesso: true},
-{apto:"193SAB",nome:"Renata Salvo Vendramelli / Bruno Salvo Vendramelli / João Pedro S. Vendramelli", senha:"123", primeiroAcesso: true}, {apto:"194SAB",nome:"Vago", senha:"123", primeiroAcesso: true}
+{apto:"011SAB",nome:"Carlos E. Simões Duarte / Patricia Luciano", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"012SAB",nome:"Joseph Gross", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"013SAB",nome:"Patricia Natrielli Gerhardt / Pedro, Isabel", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"014SAB",nome:"Thamy Galupo Hugueney / Victoria Hugueney", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"021SAB",nome:"Ivone Marques Lantieri / Delaide de S Malta - Emp", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"022SAB",nome:"Diego Quast / Alesaandra Isola Quast", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"023SAB",nome:"Marcia Vidal / Jordana (filha)", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"024SAB",nome:"Marco Aurelio P. Lima / Maricy Regis", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"031SAB",nome:"Dalva Lucia Maffia", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"032SAB",nome:"Mariza Ribeiro Sozzi / Orlando Sozzi Filho", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"034SAB",nome:"Renata Ferraz Castelloti / Rodrigo F. Castelloti", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"041SAB",nome:"Marianne Erps Fleming / Mathilde Lianc Erps", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"042SAB",nome:"Aurea Silva", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"043SAB",nome:"Celso Sampaio A. Neto / Terezinha Garret Sampaio / Andreia, Cecilia", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"044SAB",nome:"Marcio R.C. Ribeiro / Ana Marta B. Ribeiro / José Roberto (Beto)", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"051SAB",nome:"Eric Rebouças / Poliana Fernandes / Nathan, Clara", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"052SAB",nome:"Andrea Dantas / Marcos Rosa / Bernardo, Ana Luiza", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"053SAB",nome:"Janaina A.C. Proença / Matheus, Alice", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"054SAB",nome:"Danigly Ferreira / Roberto Ferreira / Wanei Ferreira / Rodrigo Ferreira", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"061SAB",nome:"Gabriel Mancini Lima / Marcela de Freitas Moraes / Miguel, Ma. Júlia, Thiago", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"062SAB",nome:"Juracy Parente / Edna Parente", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"063SAB",nome:"Carlos Eduardo J. Valencia / Cesar Augusto O. Fonseca", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"064SAB",nome:"Selma Rosa T. Garbin", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"071SAB",nome:"Phillip Samping Sommer / Fabiana Pedrosa Sommer", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"072SAB",nome:"Geert Matnijs Albers / Thomas / Mirian Leitão", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"073SAB",nome:"Pedro Paulo A. Gomes", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"074SAB",nome:"Carlos Alexandre Brazolin / Glaucia Brazolin / Pietra Brazolin", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"081SAB",nome:"Antonio Carlos F. Reis / Ma. De Lourdes F. Reis / Manoela Melo Reis", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"082SAB",nome:"Jeanette A. Maman / Renato, Fernanda, Monica", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"083SAB",nome:"Camila Cintra / M. Valentina Mangione / Luca Mangione", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"084SAB",nome:"Clemente Dias da Rocha / Stephanie Eche", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"091SAB",nome:"Antonio Donizete B. Passos / Nilza Amodio Passos / Caroline Amodio Passos", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"092SAB",nome:"Oswaldo M.G. do Amaral / Lucila Cerro Rupp", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"093SAB",nome:"Igor Hoffman da S. Urbano / Natalia G. Urbano / Enzo Gonçalves", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"094SAB",nome:"Luis Barreto / Glicia Barreto / Alice / Felipe", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"101SAB",nome:"Vago", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"102SAB",nome:"Suzana Maria Petry / Wagner Petry Soares / Rafaela Soares", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"103SAB",nome:"José Roberto P.C. Santos / Maria Camila X. Castro Santo", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"104SAB",nome:"Renner Luiz Ferreira / Mariane Vitoria B. Ferreira / Silvana F. Bastos / Willames Bastos Xavier", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"111SAB",nome:"Raul Cruz Lima Neto / Jacqueline Sampaio Guimarães", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"112SAB",nome:"Marcelo Jacob Bomarc / Karen Lisa Bormac", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"113SAB",nome:"Luiz Antonio Sampaio / Malva Geane Pereira Sampaio / Illa Pereira Sampaio / Nino Pereira Sampaio", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"114SAB",nome:"Vago", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"121SAB",nome:"Graziela Elizabeth / Gustavo, Felipe", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"122SAB",nome:"Icaro de Carvalho Neto / Priscila Tavares Q. Carvalho / Neide Pratero Gonçalves", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"123SAB",nome:"Daniel Eugenio do A. Halasz / Fernando Halasz", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"124SAB",nome:"Liliane de Nóbrega", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"131SAB",nome:"Dulce Casarsa", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"132SAB",nome:"Odair Nigiski / Yara Lidia de M. Santos / Guilherme M. de Souza", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"133SAB",nome:"Vago", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"134SAB",nome:"Eliana Sampaio de Abreu", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"141SAB",nome:"Eduardo Sergio P. Antunes / Ma. Antonieta de Antunes", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"142SAB",nome:"Vago", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"143SAB",nome:"Eduardo I. Fonseca / Thais Sozi Fonseca", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"144SAB",nome:"Flavia Pagotti Silva / Pedro Pagotti S. Leme", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"151SAB",nome:"Norma Montagna Braga", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"152SAB",nome:"Henrique Navarro / Patricia Navarro / Alice Navarro", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"153SAB",nome:"Sonia Beli Valquiria de Aquino / Mauricio Filho de Aquino / Lucas Aquino Souza", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"154SAB",nome:"Ana Lucia Carlier", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"161SAB",nome:"Thiago Lira Fernandes / Lilian / Ma. Clara / Maria Beatriz / Lucas", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"162SAB",nome:"Harvey James Wattengel / Estela Wattengel / Adriana Wattengel / Christopher Wattengel", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"163SAB",nome:"Tatiana M.K. Shibuya / Stefan O.S. Johansson / Pedro S. Bizzaro", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"171SAB",nome:"José Luis Soiser / Patricia C. Carradas / Isaac, Lorena", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"172SAB",nome:"Lindaci de Melo Soares / Julia (filha)", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"173SAB",nome:"Ricardo Mair Anafe / Ana Luiza Liarte", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"174SAB",nome:"Ivana Veltri", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"181SAB",nome:"Paolo Cutrona", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"182SAB",nome:"Fabíola Belfort Mattos / Eduardo Belfort / Giovana Belfort", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"183SAB",nome:"Flávio Batista Salles / Sandra", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"184SAB",nome:"Fábio de Oliveira Bonfim / Ana Carolina Matoso / Francisco Ayrton", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"191SAB",nome:"Ma. Aparecida Gusmão", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"192SAB",nome:"Jean Hendriks / Adelina Hendriks", senha:gerarSenhaAleatoria(), primeiroAcesso: true},
+{apto:"193SAB",nome:"Renata Salvo Vendramelli / Bruno Salvo Vendramelli / João Pedro S. Vendramelli", senha:gerarSenhaAleatoria(), primeiroAcesso: true}, {apto:"194SAB",nome:"Vago", senha:gerarSenhaAleatoria(), primeiroAcesso: true}
 ];
 
 function normalizarTexto(str) {
@@ -778,10 +802,6 @@ function aoSelecionarAptoMorador(sigla) {
     return;
   }
 
-  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
-  const morador = lista[parseInt(indice)];
-
-  // Se for o primeiro acesso, o sistema já avisa ou direciona direto
   blocoSenha.classList.remove('hidden');
   document.getElementById(`input-senha-apto-${sigla}`).value = '';
   document.getElementById(`msg-erro-senha-${sigla}`).style.display = 'none';
@@ -796,12 +816,10 @@ function validarSenhaApto(sigla) {
   if (senhaInformada === morador.senha) {
     document.getElementById(`bloco-senha-apto-${sigla}`).classList.add('hidden');
 
-    // Se estiver marcado como primeiro acesso, obriga a cadastrar uma senha nova
     if (morador.primeiroAcesso !== false) {
       document.getElementById(`bloco-nova-senha-${sigla}`).classList.remove('hidden');
       document.getElementById(`input-nova-senha-${sigla}`).value = '';
     } else {
-      // Já cadastrou antes, entra direto nas encomendas
       document.getElementById(`painel-morador-${sigla}`).classList.remove('hidden');
       verMinhasEncomendas(sigla);
       if (window.salvarTokenPush) {
@@ -824,7 +842,7 @@ function salvarNovaSenhaMorador(sigla) {
 
   const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
   lista[parseInt(indice)].senha = novaSenha;
-  lista[parseInt(indice)].primeiroAcesso = false; // Desativa o primeiro acesso
+  lista[parseInt(indice)].primeiroAcesso = false;
   salvarDados();
 
   document.getElementById(`bloco-nova-senha-${sigla}`).classList.add('hidden');
@@ -835,6 +853,31 @@ function salvarNovaSenhaMorador(sigla) {
   if (window.salvarTokenPush) {
     window.salvarTokenPush(sigla, parseInt(indice));
   }
+}
+
+function alterarSenhaMorador(sigla) {
+  const indice = document.getElementById(`meu-apto-${sigla}`).value;
+  const senhaAtualInput = document.getElementById(`senha-atual-${sigla}`).value.trim();
+  const novaSenhaInput = document.getElementById(`nova-senha-pessoal-${sigla}`).value.trim();
+  const lista = sigla === 'a' ? window.BlocoA : window.BlocoB;
+  const morador = lista[parseInt(indice)];
+
+  if (senhaAtualInput !== morador.senha) {
+    alert("❌ A senha atual está incorreta!");
+    return;
+  }
+
+  if (!novaSenhaInput || novaSenhaInput.length < 3) {
+    alert("⚠️ A nova senha deve ter pelo menos 3 caracteres!");
+    return;
+  }
+
+  morador.senha = novaSenhaInput;
+  salvarDados();
+
+  document.getElementById(`senha-atual-${sigla}`).value = '';
+  document.getElementById(`nova-senha-pessoal-${sigla}`).value = '';
+  alert("✅ Senha alterada com sucesso!");
 }
 
 function verMinhasEncomendas(sigla) {
@@ -902,7 +945,7 @@ function cadastrarNovoMorador() {
   const bloco = document.getElementById('novo-bloco').value;
   const apto = document.getElementById('novo-apto').value.trim();
   const nome = document.getElementById('novo-nome').value.trim();
-  const senhaProvisoria = document.getElementById('novo-senha-apto').value.trim() || "1234";
+  const senhaProvisoria = document.getElementById('novo-senha-apto').value.trim() || gerarSenhaAleatoria();
 
   if(!apto || !nome) {
     alert('Preencha o número do apartamento e o nome!');
@@ -980,7 +1023,7 @@ function salvarEdicao() {
   
   if(novaSenhaProvisoria) {
     lista[indiceEdicao].senha = novaSenhaProvisoria;
-    lista[indiceEdicao].primeiroAcesso = true; // Força o morador a cadastrar nova senha no próximo acesso
+    lista[indiceEdicao].primeiroAcesso = true;
   }
   salvarDados();
 
