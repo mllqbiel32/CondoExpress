@@ -139,6 +139,7 @@
   <!-- Firebase Scripts Compat -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
 </head>
 <body>
 
@@ -226,7 +227,7 @@
     <div class="chat-container">
       <h2>💬 Chat do Casal</h2>
       <div id="lista-mensagens" class="chat-mensagens">
-        <p style="text-align: center; color: #7f8c8d; margin-top: 60px;">Carregando mensagens...</p>
+        <p style="text-align: center; color: #7f8c8d; margin-top: 60px;">Nenhuma mensagem ainda. Inicie a conversa!</p>
       </div>
       <form id="form-chat" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
         <div class="form-group" style="margin-bottom: 10px;">
@@ -249,6 +250,7 @@
 
     let totalGastosAtual = 0;
     let dbGlobal = null;
+    let messagingGlobal = null;
 
     if (localStorage.getItem('financas_autenticado') === 'true') {
       const usuarioLogado = localStorage.getItem('financas_usuario');
@@ -312,6 +314,11 @@
 
       firebase.initializeApp(firebaseConfig);
       dbGlobal = firebase.firestore();
+
+      if (firebase.messaging.isSupported()) {
+        messagingGlobal = firebase.messaging();
+        solicitarPermissaoNotificacao();
+      }
 
       const form = document.getElementById('form-transacao');
       const formGabriel = document.getElementById('form-exclusivo-gabriel');
@@ -479,6 +486,23 @@
       }
     }
 
+    async function solicitarPermissaoNotificacao() {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted' && messagingGlobal) {
+          const token = await messagingGlobal.getToken({
+            vapidKey: "BArVbNkQqZSyH9DKx1Ew5DYsSQfG8_mYD3_J_2dFPTEc1tH2ezm_Zjnv3PfjjA2x6zyMP_5cDTPDaO4BTjTmv-U"
+          });
+          if (token) {
+            const usuarioLogado = localStorage.getItem('financas_usuario');
+            await dbGlobal.collection('tokens_notificacao').doc(usuarioLogado).set({ token: token });
+          }
+        }
+      } catch (err) {
+        console.log("Erro ao obter permissão de notificação:", err);
+      }
+    }
+
     // Função exclusiva do Gabriel para limpar todos os registros do banco de dados
     async function limparTudoDoMes() {
       const usuarioLogado = localStorage.getItem('financas_usuario');
@@ -488,7 +512,6 @@
       if (!confirmar) return;
 
       try {
-        // Apaga todos os documentos da coleção 'financas'
         const snapshotFinancas = await dbGlobal.collection('financas').get();
         const batchFinancas = dbGlobal.batch();
         snapshotFinancas.forEach((doc) => {
@@ -496,7 +519,6 @@
         });
         await batchFinancas.commit();
 
-        // Apaga todos os documentos da coleção 'mensagens_chat'
         const snapshotChat = await dbGlobal.collection('mensagens_chat').get();
         const batchChat = dbGlobal.batch();
         snapshotChat.forEach((doc) => {
