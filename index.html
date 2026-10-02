@@ -38,56 +38,24 @@
     /* Conteúdo Principal */
     #conteudo-principal { display: none; }
 
-    .cards-container { display: flex; gap: 10px; margin-bottom: 15px; }
-    .card { flex: 1; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
-    .card h3 { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 5px; }
-    .card p { font-size: 1.2rem; font-weight: bold; }
-    .entradas { color: #27ae60; }
-    .saidas { color: #c0392b; }
-    .saldo { color: #2980b9; }
-
-    /* Caixa de Gastos Livres com Limite Mensal */
-    .card-limite {
-      background: white;
-      padding: 15px 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    /* Bloco Destacado do Saldo Positivo (Topo) */
+    .card-saldo-positivo {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+      text-align: center;
       margin-bottom: 20px;
     }
-    .card-limite-topo {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .card-limite-topo h3 { font-size: 0.95rem; color: #2c3e50; }
-    .card-limite-topo span { font-size: 0.95rem; font-weight: bold; color: #e67e22; }
-    .barra-progresso-fundo {
-      width: 100%;
-      height: 12px;
-      background-color: #ecf0f1;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    .barra-progresso-preenchimento {
-      height: 100%;
-      width: 0%;
-      background-color: #27ae60;
-      transition: width 0.3s, background-color 0.3s;
-    }
-    .alerta-limite-excedido {
-      color: #c0392b;
-      font-size: 0.85rem;
-      font-weight: bold;
-      margin-top: 8px;
-      text-align: center;
-      display: none;
-    }
+    .card-saldo-positivo h3 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; opacity: 0.9; }
+    .card-saldo-positivo .valor-destaque { font-size: 2rem; font-weight: bold; }
+    .card-saldo-positivo p { font-size: 0.85rem; margin-top: 5px; opacity: 0.8; }
 
-    /* Área exclusiva que aparece apenas para o Gabriel sem avisos visuais ostensivos */
+    /* Área exclusiva do Gabriel (para alterar o valor positivo no topo) */
     .painel-exclusivo-gabriel {
       background: white;
-      padding: 20px;
+      padding: 15px 20px;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       margin-bottom: 20px;
@@ -102,14 +70,28 @@
     button:hover { background-color: #303f9f; }
     .btn-sair { background-color: #e74c3c; margin-top: 15px; }
 
-    .historico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .historico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .item-transacao { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
     .item-transacao:last-child { border-bottom: none; }
     .detalhes-transacao strong { display: block; font-size: 1rem; }
     .detalhes-transacao small { color: #7f8c8d; font-size: 0.8rem; }
     .valor-transacao { font-weight: bold; }
-    .valor-entrada { color: #27ae60; }
     .valor-saida { color: #c0392b; }
+
+    /* Bloco do Saldo que Sobrou (Fim) */
+    .card-saldo-final {
+      background: #2c3e50;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .card-saldo-final h3 { font-size: 1rem; }
+    .card-saldo-final span { font-size: 1.3rem; font-weight: bold; color: #2ecc71; }
   </style>
 
   <!-- Firebase Scripts Compat -->
@@ -140,46 +122,27 @@
   <div id="conteudo-principal">
     <h1>💰 Finanças do Casal</h1>
 
-    <div class="cards-container">
-      <div class="card">
-        <h3>Entradas</h3>
-        <p id="total-entradas" class="entradas">R$ 0,00</p>
-      </div>
-      <div class="card">
-        <h3>Saídas</h3>
-        <p id="total-saidas" class="saidas">R$ 0,00</p>
-      </div>
-      <div class="card">
-        <h3>Saldo</h3>
-        <p id="saldo-total" class="saldo">R$ 0,00</p>
-      </div>
+    <!-- 1. TOPO: SALDO POSITIVO / SALÁRIO -->
+    <div class="card-saldo-positivo">
+      <h3>💵 Saldo Positivo Base (Sua Verba)</h3>
+      <div id="display-valor-positivo" class="valor-destaque">R$ 500,00</div>
+      <p>Valor base definido para o mês</p>
     </div>
 
-    <!-- PAINEL DE GASTOS LIVRES (LIMITE MENSAL R$ 500,00) -->
-    <div class="card-limite">
-      <div class="card-limite-topo">
-        <h3>🛍️ Gastos Livres do Mês (Limite R$ 500,00)</h3>
-        <span id="texto-gastos-livres">R$ 0,00 / R$ 500,00</span>
-      </div>
-      <div class="barra-progresso-fundo">
-        <div id="barra-progresso" class="barra-progresso-preenchimento"></div>
-      </div>
-      <p id="alerta-limite" class="alerta-limite-excedido">⚠️ Limite mensal de R$ 500,00 atingido! Não é possível realizar novos gastos livres este mês.</p>
-    </div>
-
-    <!-- ÁREA EXCLUSIVA DO GABRIEL (Discreta, sem avisos) -->
+    <!-- ÁREA EXCLUSIVA DO GABRIEL PARA ALTERAR O VALOR POSITIVO -->
     <div id="painel-gabriel" class="painel-exclusivo-gabriel">
       <form id="form-exclusivo-gabriel" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
         <div class="form-group">
-          <label for="novo-limite-input">Alterar Limite de Gastos Livres (R$)</label>
+          <label for="novo-limite-input">Alterar Saldo Positivo Base (R$)</label>
           <input type="number" id="novo-limite-input" step="0.01" value="500.00" required>
         </div>
-        <button type="submit" style="background-color: #27ae60;">Atualizar Limite</button>
+        <button type="submit" style="background-color: #27ae60;">Atualizar Valor Positivo</button>
       </form>
     </div>
 
+    <!-- 2. MEIO: OS GASTOS (REGISTRO DE LANÇAMENTOS) -->
     <form id="form-transacao">
-      <h2>Novo Lançamento</h2>
+      <h2>Novo Gasto</h2>
       
       <div class="form-group">
         <label for="quem">Autor do Lançamento</label>
@@ -190,45 +153,44 @@
       </div>
 
       <div class="form-group">
-        <label for="tipo">Tipo</label>
-        <select id="tipo" required>
-          <option value="saida">Saída (Gasto Livre)</option>
-          <option value="entrada">Entrada (Receita)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="descricao">Descrição</label>
+        <label for="descricao">Descrição do Gasto</label>
         <input type="text" id="descricao" placeholder="Ex: Mercado, Lanche, Uber" required>
       </div>
 
       <div class="form-group">
-        <label for="valor">Valor (R$)</label>
+        <label for="valor">Valor do Gasto (R$)</label>
         <input type="number" id="valor" step="0.01" placeholder="0,00" required>
       </div>
 
-      <button type="submit">Adicionar Lançamento</button>
+      <button type="submit">Adicionar Gasto</button>
     </form>
 
+    <!-- 3. FIM: O QUE FOI GASTO (HISTÓRICO) -->
     <div class="historico">
-      <h2>Histórico do Mês</h2>
+      <h2>Histórico de Gastos</h2>
       <div id="lista-transacoes">
         <p style="text-align: center; color: #7f8c8d;">Carregando dados...</p>
       </div>
+    </div>
+
+    <!-- 4. FIM: SALDO QUE SOBROU -->
+    <div class="card-saldo-final">
+      <h3>Saldo que Sobrou:</h3>
+      <span id="saldo-restante-final">R$ 500,00</span>
     </div>
 
     <button type="button" class="btn-sair" onclick="sair()">🔒 Sair / Trocar Usuário</button>
   </div>
 
   <script>
-    let LIMITE_GASTOS_LIVRES = 500.00;
+    let VALOR_POSITIVO_BASE = 500.00;
 
     const SENHAS = {
       Gabriel: "7890",
       Juliana: "2468"
     };
 
-    let totalSaidasAtual = 0;
+    let totalGastosAtual = 0;
 
     if (localStorage.getItem('financas_autenticado') === 'true') {
       const usuarioLogado = localStorage.getItem('financas_usuario');
@@ -259,7 +221,7 @@
       
       document.getElementById('quem').value = usuario;
 
-      // Exibe a alteração de limite apenas se for o Gabriel (sem textos de aviso)
+      // Exibe a alteração de valor positivo apenas se for o Gabriel
       if (usuario === 'Gabriel') {
         document.getElementById('painel-gabriel').style.display = 'block';
       } else {
@@ -297,12 +259,8 @@
       const form = document.getElementById('form-transacao');
       const formGabriel = document.getElementById('form-exclusivo-gabriel');
       const listaTransacoes = document.getElementById('lista-transacoes');
-      const totalEntradasEl = document.getElementById('total-entradas');
-      const totalSaidasEl = document.getElementById('total-saidas');
-      const saldoTotalEl = document.getElementById('saldo-total');
-      const textoGastosLivresEl = document.getElementById('texto-gastos-livres');
-      const barraProgressoEl = document.getElementById('barra-progresso');
-      const alertaLimiteEl = document.getElementById('alerta-limite');
+      const displayValorPositivoEl = document.getElementById('display-valor-positivo');
+      const saldoRestanteFinalEl = document.getElementById('saldo-restante-final');
 
       formGabriel.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -311,11 +269,11 @@
           return;
         }
 
-        const novoLimite = parseFloat(document.getElementById('novo-limite-input').value);
-        if (!isNaN(novoLimite) && novoLimite > 0) {
-          LIMITE_GASTOS_LIVRES = novoLimite;
-          alert(`✅ Limite alterado para R$ ${novoLimite.toFixed(2).replace('.', ',')}!`);
-          atualizarInterfaceFinanceira(totalEntradasGlobal, totalSaidasGlobal);
+        const novoValor = parseFloat(document.getElementById('novo-limite-input').value);
+        if (!isNaN(novoValor) && novoValor > 0) {
+          VALOR_POSITIVO_BASE = novoValor;
+          alert(`✅ Saldo positivo base alterado para R$ ${novoValor.toFixed(2).replace('.', ',')}!`);
+          atualizarInterfaceFinanceira(totalGastosAtual);
         }
       });
 
@@ -323,22 +281,18 @@
         e.preventDefault();
 
         const usuarioLogado = localStorage.getItem('financas_usuario');
-        const tipo = document.getElementById('tipo').value;
         const descricao = document.getElementById('descricao').value;
         const valor = parseFloat(document.getElementById('valor').value);
 
-        if (tipo === 'saida') {
-          if ((totalSaidasAtual + valor) > LIMITE_GASTOS_LIVRES) {
-            const restanteDisponivel = LIMITE_GASTOS_LIVRES - totalSaidasAtual;
-            alert(`🚫 LIMITE MENSAL EXCEDIDO!\n\nVocês já gastaram R$ ${totalSaidasAtual.toFixed(2).replace('.', ',')} este mês.\nO valor restante disponível no limite mensal é de apenas R$ ${restanteDisponivel.toFixed(2).replace('.', ',')}.\n\nO lançamento de R$ ${valor.toFixed(2).replace('.', ',')} foi BLOQUEADO.`);
-            return;
-          }
+        if ((totalGastosAtual + valor) > VALOR_POSITIVO_BASE) {
+          const restanteDisponivel = VALOR_POSITIVO_BASE - totalGastosAtual;
+          alert(`🚫 GASTO BLOQUEADO!\n\nO saldo positivo base atual é de R$ ${VALOR_POSITIVO_BASE.toFixed(2).replace('.', ',')}.\nVocês já gastaram R$ ${totalGastosAtual.toFixed(2).replace('.', ',')}.\nO valor restante disponível é de apenas R$ ${restanteDisponivel.toFixed(2).replace('.', ',')}.`);
+          return;
         }
 
         try {
           await db.collection('financas').add({
             quem: usuarioLogado,
-            tipo: tipo,
             descricao: descricao,
             valor: valor,
             timestamp: Date.now(),
@@ -352,82 +306,59 @@
         }
       });
 
-      let totalEntradasGlobal = 0;
-      let totalSaidasGlobal = 0;
-
       db.collection('financas').onSnapshot((snapshot) => {
         let items = [];
-        totalEntradasGlobal = 0;
-        totalSaidasGlobal = 0;
+        let somaGastos = 0;
 
         if (snapshot.empty) {
-          listaTransacoes.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Nenhum lançamento encontrado.</p>';
-          atualizarInterfaceFinanceira(0, 0);
+          listaTransacoes.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Nenhum gasto registrado ainda.</p>';
+          totalGastosAtual = 0;
+          atualizarInterfaceFinanceira(0);
           return;
         }
 
         snapshot.forEach((doc) => {
           const item = doc.data();
           items.push(item);
-
-          if (item.tipo === 'entrada') {
-            totalEntradasGlobal += item.valor;
-          } else {
-            totalSaidasGlobal += item.valor;
-          }
+          somaGastos += item.valor;
         });
 
         items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         let html = '';
         items.forEach((item) => {
-          const classeValor = item.tipo === 'entrada' ? 'valor-entrada' : 'valor-saida';
-          const sinal = item.tipo === 'entrada' ? '+' : '-';
-
           html += `
             <div class="item-transacao">
               <div class="detalhes-transacao">
                 <strong>${item.descricao}</strong>
                 <small>Lançado por: <b>${item.quem}</b> em ${item.data}</small>
               </div>
-              <div class="valor-transacao ${classeValor}">
-                ${sinal} R$ ${item.valor.toFixed(2).replace('.', ',')}
+              <div class="valor-transacao valor-saida">
+                - R$ ${item.valor.toFixed(2).replace('.', ',')}
               </div>
             </div>
           `;
         });
 
-        totalSaidasAtual = totalSaidasGlobal;
+        totalGastosAtual = somaGastos;
         listaTransacoes.innerHTML = html;
-        atualizarInterfaceFinanceira(totalEntradasGlobal, totalSaidasGlobal);
+        atualizarInterfaceFinanceira(totalGastosAtual);
 
       }, (erro) => {
         console.error("Erro no Snapshot:", erro);
         listaTransacoes.innerHTML = `<p style="text-align: center; color: #c0392b;">Erro ao carregar os dados: ${erro.message}</p>`;
       });
 
-      function atualizarInterfaceFinanceira(totalEntradas, totalSaidas) {
-        const saldo = totalEntradas - totalSaidas;
-        totalEntradasEl.textContent = `R$ ${totalEntradas.toFixed(2).replace('.', ',')}`;
-        totalSaidasEl.textContent = `R$ ${totalSaidas.toFixed(2).replace('.', ',')}`;
-        saldoTotalEl.textContent = `R$ ${saldo.toFixed(2).replace('.', ',')}`;
+      function atualizarInterfaceFinanceira(totalGastos) {
+        const saldoRestante = VALOR_POSITIVO_BASE - totalGastos;
 
-        textoGastosLivresEl.textContent = `R$ ${totalSaidas.toFixed(2).replace('.', ',')} / R$ ${LIMITE_GASTOS_LIVRES.toFixed(2).replace('.', ',')}`;
-        
-        let porcentagem = (totalSaidas / LIMITE_GASTOS_LIVRES) * 100;
-        if (porcentagem > 100) porcentagem = 100;
+        displayValorPositivoEl.textContent = `R$ ${VALOR_POSITIVO_BASE.toFixed(2).replace('.', ',')}`;
+        saldoRestanteFinalEl.textContent = `R$ ${saldoRestante.toFixed(2).replace('.', ',')}`;
 
-        barraProgressoEl.style.width = `${porcentagem}%`;
-
-        if (totalSaidas >= LIMITE_GASTOS_LIVRES) {
-          barraProgressoEl.style.backgroundColor = '#c0392b';
-          alertaLimiteEl.style.display = 'block';
-        } else if (porcentagem >= 80) {
-          barraProgressoEl.style.backgroundColor = '#e67e22';
-          alertaLimiteEl.style.display = 'none';
+        if (saldoRestante < 0) {
+          saldoRestanteFinalEl.style.color = '#e74c3c';
         } else {
-          barraProgressoEl.style.backgroundColor = '#27ae60';
-          alertaLimiteEl.style.display = 'none';
+          saldoRestanteFinalEl.style.color = '#2ecc71';
         }
       }
     }
