@@ -20,10 +20,12 @@
       margin-top: 50px;
       text-align: center;
     }
-    #tela-login input {
-      margin: 15px 0;
+    #tela-login input, #tela-login select {
+      margin: 10px 0;
       text-align: center;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
+    }
+    #tela-login input {
       letter-spacing: 3px;
     }
     .erro-senha {
@@ -44,7 +46,7 @@
     .saidas { color: #c0392b; }
     .saldo { color: #2980b9; }
 
-    /* Caixa de Gastos Livres com Limite */
+    /* Caixa de Gastos Livres com Limite Mensal */
     .card-limite {
       background: white;
       padding: 15px 20px;
@@ -111,6 +113,13 @@
     <h1>🔒 Acesso Restrito</h1>
     <p style="color: #7f8c8d; margin-top: 5px;">Digite a senha das Finanças do Casal</p>
     <form id="form-login" onsubmit="validarSenha(event)">
+      <div class="form-group" style="margin-top: 15px;">
+        <label for="usuario-dispositivo" style="text-align: left;">Quem está usando este celular?</label>
+        <select id="usuario-dispositivo" required>
+          <option value="Gabriel">Gabriel</option>
+          <option value="Juliana">Juliana</option>
+        </select>
+      </div>
       <input type="password" id="input-senha" placeholder="Digite a senha" required>
       <button type="submit">Entrar</button>
       <p id="msg-erro" class="erro-senha">❌ Senha incorreta! Tente novamente.</p>
@@ -136,26 +145,26 @@
       </div>
     </div>
 
-    <!-- PAINEL DE GASTOS LIVRES (LIMITE R$ 500,00) -->
+    <!-- PAINEL DE GASTOS LIVRES (LIMITE MENSAL R$ 500,00) -->
     <div class="card-limite">
       <div class="card-limite-topo">
-        <h3>🛍️ Gastos Livres (Limite R$ 500,00)</h3>
+        <h3>🛍️ Gastos Livres do Mês (Limite R$ 500,00)</h3>
         <span id="texto-gastos-livres">R$ 0,00 / R$ 500,00</span>
       </div>
       <div class="barra-progresso-fundo">
         <div id="barra-progresso" class="barra-progresso-preenchimento"></div>
       </div>
-      <p id="alerta-limite" class="alerta-limite-excedido">⚠️ Limite de R$ 500,00 atingo! Não é possível realizar novos gastos livres.</p>
+      <p id="alerta-limite" class="alerta-limite-excedido">⚠️ Limite mensal de R$ 500,00 atingido! Não é possível realizar novos gastos livres este mês.</p>
     </div>
 
     <form id="form-transacao">
       <h2>Novo Lançamento</h2>
       
       <div class="form-group">
-        <label for="quem">Quem está lançando?</label>
+        <label for="quem">Autor da Alteração</label>
         <select id="quem" required>
-          <option value="Ele">Ele</option>
-          <option value="Ela">Ela</option>
+          <option value="Gabriel">Gabriel</option>
+          <option value="Juliana">Juliana</option>
         </select>
       </div>
 
@@ -174,7 +183,7 @@
 
       <div class="form-group">
         <label for="valor">Valor (R$)</label>
-        <input type="number" id="valor" step="0.01" max="500" placeholder="0,00 (Máx: 500,00)" required>
+        <input type="number" id="valor" step="0.01" placeholder="0,00" required>
       </div>
 
       <button type="submit">Adicionar Lançamento</button>
@@ -191,7 +200,7 @@
   </div>
 
   <script>
-    // LIMITE MÁXIMO DE GASTOS LIVRES (R$ 500,00)
+    // LIMITE MÁXIMO MENSAL DE GASTOS LIVRES (R$ 500,00)
     const LIMITE_GASTOS_LIVRES = 500.00;
 
     // SENHA DE ACESSO DO CASAL
@@ -199,27 +208,38 @@
 
     let totalSaidasAtual = 0;
 
+    // Se já estiver logado, recupera quem é o dono do dispositivo
+    const usuarioSalvo = localStorage.getItem('financas_usuario');
     if (localStorage.getItem('financas_autenticado') === 'true') {
-      exibirApp();
+      exibirApp(usuarioSalvo);
+    } else if (usuarioSalvo) {
+      document.getElementById('usuario-dispositivo').value = usuarioSalvo;
     }
 
     function validarSenha(e) {
       e.preventDefault();
       const senhaDigitada = document.getElementById('input-senha').value.trim();
+      const usuarioSelecionado = document.getElementById('usuario-dispositivo').value;
       const msgErro = document.getElementById('msg-erro');
 
       if (senhaDigitada === SENHA_CORRETA) {
         localStorage.setItem('financas_autenticado', 'true');
+        localStorage.setItem('financas_usuario', usuarioSelecionado);
         msgErro.style.display = 'none';
-        exibirApp();
+        exibirApp(usuarioSelecionado);
       } else {
         msgErro.style.display = 'block';
       }
     }
 
-    function exibirApp() {
+    function exibirApp(usuario) {
       document.getElementById('tela-login').style.display = 'none';
       document.getElementById('conteudo-principal').style.display = 'block';
+      
+      if (usuario) {
+        document.getElementById('quem').value = usuario;
+      }
+      
       iniciarFirebase();
     }
 
@@ -260,30 +280,24 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const quem = document.getElementById('quem').value;
+        // Identifica quem está logado
+        const usuarioLogado = localStorage.getItem('financas_usuario') || document.getElementById('quem').value;
         const tipo = document.getElementById('tipo').value;
         const descricao = document.getElementById('descricao').value;
         const valor = parseFloat(document.getElementById('valor').value);
 
-        // VALIDAÇÃO AUTOMÁTICA DE LIMITE
+        // VALIDAÇÃO DE LIMITE MENSAL ACUMULADO
         if (tipo === 'saida') {
-          // Bloqueia se o valor individual for maior que R$ 500
-          if (valor > LIMITE_GASTOS_LIVRES) {
-            alert(`❌ ERRO: O valor inserido (R$ ${valor.toFixed(2).replace('.', ',')}) ultrapassa o limite máximo permitido de R$ 500,00!`);
-            return;
-          }
-
-          // Bloqueia se a soma do novo valor com os gastos anteriores ultrapassar R$ 500
           if ((totalSaidasAtual + valor) > LIMITE_GASTOS_LIVRES) {
             const restanteDisponivel = LIMITE_GASTOS_LIVRES - totalSaidasAtual;
-            alert(`🚫 ERRO DE LIMITE EXCEDIDO!\n\nVocê já gastou R$ ${totalSaidasAtual.toFixed(2).replace('.', ',')} este mês.\nSeu limite disponível restante é de apenas R$ ${restanteDisponivel.toFixed(2).replace('.', ',')}.\n\nO gasto de R$ ${valor.toFixed(2).replace('.', ',')} foi BLOQUEADO.`);
+            alert(`🚫 LIMITE MENSAL EXCEDIDO!\n\nVocês já gastaram R$ ${totalSaidasAtual.toFixed(2).replace('.', ',')} este mês.\nO valor restante disponível no limite mensal é de apenas R$ ${restanteDisponivel.toFixed(2).replace('.', ',')}.\n\nO lançamento de R$ ${valor.toFixed(2).replace('.', ',')} foi BLOQUEADO.`);
             return;
           }
         }
 
         try {
           await db.collection('financas').add({
-            quem: quem,
+            quem: usuarioLogado,
             tipo: tipo,
             descricao: descricao,
             valor: valor,
@@ -292,6 +306,9 @@
           });
 
           form.reset();
+          if (usuarioLogado) {
+            document.getElementById('quem').value = usuarioLogado;
+          }
         } catch (erro) {
           alert("Erro ao salvar lançamento: " + erro.message);
         }
@@ -329,7 +346,7 @@
             <div class="item-transacao">
               <div class="detalhes-transacao">
                 <strong>${item.descricao}</strong>
-                <small>Lançado por: ${item.quem} em ${item.data}</small>
+                <small>Lançado por: <b>${item.quem}</b> em ${item.data}</small>
               </div>
               <div class="valor-transacao ${classeValor}">
                 ${sinal} R$ ${item.valor.toFixed(2).replace('.', ',')}
@@ -347,7 +364,7 @@
         totalSaidasEl.textContent = `R$ ${totalSaidas.toFixed(2).replace('.', ',')}`;
         saldoTotalEl.textContent = `R$ ${saldo.toFixed(2).replace('.', ',')}`;
 
-        // Atualização da Barra do Limite de R$ 500,00
+        // Atualização da Barra de Progresso do Limite Mensal
         textoGastosLivresEl.textContent = `R$ ${totalSaidas.toFixed(2).replace('.', ',')} / R$ ${LIMITE_GASTOS_LIVRES.toFixed(2).replace('.', ',')}`;
         
         let porcentagem = (totalSaidas / LIMITE_GASTOS_LIVRES) * 100;
@@ -359,10 +376,10 @@
           barraProgressoEl.style.backgroundColor = '#c0392b'; // Vermelho
           alertaLimiteEl.style.display = 'block';
         } else if (porcentagem >= 80) {
-          barraProgressoEl.style.backgroundColor = '#e67e22'; // Laranja de aviso
+          barraProgressoEl.style.backgroundColor = '#e67e22'; // Laranja
           alertaLimiteEl.style.display = 'none';
         } else {
-          barraProgressoEl.style.backgroundColor = '#27ae60'; // Verde seguro
+          barraProgressoEl.style.backgroundColor = '#27ae60'; // Verde
           alertaLimiteEl.style.display = 'none';
         }
       });
