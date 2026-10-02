@@ -69,6 +69,8 @@
     button { background-color: #3f51b5; color: white; border: none; font-weight: bold; cursor: pointer; transition: background 0.2s; }
     button:hover { background-color: #303f9f; }
     .btn-sair { background-color: #e74c3c; margin-top: 15px; }
+    .btn-limpar-tudo { background-color: #e67e22; margin-top: 10px; }
+    .btn-limpar-tudo:hover { background-color: #d35400; }
 
     .historico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .item-transacao { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
@@ -169,7 +171,7 @@
       <p>Valor base definido para o mês</p>
     </div>
 
-    <!-- ÁREA EXCLUSIVA DO GABRIEL PARA ALTERAR O VALOR POSITIVO -->
+    <!-- ÁREA EXCLUSIVA DO GABRIEL (ALTERAR VALOR + REINICIAR MÊS) -->
     <div id="painel-gabriel" class="painel-exclusivo-gabriel">
       <form id="form-exclusivo-gabriel" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
         <div class="form-group">
@@ -178,6 +180,7 @@
         </div>
         <button type="submit" style="background-color: #27ae60;">Atualizar Valor Positivo</button>
       </form>
+      <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoMes()">🔄 Limpar Tudo e Recomeçar o Mês</button>
     </div>
 
     <!-- 2. MEIO: OS GASTOS (REGISTRO DE LANÇAMENTOS) -->
@@ -245,6 +248,7 @@
     };
 
     let totalGastosAtual = 0;
+    let dbGlobal = null;
 
     if (localStorage.getItem('financas_autenticado') === 'true') {
       const usuarioLogado = localStorage.getItem('financas_usuario');
@@ -307,7 +311,7 @@
       firebaseIniciado = true;
 
       firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
+      dbGlobal = firebase.firestore();
 
       const form = document.getElementById('form-transacao');
       const formGabriel = document.getElementById('form-exclusivo-gabriel');
@@ -346,7 +350,7 @@
         }
 
         try {
-          await db.collection('financas').add({
+          await dbGlobal.collection('financas').add({
             quem: usuarioLogado,
             descricao: descricao,
             valor: valor,
@@ -361,7 +365,6 @@
         }
       });
 
-      // Envio de Mensagens do Chat
       formChat.addEventListener('submit', async (e) => {
         e.preventDefault();
         const usuarioLogado = localStorage.getItem('financas_usuario');
@@ -370,7 +373,7 @@
         if (!texto) return;
 
         try {
-          await db.collection('mensagens_chat').add({
+          await dbGlobal.collection('mensagens_chat').add({
             quem: usuarioLogado,
             texto: texto,
             timestamp: Date.now(),
@@ -383,8 +386,7 @@
         }
       });
 
-      // Leitura de Finanças em Tempo Real
-      db.collection('financas').onSnapshot((snapshot) => {
+      dbGlobal.collection('financas').onSnapshot((snapshot) => {
         let items = [];
         let somaGastos = 0;
 
@@ -397,7 +399,7 @@
 
         snapshot.forEach((doc) => {
           const item = doc.data();
-          items.push(item);
+          items.push({ id: doc.id, ...item });
           somaGastos += item.valor;
         });
 
@@ -426,8 +428,7 @@
         console.error("Erro no Snapshot de finanças:", erro);
       });
 
-      // Leitura do Chat em Tempo Real
-      db.collection('mensagens_chat').onSnapshot((snapshot) => {
+      dbGlobal.collection('mensagens_chat').onSnapshot((snapshot) => {
         let msgs = [];
 
         if (snapshot.empty) {
@@ -436,10 +437,9 @@
         }
 
         snapshot.forEach((doc) => {
-          msgs.push(doc.data());
+          msgs.push({ id: doc.id, ...doc.data() });
         });
 
-        // Ordena da mais antiga para a mais recente (ordem cronológica de chat)
         msgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
         const usuarioLogado = localStorage.getItem('financas_usuario');
@@ -459,7 +459,6 @@
         });
 
         listaMensagens.innerHTML = htmlMsg;
-        // Rola automaticamente para a última mensagem
         listaMensagens.scrollTop = listaMensagens.scrollHeight;
 
       }, (erro) => {
@@ -477,6 +476,37 @@
         } else {
           saldoRestanteFinalEl.style.color = '#2ecc71';
         }
+      }
+    }
+
+    // Função exclusiva do Gabriel para limpar todos os registros do banco de dados
+    async function limparTudoDoMes() {
+      const usuarioLogado = localStorage.getItem('financas_usuario');
+      if (usuarioLogado !== 'Gabriel' || !dbGlobal) return;
+
+      const confirmar = confirm("⚠️ ATENÇÃO: Deseja realmente apagar todos os gastos e conversas para iniciar um novo mês do zero?");
+      if (!confirmar) return;
+
+      try {
+        // Apaga todos os documentos da coleção 'financas'
+        const snapshotFinancas = await dbGlobal.collection('financas').get();
+        const batchFinancas = dbGlobal.batch();
+        snapshotFinancas.forEach((doc) => {
+          batchFinancas.delete(doc.ref);
+        });
+        await batchFinancas.commit();
+
+        // Apaga todos os documentos da coleção 'mensagens_chat'
+        const snapshotChat = await dbGlobal.collection('mensagens_chat').get();
+        const batchChat = dbGlobal.batch();
+        snapshotChat.forEach((doc) => {
+          batchChat.delete(doc.ref);
+        });
+        await batchChat.commit();
+
+        alert("✅ Tudo limpo com sucesso! O mês foi reiniciado.");
+      } catch (erro) {
+        alert("Erro ao limpar dados: " + erro.message);
       }
     }
 
