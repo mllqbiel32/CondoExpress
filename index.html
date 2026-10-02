@@ -111,11 +111,11 @@
   <!-- TELA DE LOGIN -->
   <div id="tela-login">
     <h1>🔒 Acesso Restrito</h1>
-    <p style="color: #7f8c8d; margin-top: 5px;">Selecione o usuário e digite a senha</p>
+    <p style="color: #7f8c8d; margin-top: 5px;">Selecione quem está acessando e digite a senha</p>
     <form id="form-login" onsubmit="validarSenha(event)">
       <div class="form-group" style="margin-top: 15px;">
-        <label for="usuario-dispositivo" style="text-align: left;">De quem é este celular?</label>
-        <select id="usuario-dispositivo" required>
+        <label for="usuario-login" style="text-align: left;">Quem está entrando?</label>
+        <select id="usuario-login" required>
           <option value="Gabriel">Gabriel</option>
           <option value="Juliana">Juliana</option>
         </select>
@@ -161,7 +161,7 @@
       <h2>Novo Lançamento</h2>
       
       <div class="form-group">
-        <label for="quem">Autor registrado neste aparelho</label>
+        <label for="quem">Autor do Lançamento</label>
         <select id="quem" disabled required>
           <option value="Gabriel">Gabriel</option>
           <option value="Juliana">Juliana</option>
@@ -196,7 +196,7 @@
       </div>
     </div>
 
-    <button type="button" class="btn-sair" onclick="sair()">🔒 Sair do Aplicativo</button>
+    <button type="button" class="btn-sair" onclick="sair()">🔒 Sair / Trocar Usuário</button>
   </div>
 
   <script>
@@ -209,18 +209,18 @@
 
     let totalSaidasAtual = 0;
 
-    const usuarioSalvo = localStorage.getItem('financas_usuario');
-
-    if (localStorage.getItem('financas_autenticado') === 'true' && usuarioSalvo) {
-      exibirApp(usuarioSalvo);
-    } else if (usuarioSalvo) {
-      document.getElementById('usuario-dispositivo').value = usuarioSalvo;
+    // Verifica se já estava logado neste navegador/computador
+    if (localStorage.getItem('financas_autenticado') === 'true') {
+      const usuarioLogado = localStorage.getItem('financas_usuario');
+      if (usuarioLogado) {
+        exibirApp(usuarioLogado);
+      }
     }
 
     function validarSenha(e) {
       e.preventDefault();
       const senhaDigitada = document.getElementById('input-senha').value.trim();
-      const usuarioSelecionado = document.getElementById('usuario-dispositivo').value;
+      const usuarioSelecionado = document.getElementById('usuario-login').value;
       const msgErro = document.getElementById('msg-erro');
 
       if (SENHAS[usuarioSelecionado] && senhaDigitada === SENHAS[usuarioSelecionado]) {
@@ -237,15 +237,15 @@
       document.getElementById('tela-login').style.display = 'none';
       document.getElementById('conteudo-principal').style.display = 'block';
       
-      if (usuario) {
-        document.getElementById('quem').value = usuario;
-      }
+      // Trava automaticamente o campo do formulário com quem fez o login
+      document.getElementById('quem').value = usuario;
       
       iniciarFirebase();
     }
 
     function sair() {
       localStorage.removeItem('financas_autenticado');
+      localStorage.removeItem('financas_usuario');
       location.reload();
     }
 
@@ -280,7 +280,7 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const usuarioLogado = localStorage.getItem('financas_usuario') || document.getElementById('quem').value;
+        const usuarioLogado = localStorage.getItem('financas_usuario');
         const tipo = document.getElementById('tipo').value;
         const descricao = document.getElementById('descricao').value;
         const valor = parseFloat(document.getElementById('valor').value);
@@ -310,7 +310,6 @@
         }
       });
 
-      // Busca sem ordenação prévia do servidor para não exigir criação de índices no Firebase
       db.collection('financas').onSnapshot((snapshot) => {
         let items = [];
         let totalEntradas = 0;
@@ -339,7 +338,6 @@
           }
         });
 
-        // Ordena no próprio dispositivo do mais recente para o mais antigo
         items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         let html = '';
