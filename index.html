@@ -52,7 +52,7 @@
     .card-saldo-positivo .valor-destaque { font-size: 2rem; font-weight: bold; }
     .card-saldo-positivo p { font-size: 0.85rem; margin-top: 5px; opacity: 0.8; }
 
-    /* Área exclusiva do Gabriel (para alterar o valor positivo no topo) */
+    /* Área exclusiva do Gabriel */
     .painel-exclusivo-gabriel {
       background: white;
       padding: 15px 20px;
@@ -78,7 +78,7 @@
     .valor-transacao { font-weight: bold; }
     .valor-saida { color: #c0392b; }
 
-    /* Bloco do Saldo que Sobrou (Fim) */
+    /* Bloco do Saldo que Sobrou */
     .card-saldo-final {
       background: #2c3e50;
       color: white;
@@ -92,6 +92,46 @@
     }
     .card-saldo-final h3 { font-size: 1rem; }
     .card-saldo-final span { font-size: 1.3rem; font-weight: bold; color: #2ecc71; }
+
+    /* Área do Chat */
+    .chat-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .chat-mensagens {
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 15px;
+      background: #fafafa;
+    }
+    .mensagem-item {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      max-width: 85%;
+      word-wrap: break-word;
+    }
+    .mensagem-gabriel {
+      background: #e8f4fd;
+      margin-left: auto;
+      text-align: right;
+      border-bottom-right-radius: 2px;
+    }
+    .mensagem-juliana {
+      background: #e1f5fe;
+      margin-right: auto;
+      text-align: left;
+      border-bottom-left-radius: 2px;
+    }
+    .mensagem-item strong { display: block; font-size: 0.8rem; color: #555; margin-bottom: 2px; }
+    .mensagem-item p { font-size: 0.95rem; color: #333; }
+    .mensagem-item small { display: block; font-size: 0.7rem; color: #888; margin-top: 3px; }
   </style>
 
   <!-- Firebase Scripts Compat -->
@@ -179,6 +219,20 @@
       <span id="saldo-restante-final">R$ 500,00</span>
     </div>
 
+    <!-- 5. CHAT / MENSAGENS EM TEMPO REAL -->
+    <div class="chat-container">
+      <h2>💬 Chat do Casal</h2>
+      <div id="lista-mensagens" class="chat-mensagens">
+        <p style="text-align: center; color: #7f8c8d; margin-top: 60px;">Carregando mensagens...</p>
+      </div>
+      <form id="form-chat" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
+        <div class="form-group" style="margin-bottom: 10px;">
+          <input type="text" id="input-mensagem" placeholder="Digite sua mensagem..." required>
+        </div>
+        <button type="submit">Enviar Mensagem</button>
+      </form>
+    </div>
+
     <button type="button" class="btn-sair" onclick="sair()">🔒 Sair / Trocar Usuário</button>
   </div>
 
@@ -221,7 +275,6 @@
       
       document.getElementById('quem').value = usuario;
 
-      // Exibe a alteração de valor positivo apenas se for o Gabriel
       if (usuario === 'Gabriel') {
         document.getElementById('painel-gabriel').style.display = 'block';
       } else {
@@ -261,13 +314,15 @@
       const listaTransacoes = document.getElementById('lista-transacoes');
       const displayValorPositivoEl = document.getElementById('display-valor-positivo');
       const saldoRestanteFinalEl = document.getElementById('saldo-restante-final');
+      
+      const formChat = document.getElementById('form-chat');
+      const inputMensagem = document.getElementById('input-mensagem');
+      const listaMensagens = document.getElementById('lista-mensagens');
 
       formGabriel.addEventListener('submit', (e) => {
         e.preventDefault();
         const usuarioLogado = localStorage.getItem('financas_usuario');
-        if (usuarioLogado !== 'Gabriel') {
-          return;
-        }
+        if (usuarioLogado !== 'Gabriel') return;
 
         const novoValor = parseFloat(document.getElementById('novo-limite-input').value);
         if (!isNaN(novoValor) && novoValor > 0) {
@@ -306,6 +361,29 @@
         }
       });
 
+      // Envio de Mensagens do Chat
+      formChat.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const usuarioLogado = localStorage.getItem('financas_usuario');
+        const texto = inputMensagem.value.trim();
+
+        if (!texto) return;
+
+        try {
+          await db.collection('mensagens_chat').add({
+            quem: usuarioLogado,
+            texto: texto,
+            timestamp: Date.now(),
+            horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+          });
+
+          inputMensagem.value = '';
+        } catch (erro) {
+          alert("Erro ao enviar mensagem: " + erro.message);
+        }
+      });
+
+      // Leitura de Finanças em Tempo Real
       db.collection('financas').onSnapshot((snapshot) => {
         let items = [];
         let somaGastos = 0;
@@ -345,8 +423,47 @@
         atualizarInterfaceFinanceira(totalGastosAtual);
 
       }, (erro) => {
-        console.error("Erro no Snapshot:", erro);
-        listaTransacoes.innerHTML = `<p style="text-align: center; color: #c0392b;">Erro ao carregar os dados: ${erro.message}</p>`;
+        console.error("Erro no Snapshot de finanças:", erro);
+      });
+
+      // Leitura do Chat em Tempo Real
+      db.collection('mensagens_chat').onSnapshot((snapshot) => {
+        let msgs = [];
+
+        if (snapshot.empty) {
+          listaMensagens.innerHTML = '<p style="text-align: center; color: #7f8c8d; margin-top: 60px;">Nenhuma mensagem ainda. Inicie a conversa!</p>';
+          return;
+        }
+
+        snapshot.forEach((doc) => {
+          msgs.push(doc.data());
+        });
+
+        // Ordena da mais antiga para a mais recente (ordem cronológica de chat)
+        msgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+        const usuarioLogado = localStorage.getItem('financas_usuario');
+        let htmlMsg = '';
+
+        msgs.forEach((m) => {
+          const ehMeu = m.quem === usuarioLogado;
+          const classeAlinhamento = ehMeu ? 'mensagem-gabriel' : 'mensagem-juliana';
+
+          htmlMsg += `
+            <div class="mensagem-item ${classeAlinhamento}">
+              <strong>${m.quem}</strong>
+              <p>${m.texto}</p>
+              <small>${m.horario || ''}</small>
+            </div>
+          `;
+        });
+
+        listaMensagens.innerHTML = htmlMsg;
+        // Rola automaticamente para a última mensagem
+        listaMensagens.scrollTop = listaMensagens.scrollHeight;
+
+      }, (erro) => {
+        console.error("Erro no Snapshot do chat:", erro);
       });
 
       function atualizarInterfaceFinanceira(totalGastos) {
