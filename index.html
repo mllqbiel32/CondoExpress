@@ -532,10 +532,13 @@
       }
     }
 
+    // REGISTRO CORRETO DO SERVICE WORKER PARA LIBERAR A INSTALAÇÃO DO PWA
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker Registrado'))
-        .catch((err) => console.log('Erro ao registrar Service Worker', err));
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((reg) => console.log('Service Worker Registrado com sucesso:', reg.scope))
+          .catch((err) => console.log('Erro ao registrar Service Worker:', err));
+      });
     }
   </script>
 </body>
