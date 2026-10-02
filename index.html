@@ -11,7 +11,32 @@
     body { background-color: #f4f6f9; color: #333; padding: 20px; max-width: 600px; margin: 0 auto; }
     h1, h2 { text-align: center; color: #2c3e50; margin-bottom: 15px; }
     
-    .cards-container { display: flex; gap: 10px; margin-bottom: 20px; }
+    /* Tela de Login */
+    #tela-login {
+      background: white;
+      padding: 30px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-top: 50px;
+      text-align: center;
+    }
+    #tela-login input {
+      margin: 15px 0;
+      text-align: center;
+      font-size: 1.2rem;
+      letter-spacing: 3px;
+    }
+    .erro-senha {
+      color: #c0392b;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Conteúdo Principal */
+    #conteudo-principal { display: none; }
+
+    .cards-container { display: flex; gap: 10px; margin-bottom: 15px; }
     .card { flex: 1; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
     .card h3 { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 5px; }
     .card p { font-size: 1.2rem; font-weight: bold; }
@@ -19,12 +44,51 @@
     .saidas { color: #c0392b; }
     .saldo { color: #2980b9; }
 
+    /* Caixa de Gastos Livres com Limite */
+    .card-limite {
+      background: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .card-limite-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .card-limite-topo h3 { font-size: 0.95rem; color: #2c3e50; }
+    .card-limite-topo span { font-size: 0.95rem; font-weight: bold; color: #e67e22; }
+    .barra-progresso-fundo {
+      width: 100%;
+      height: 12px;
+      background-color: #ecf0f1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .barra-progresso-preenchimento {
+      height: 100%;
+      width: 0%;
+      background-color: #27ae60;
+      transition: width 0.3s, background-color 0.3s;
+    }
+    .alerta-limite-excedido {
+      color: #c0392b;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-top: 8px;
+      text-align: center;
+      display: none;
+    }
+
     form { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
     input, select, button { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
     button { background-color: #3f51b5; color: white; border: none; font-weight: bold; cursor: pointer; transition: background 0.2s; }
     button:hover { background-color: #303f9f; }
+    .btn-sair { background-color: #e74c3c; margin-top: 15px; }
 
     .historico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .item-transacao { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
@@ -42,64 +106,129 @@
 </head>
 <body>
 
-  <h1>💰 Finanças do Casal</h1>
-
-  <div class="cards-container">
-    <div class="card">
-      <h3>Entradas</h3>
-      <p id="total-entradas" class="entradas">R$ 0,00</p>
-    </div>
-    <div class="card">
-      <h3>Saídas</h3>
-      <p id="total-saidas" class="saidas">R$ 0,00</p>
-    </div>
-    <div class="card">
-      <h3>Saldo</h3>
-      <p id="saldo-total" class="saldo">R$ 0,00</p>
-    </div>
+  <!-- TELA DE LOGIN -->
+  <div id="tela-login">
+    <h1>🔒 Acesso Restrito</h1>
+    <p style="color: #7f8c8d; margin-top: 5px;">Digite a senha das Finanças do Casal</p>
+    <form id="form-login" onsubmit="validarSenha(event)">
+      <input type="password" id="input-senha" placeholder="Digite a senha" required>
+      <button type="submit">Entrar</button>
+      <p id="msg-erro" class="erro-senha">❌ Senha incorreta! Tente novamente.</p>
+    </form>
   </div>
 
-  <form id="form-transacao">
-    <h2>Novo Lançamento</h2>
-    
-    <div class="form-group">
-      <label for="quem">Quem está lançando?</label>
-      <select id="quem" required>
-        <option value="Ele">Ele</option>
-        <option value="Ela">Ela</option>
-      </select>
+  <!-- CONTEÚDO DO APLICATIVO -->
+  <div id="conteudo-principal">
+    <h1>💰 Finanças do Casal</h1>
+
+    <div class="cards-container">
+      <div class="card">
+        <h3>Entradas</h3>
+        <p id="total-entradas" class="entradas">R$ 0,00</p>
+      </div>
+      <div class="card">
+        <h3>Saídas</h3>
+        <p id="total-saidas" class="saidas">R$ 0,00</p>
+      </div>
+      <div class="card">
+        <h3>Saldo</h3>
+        <p id="saldo-total" class="saldo">R$ 0,00</p>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label for="tipo">Tipo</label>
-      <select id="tipo" required>
-        <option value="saida">Saída (Gasto)</option>
-        <option value="entrada">Entrada (Receita)</option>
-      </select>
+    <!-- PAINEL DE GASTOS LIVRES (LIMITE R$ 500,00) -->
+    <div class="card-limite">
+      <div class="card-limite-topo">
+        <h3>🛍️ Gastos Livres (Limite R$ 500,00)</h3>
+        <span id="texto-gastos-livres">R$ 0,00 / R$ 500,00</span>
+      </div>
+      <div class="barra-progresso-fundo">
+        <div id="barra-progresso" class="barra-progresso-preenchimento"></div>
+      </div>
+      <p id="alerta-limite" class="alerta-limite-excedido">⚠️ Limite de R$ 500,00 atingo! Não é possível realizar novos gastos livres.</p>
     </div>
 
-    <div class="form-group">
-      <label for="descricao">Descrição</label>
-      <input type="text" id="descricao" placeholder="Ex: Mercado, Luz, Salário" required>
+    <form id="form-transacao">
+      <h2>Novo Lançamento</h2>
+      
+      <div class="form-group">
+        <label for="quem">Quem está lançando?</label>
+        <select id="quem" required>
+          <option value="Ele">Ele</option>
+          <option value="Ela">Ela</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tipo">Tipo</label>
+        <select id="tipo" required>
+          <option value="saida">Saída (Gasto Livre)</option>
+          <option value="entrada">Entrada (Receita)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="descricao">Descrição</label>
+        <input type="text" id="descricao" placeholder="Ex: Mercado, Lanche, Uber" required>
+      </div>
+
+      <div class="form-group">
+        <label for="valor">Valor (R$)</label>
+        <input type="number" id="valor" step="0.01" max="500" placeholder="0,00 (Máx: 500,00)" required>
+      </div>
+
+      <button type="submit">Adicionar Lançamento</button>
+    </form>
+
+    <div class="historico">
+      <h2>Histórico do Mês</h2>
+      <div id="lista-transacoes">
+        <p style="text-align: center; color: #7f8c8d;">Carregando dados...</p>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label for="valor">Valor (R$)</label>
-      <input type="number" id="valor" step="0.01" placeholder="0,00" required>
-    </div>
-
-    <button type="submit">Adicionar Lançamento</button>
-  </form>
-
-  <div class="historico">
-    <h2>Histórico do Mês</h2>
-    <div id="lista-transacoes">
-      <p style="text-align: center; color: #7f8c8d;">Carregando dados...</p>
-    </div>
+    <button type="button" class="btn-sair" onclick="sair()">🔒 Sair do Aplicativo</button>
   </div>
 
   <script>
-    // Suas chaves exatas do Firebase extraídas do seu projeto antigo:
+    // LIMITE MÁXIMO DE GASTOS LIVRES (R$ 500,00)
+    const LIMITE_GASTOS_LIVRES = 500.00;
+
+    // SENHA DE ACESSO DO CASAL
+    const SENHA_CORRETA = "1234";
+
+    let totalSaidasAtual = 0;
+
+    if (localStorage.getItem('financas_autenticado') === 'true') {
+      exibirApp();
+    }
+
+    function validarSenha(e) {
+      e.preventDefault();
+      const senhaDigitada = document.getElementById('input-senha').value.trim();
+      const msgErro = document.getElementById('msg-erro');
+
+      if (senhaDigitada === SENHA_CORRETA) {
+        localStorage.setItem('financas_autenticado', 'true');
+        msgErro.style.display = 'none';
+        exibirApp();
+      } else {
+        msgErro.style.display = 'block';
+      }
+    }
+
+    function exibirApp() {
+      document.getElementById('tela-login').style.display = 'none';
+      document.getElementById('conteudo-principal').style.display = 'block';
+      iniciarFirebase();
+    }
+
+    function sair() {
+      localStorage.removeItem('financas_autenticado');
+      location.reload();
+    }
+
+    // Configuração do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBK3ptWyBo5nxB9SjFZkMLVvP",
       authDomain: "condoexpress-a20e0.firebaseapp.com",
@@ -110,87 +239,135 @@
       measurementId: "G-9E1MW2B2VY"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    let firebaseIniciado = false;
 
-    const form = document.getElementById('form-transacao');
-    const listaTransacoes = document.getElementById('lista-transacoes');
-    const totalEntradasEl = document.getElementById('total-entradas');
-    const totalSaidasEl = document.getElementById('total-saidas');
-    const saldoTotalEl = document.getElementById('saldo-total');
+    function iniciarFirebase() {
+      if (firebaseIniciado) return;
+      firebaseIniciado = true;
 
-    // Registrar nova transação
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
 
-      const quem = document.getElementById('quem').value;
-      const tipo = document.getElementById('tipo').value;
-      const descricao = document.getElementById('descricao').value;
-      const valor = parseFloat(document.getElementById('valor').value);
+      const form = document.getElementById('form-transacao');
+      const listaTransacoes = document.getElementById('lista-transacoes');
+      const totalEntradasEl = document.getElementById('total-entradas');
+      const totalSaidasEl = document.getElementById('total-saidas');
+      const saldoTotalEl = document.getElementById('saldo-total');
+      const textoGastosLivresEl = document.getElementById('texto-gastos-livres');
+      const barraProgressoEl = document.getElementById('barra-progresso');
+      const alertaLimiteEl = document.getElementById('alerta-limite');
 
-      try {
-        await db.collection('financas').add({
-          quem: quem,
-          tipo: tipo,
-          descricao: descricao,
-          valor: valor,
-          timestamp: Date.now(),
-          data: new Date().toLocaleDateString('pt-BR')
-        });
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-        form.reset();
-      } catch (erro) {
-        alert("Erro ao salvar lançamento: " + erro.message);
-      }
-    });
+        const quem = document.getElementById('quem').value;
+        const tipo = document.getElementById('tipo').value;
+        const descricao = document.getElementById('descricao').value;
+        const valor = parseFloat(document.getElementById('valor').value);
 
-    // Ouvir atualizações em tempo real
-    db.collection('financas').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
-      let html = '';
-      let totalEntradas = 0;
-      let totalSaidas = 0;
+        // VALIDAÇÃO AUTOMÁTICA DE LIMITE
+        if (tipo === 'saida') {
+          // Bloqueia se o valor individual for maior que R$ 500
+          if (valor > LIMITE_GASTOS_LIVRES) {
+            alert(`❌ ERRO: O valor inserido (R$ ${valor.toFixed(2).replace('.', ',')}) ultrapassa o limite máximo permitido de R$ 500,00!`);
+            return;
+          }
 
-      if (snapshot.empty) {
-        listaTransacoes.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Nenhum lançamento encontrado.</p>';
-        totalEntradasEl.textContent = 'R$ 0,00';
-        totalSaidasEl.textContent = 'R$ 0,00';
-        saldoTotalEl.textContent = 'R$ 0,00';
-        return;
-      }
-
-      snapshot.forEach((doc) => {
-        const item = doc.data();
-        const classeValor = item.tipo === 'entrada' ? 'valor-entrada' : 'valor-saida';
-        const sinal = item.tipo === 'entrada' ? '+' : '-';
-
-        if (item.tipo === 'entrada') {
-          totalEntradas += item.valor;
-        } else {
-          totalSaidas += item.valor;
+          // Bloqueia se a soma do novo valor com os gastos anteriores ultrapassar R$ 500
+          if ((totalSaidasAtual + valor) > LIMITE_GASTOS_LIVRES) {
+            const restanteDisponivel = LIMITE_GASTOS_LIVRES - totalSaidasAtual;
+            alert(`🚫 ERRO DE LIMITE EXCEDIDO!\n\nVocê já gastou R$ ${totalSaidasAtual.toFixed(2).replace('.', ',')} este mês.\nSeu limite disponível restante é de apenas R$ ${restanteDisponivel.toFixed(2).replace('.', ',')}.\n\nO gasto de R$ ${valor.toFixed(2).replace('.', ',')} foi BLOQUEADO.`);
+            return;
+          }
         }
 
-        html += `
-          <div class="item-transacao">
-            <div class="detalhes-transacao">
-              <strong>${item.descricao}</strong>
-              <small>Lançado por: ${item.quem} em ${item.data}</small>
-            </div>
-            <div class="valor-transacao ${classeValor}">
-              ${sinal} R$ ${item.valor.toFixed(2).replace('.', ',')}
-            </div>
-          </div>
-        `;
+        try {
+          await db.collection('financas').add({
+            quem: quem,
+            tipo: tipo,
+            descricao: descricao,
+            valor: valor,
+            timestamp: Date.now(),
+            data: new Date().toLocaleDateString('pt-BR')
+          });
+
+          form.reset();
+        } catch (erro) {
+          alert("Erro ao salvar lançamento: " + erro.message);
+        }
       });
 
-      listaTransacoes.innerHTML = html;
+      db.collection('financas').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
+        let html = '';
+        let totalEntradas = 0;
+        let totalSaidas = 0;
 
-      const saldo = totalEntradas - totalSaidas;
-      totalEntradasEl.textContent = `R$ ${totalEntradas.toFixed(2).replace('.', ',')}`;
-      totalSaidasEl.textContent = `R$ ${totalSaidas.toFixed(2).replace('.', ',')}`;
-      saldoTotalEl.textContent = `R$ ${saldo.toFixed(2).replace('.', ',')}`;
-    });
+        if (snapshot.empty) {
+          listaTransacoes.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Nenhum lançamento encontrado.</p>';
+          totalEntradasEl.textContent = 'R$ 0,00';
+          totalSaidasEl.textContent = 'R$ 0,00';
+          saldoTotalEl.textContent = 'R$ 0,00';
+          textoGastosLivresEl.textContent = 'R$ 0,00 / R$ 500,00';
+          barraProgressoEl.style.width = '0%';
+          alertaLimiteEl.style.display = 'none';
+          totalSaidasAtual = 0;
+          return;
+        }
 
-    // Registro do Service Worker
+        snapshot.forEach((doc) => {
+          const item = doc.data();
+          const classeValor = item.tipo === 'entrada' ? 'valor-entrada' : 'valor-saida';
+          const sinal = item.tipo === 'entrada' ? '+' : '-';
+
+          if (item.tipo === 'entrada') {
+            totalEntradas += item.valor;
+          } else {
+            totalSaidas += item.valor;
+          }
+
+          html += `
+            <div class="item-transacao">
+              <div class="detalhes-transacao">
+                <strong>${item.descricao}</strong>
+                <small>Lançado por: ${item.quem} em ${item.data}</small>
+              </div>
+              <div class="valor-transacao ${classeValor}">
+                ${sinal} R$ ${item.valor.toFixed(2).replace('.', ',')}
+              </div>
+            </div>
+          `;
+        });
+
+        totalSaidasAtual = totalSaidas;
+
+        listaTransacoes.innerHTML = html;
+
+        const saldo = totalEntradas - totalSaidas;
+        totalEntradasEl.textContent = `R$ ${totalEntradas.toFixed(2).replace('.', ',')}`;
+        totalSaidasEl.textContent = `R$ ${totalSaidas.toFixed(2).replace('.', ',')}`;
+        saldoTotalEl.textContent = `R$ ${saldo.toFixed(2).replace('.', ',')}`;
+
+        // Atualização da Barra do Limite de R$ 500,00
+        textoGastosLivresEl.textContent = `R$ ${totalSaidas.toFixed(2).replace('.', ',')} / R$ ${LIMITE_GASTOS_LIVRES.toFixed(2).replace('.', ',')}`;
+        
+        let porcentagem = (totalSaidas / LIMITE_GASTOS_LIVRES) * 100;
+        if (porcentagem > 100) porcentagem = 100;
+
+        barraProgressoEl.style.width = `${porcentagem}%`;
+
+        if (totalSaidas >= LIMITE_GASTOS_LIVRES) {
+          barraProgressoEl.style.backgroundColor = '#c0392b'; // Vermelho
+          alertaLimiteEl.style.display = 'block';
+        } else if (porcentagem >= 80) {
+          barraProgressoEl.style.backgroundColor = '#e67e22'; // Laranja de aviso
+          alertaLimiteEl.style.display = 'none';
+        } else {
+          barraProgressoEl.style.backgroundColor = '#27ae60'; // Verde seguro
+          alertaLimiteEl.style.display = 'none';
+        }
+      });
+    }
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
         .then(() => console.log('Service Worker Registrado'))
