@@ -111,7 +111,7 @@
   <!-- TELA DE LOGIN -->
   <div id="tela-login">
     <h1>🔒 Acesso Restrito</h1>
-    <p style="color: #7f8c8d; margin-top: 5px;">Digite a senha das Finanças do Casal</p>
+    <p style="color: #7f8c8d; margin-top: 5px;">Selecione o usuário e digite a senha</p>
     <form id="form-login" onsubmit="validarSenha(event)">
       <div class="form-group" style="margin-top: 15px;">
         <label for="usuario-dispositivo" style="text-align: left;">De quem é este celular?</label>
@@ -120,9 +120,9 @@
           <option value="Juliana">Juliana</option>
         </select>
       </div>
-      <input type="password" id="input-senha" placeholder="Digite a senha" required>
+      <input type="password" id="input-senha" placeholder="Digite sua senha" required>
       <button type="submit">Entrar</button>
-      <p id="msg-erro" class="erro-senha">❌ Senha incorreta! Tente novamente.</p>
+      <p id="msg-erro" class="erro-senha">❌ Senha incorreta para o usuário selecionado!</p>
     </form>
   </div>
 
@@ -162,7 +162,6 @@
       
       <div class="form-group">
         <label for="quem">Autor registrado neste aparelho</label>
-        <!-- Campo travado (disabled) para não permitir alteração -->
         <select id="quem" disabled required>
           <option value="Gabriel">Gabriel</option>
           <option value="Juliana">Juliana</option>
@@ -201,15 +200,15 @@
   </div>
 
   <script>
-    // LIMITE MÁXIMO MENSAL DE GASTOS LIVRES (R$ 500,00)
     const LIMITE_GASTOS_LIVRES = 500.00;
 
-    // SENHA DE ACESSO DO CASAL
-    const SENHA_CORRETA = "1234";
+    const SENHAS = {
+      Gabriel: "7890",
+      Juliana: "2468"
+    };
 
     let totalSaidasAtual = 0;
 
-    // Recupera o usuário salvo no dispositivo
     const usuarioSalvo = localStorage.getItem('financas_usuario');
 
     if (localStorage.getItem('financas_autenticado') === 'true' && usuarioSalvo) {
@@ -224,7 +223,7 @@
       const usuarioSelecionado = document.getElementById('usuario-dispositivo').value;
       const msgErro = document.getElementById('msg-erro');
 
-      if (senhaDigitada === SENHA_CORRETA) {
+      if (SENHAS[usuarioSelecionado] && senhaDigitada === SENHAS[usuarioSelecionado]) {
         localStorage.setItem('financas_autenticado', 'true');
         localStorage.setItem('financas_usuario', usuarioSelecionado);
         msgErro.style.display = 'none';
@@ -238,7 +237,6 @@
       document.getElementById('tela-login').style.display = 'none';
       document.getElementById('conteudo-principal').style.display = 'block';
       
-      // Define e trava o nome do usuário no formulário
       if (usuario) {
         document.getElementById('quem').value = usuario;
       }
@@ -251,7 +249,6 @@
       location.reload();
     }
 
-    // Configuração do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBK3ptWyBo5nxB9SjFZkMLVvP",
       authDomain: "condoexpress-a20e0.firebaseapp.com",
@@ -283,13 +280,11 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Pega sempre o usuário autenticado no dispositivo
         const usuarioLogado = localStorage.getItem('financas_usuario') || document.getElementById('quem').value;
         const tipo = document.getElementById('tipo').value;
         const descricao = document.getElementById('descricao').value;
         const valor = parseFloat(document.getElementById('valor').value);
 
-        // VALIDAÇÃO DE LIMITE MENSAL ACUMULADO
         if (tipo === 'saida') {
           if ((totalSaidasAtual + valor) > LIMITE_GASTOS_LIVRES) {
             const restanteDisponivel = LIMITE_GASTOS_LIVRES - totalSaidasAtual;
@@ -308,7 +303,6 @@
             data: new Date().toLocaleDateString('pt-BR')
           });
 
-          // Limpa a descrição e valor sem alterar o nome fixado
           document.getElementById('descricao').value = '';
           document.getElementById('valor').value = '';
         } catch (erro) {
@@ -316,8 +310,9 @@
         }
       });
 
-      db.collection('financas').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
-        let html = '';
+      // Busca sem ordenação prévia do servidor para não exigir criação de índices no Firebase
+      db.collection('financas').onSnapshot((snapshot) => {
+        let items = [];
         let totalEntradas = 0;
         let totalSaidas = 0;
 
@@ -335,14 +330,22 @@
 
         snapshot.forEach((doc) => {
           const item = doc.data();
-          const classeValor = item.tipo === 'entrada' ? 'valor-entrada' : 'valor-saida';
-          const sinal = item.tipo === 'entrada' ? '+' : '-';
+          items.push(item);
 
           if (item.tipo === 'entrada') {
             totalEntradas += item.valor;
           } else {
             totalSaidas += item.valor;
           }
+        });
+
+        // Ordena no próprio dispositivo do mais recente para o mais antigo
+        items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        let html = '';
+        items.forEach((item) => {
+          const classeValor = item.tipo === 'entrada' ? 'valor-entrada' : 'valor-saida';
+          const sinal = item.tipo === 'entrada' ? '+' : '-';
 
           html += `
             <div class="item-transacao">
@@ -358,7 +361,6 @@
         });
 
         totalSaidasAtual = totalSaidas;
-
         listaTransacoes.innerHTML = html;
 
         const saldo = totalEntradas - totalSaidas;
@@ -366,7 +368,6 @@
         totalSaidasEl.textContent = `R$ ${totalSaidas.toFixed(2).replace('.', ',')}`;
         saldoTotalEl.textContent = `R$ ${saldo.toFixed(2).replace('.', ',')}`;
 
-        // Atualização da Barra do Limite Mensal
         textoGastosLivresEl.textContent = `R$ ${totalSaidas.toFixed(2).replace('.', ',')} / R$ ${LIMITE_GASTOS_LIVRES.toFixed(2).replace('.', ',')}`;
         
         let porcentagem = (totalSaidas / LIMITE_GASTOS_LIVRES) * 100;
@@ -384,6 +385,9 @@
           barraProgressoEl.style.backgroundColor = '#27ae60';
           alertaLimiteEl.style.display = 'none';
         }
+      }, (erro) => {
+        console.error("Erro no Snapshot:", erro);
+        listaTransacoes.innerHTML = `<p style="text-align: center; color: #c0392b;">Erro ao carregar os dados: ${erro.message}</p>`;
       });
     }
 
