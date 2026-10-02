@@ -84,6 +84,16 @@
       display: none;
     }
 
+    /* Área exclusiva que aparece apenas para o Gabriel sem avisos visuais ostensivos */
+    .painel-exclusivo-gabriel {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: none; 
+    }
+
     form { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
@@ -157,6 +167,17 @@
       <p id="alerta-limite" class="alerta-limite-excedido">⚠️ Limite mensal de R$ 500,00 atingido! Não é possível realizar novos gastos livres este mês.</p>
     </div>
 
+    <!-- ÁREA EXCLUSIVA DO GABRIEL (Discreta, sem avisos) -->
+    <div id="painel-gabriel" class="painel-exclusivo-gabriel">
+      <form id="form-exclusivo-gabriel" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
+        <div class="form-group">
+          <label for="novo-limite-input">Alterar Limite de Gastos Livres (R$)</label>
+          <input type="number" id="novo-limite-input" step="0.01" value="500.00" required>
+        </div>
+        <button type="submit" style="background-color: #27ae60;">Atualizar Limite</button>
+      </form>
+    </div>
+
     <form id="form-transacao">
       <h2>Novo Lançamento</h2>
       
@@ -200,7 +221,7 @@
   </div>
 
   <script>
-    const LIMITE_GASTOS_LIVRES = 500.00;
+    let LIMITE_GASTOS_LIVRES = 500.00;
 
     const SENHAS = {
       Gabriel: "7890",
@@ -209,7 +230,6 @@
 
     let totalSaidasAtual = 0;
 
-    // Verifica se já estava logado neste navegador/computador
     if (localStorage.getItem('financas_autenticado') === 'true') {
       const usuarioLogado = localStorage.getItem('financas_usuario');
       if (usuarioLogado) {
@@ -237,8 +257,14 @@
       document.getElementById('tela-login').style.display = 'none';
       document.getElementById('conteudo-principal').style.display = 'block';
       
-      // Trava automaticamente o campo do formulário com quem fez o login
       document.getElementById('quem').value = usuario;
+
+      // Exibe a alteração de limite apenas se for o Gabriel (sem textos de aviso)
+      if (usuario === 'Gabriel') {
+        document.getElementById('painel-gabriel').style.display = 'block';
+      } else {
+        document.getElementById('painel-gabriel').style.display = 'none';
+      }
       
       iniciarFirebase();
     }
@@ -269,6 +295,7 @@
       const db = firebase.firestore();
 
       const form = document.getElementById('form-transacao');
+      const formGabriel = document.getElementById('form-exclusivo-gabriel');
       const listaTransacoes = document.getElementById('lista-transacoes');
       const totalEntradasEl = document.getElementById('total-entradas');
       const totalSaidasEl = document.getElementById('total-saidas');
@@ -276,6 +303,21 @@
       const textoGastosLivresEl = document.getElementById('texto-gastos-livres');
       const barraProgressoEl = document.getElementById('barra-progresso');
       const alertaLimiteEl = document.getElementById('alerta-limite');
+
+      formGabriel.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const usuarioLogado = localStorage.getItem('financas_usuario');
+        if (usuarioLogado !== 'Gabriel') {
+          return;
+        }
+
+        const novoLimite = parseFloat(document.getElementById('novo-limite-input').value);
+        if (!isNaN(novoLimite) && novoLimite > 0) {
+          LIMITE_GASTOS_LIVRES = novoLimite;
+          alert(`✅ Limite alterado para R$ ${novoLimite.toFixed(2).replace('.', ',')}!`);
+          atualizarInterfaceFinanceira(totalEntradasGlobal, totalSaidasGlobal);
+        }
+      });
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -310,20 +352,17 @@
         }
       });
 
+      let totalEntradasGlobal = 0;
+      let totalSaidasGlobal = 0;
+
       db.collection('financas').onSnapshot((snapshot) => {
         let items = [];
-        let totalEntradas = 0;
-        let totalSaidas = 0;
+        totalEntradasGlobal = 0;
+        totalSaidasGlobal = 0;
 
         if (snapshot.empty) {
           listaTransacoes.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Nenhum lançamento encontrado.</p>';
-          totalEntradasEl.textContent = 'R$ 0,00';
-          totalSaidasEl.textContent = 'R$ 0,00';
-          saldoTotalEl.textContent = 'R$ 0,00';
-          textoGastosLivresEl.textContent = 'R$ 0,00 / R$ 500,00';
-          barraProgressoEl.style.width = '0%';
-          alertaLimiteEl.style.display = 'none';
-          totalSaidasAtual = 0;
+          atualizarInterfaceFinanceira(0, 0);
           return;
         }
 
@@ -332,9 +371,9 @@
           items.push(item);
 
           if (item.tipo === 'entrada') {
-            totalEntradas += item.valor;
+            totalEntradasGlobal += item.valor;
           } else {
-            totalSaidas += item.valor;
+            totalSaidasGlobal += item.valor;
           }
         });
 
@@ -358,9 +397,16 @@
           `;
         });
 
-        totalSaidasAtual = totalSaidas;
+        totalSaidasAtual = totalSaidasGlobal;
         listaTransacoes.innerHTML = html;
+        atualizarInterfaceFinanceira(totalEntradasGlobal, totalSaidasGlobal);
 
+      }, (erro) => {
+        console.error("Erro no Snapshot:", erro);
+        listaTransacoes.innerHTML = `<p style="text-align: center; color: #c0392b;">Erro ao carregar os dados: ${erro.message}</p>`;
+      });
+
+      function atualizarInterfaceFinanceira(totalEntradas, totalSaidas) {
         const saldo = totalEntradas - totalSaidas;
         totalEntradasEl.textContent = `R$ ${totalEntradas.toFixed(2).replace('.', ',')}`;
         totalSaidasEl.textContent = `R$ ${totalSaidas.toFixed(2).replace('.', ',')}`;
@@ -383,10 +429,7 @@
           barraProgressoEl.style.backgroundColor = '#27ae60';
           alertaLimiteEl.style.display = 'none';
         }
-      }, (erro) => {
-        console.error("Erro no Snapshot:", erro);
-        listaTransacoes.innerHTML = `<p style="text-align: center; color: #c0392b;">Erro ao carregar os dados: ${erro.message}</p>`;
-      });
+      }
     }
 
     if ('serviceWorker' in navigator) {
