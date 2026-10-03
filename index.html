@@ -72,7 +72,7 @@
     .btn-limpar-tudo { background-color: #e67e22; margin-top: 10px; }
     .btn-limpar-tudo:hover { background-color: #d35400; }
 
-    /* Bloco da Calculadora de Soma de Compras com Teclado Integrado */
+    /* Bloco da Calculadora Integrada com Chat */
     .card-calculadora {
       background: #ffffff;
       padding: 20px;
@@ -166,6 +166,44 @@
       padding-top: 8px;
     }
 
+    /* CHAT INTEGRADO DENTRO DO BLOCO DA CALCULADORA */
+    .secao-chat-integrado {
+      margin-top: 20px;
+      border-top: 2px dashed #dcdde1;
+      padding-top: 15px;
+    }
+    .chat-mensagens {
+      height: 160px;
+      overflow-y: auto;
+      border: 1px solid #dcdde1;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 12px;
+      background: #fafafa;
+    }
+    .mensagem-item {
+      margin-bottom: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      max-width: 85%;
+      word-wrap: break-word;
+    }
+    .mensagem-gabriel {
+      background: #e8f4fd;
+      margin-left: auto;
+      text-align: right;
+      border-bottom-right-radius: 2px;
+    }
+    .mensagem-juliana {
+      background: #e1f5fe;
+      margin-right: auto;
+      text-align: left;
+      border-bottom-left-radius: 2px;
+    }
+    .mensagem-item strong { display: block; font-size: 0.75rem; color: #555; margin-bottom: 2px; }
+    .mensagem-item p { font-size: 0.9rem; color: #333; }
+    .mensagem-item small { display: block; font-size: 0.65rem; color: #888; margin-top: 2px; }
+
     .historico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .item-transacao { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
     .item-transacao:last-child { border-bottom: none; }
@@ -188,46 +226,6 @@
     }
     .card-saldo-final h3 { font-size: 1rem; }
     .card-saldo-final span { font-size: 1.3rem; font-weight: bold; color: #2ecc71; }
-
-    /* Área do Chat */
-    .chat-container {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    .chat-mensagens {
-      height: 200px;
-      overflow-y: auto;
-      border: 1px solid #eee;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 15px;
-      background: #fafafa;
-    }
-    .mensagem-item {
-      margin-bottom: 10px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      max-width: 85%;
-      word-wrap: break-word;
-    }
-    .mensagem-gabriel {
-      background: #e8f4fd;
-      margin-left: auto;
-      text-align: right;
-      border-bottom-right-radius: 2px;
-    }
-    .mensagem-juliana {
-      background: #e1f5fe;
-      margin-right: auto;
-      text-align: left;
-      border-bottom-left-radius: 2px;
-    }
-    .mensagem-item strong { display: block; font-size: 0.8rem; color: #555; margin-bottom: 2px; }
-    .mensagem-item p { font-size: 0.95rem; color: #333; }
-    .mensagem-item small { display: block; font-size: 0.7rem; color: #888; margin-top: 3px; }
   </style>
 
   <!-- Firebase Scripts Compat -->
@@ -266,7 +264,7 @@
       <p>Valor base definido para o mês</p>
     </div>
 
-    <!-- ÁREA EXCLUSIVA DO GABRIEL (ALTERAR VALOR + REINICIAR MÊS) -->
+    <!-- ÁREA EXCLUSIVA DO GABRIEL -->
     <div id="painel-gabriel" class="painel-exclusivo-gabriel">
       <form id="form-exclusivo-gabriel" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
         <div class="form-group">
@@ -278,12 +276,12 @@
       <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoMes()">🔄 Limpar Tudo e Recomeçar o Mês</button>
     </div>
 
-    <!-- CALCULADORA DE SOMA DE COMPRAS COM TECLADO COMPLETO -->
+    <!-- CALCULADORA DE COMPRAS + CHAT DO MERCADO INTEGRADOS -->
     <div class="card-calculadora">
-      <h2>🧮 Calculadora de Compras</h2>
-      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 10px;">Monte a conta e clique em Somar Preço</p>
+      <h2>🛒 Calculadora & Chat do Mercado</h2>
+      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 10px;">Some os itens e converse com seu par em tempo real pelos corredores!</p>
       
-      <!-- Visor do item atual / expressão -->
+      <!-- Visor do item atual -->
       <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 2px;">Operação atual:</div>
       <div id="visor-item-atual" class="visor-subtotal">0</div>
 
@@ -327,6 +325,20 @@
       </div>
 
       <button type="button" onclick="enviarCalculadoraParaGasto()" style="background-color: #3f51b5; margin-top: 12px;">📥 Enviar Total para Novo Gasto</button>
+
+      <!-- CHAT DENTRO DO MESMO BLOCO DA CALCULADORA -->
+      <div class="secao-chat-integrado">
+        <h3 style="font-size: 1rem; color: #2c3e50; margin-bottom: 8px; text-align: left;">💬 Chat do Mercado (Corredores)</h3>
+        <div id="lista-mensagens" class="chat-mensagens">
+          <p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhuma mensagem ainda. Mandem mensagem daqui!</p>
+        </div>
+        <form id="form-chat" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
+          <div class="form-group" style="margin-bottom: 8px;">
+            <input type="text" id="input-mensagem" placeholder="Fale com seu par nos corredores..." required style="padding: 10px; font-size: 0.9rem;">
+          </div>
+          <button type="submit" style="padding: 10px; font-size: 0.9rem;">Enviar Mensagem</button>
+        </form>
+      </div>
     </div>
 
     <!-- 2. MEIO: OS GASTOS (REGISTRO DE LANÇAMENTOS) -->
@@ -366,20 +378,6 @@
     <div class="card-saldo-final">
       <h3>Saldo que Sobrou:</h3>
       <span id="saldo-restante-final">R$ 500,00</span>
-    </div>
-
-    <!-- 5. CHAT / MENSAGENS EM TEMPO REAL -->
-    <div class="chat-container">
-      <h2>💬 Chat do Casal</h2>
-      <div id="lista-mensagens" class="chat-mensagens">
-        <p style="text-align: center; color: #7f8c8d; margin-top: 60px;">Nenhuma mensagem ainda. Inicie a conversa!</p>
-      </div>
-      <form id="form-chat" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
-        <div class="form-group" style="margin-bottom: 10px;">
-          <input type="text" id="input-mensagem" placeholder="Digite sua mensagem..." required>
-        </div>
-        <button type="submit">Enviar Mensagem</button>
-      </form>
     </div>
 
     <button type="button" class="btn-sair" onclick="sair()">🔒 Sair / Trocar Usuário</button>
@@ -460,7 +458,6 @@
       if (expressaoAtual === '') {
         visorItem.textContent = '0';
       } else {
-        // Troca visualmente para ficar amigável
         visorItem.textContent = expressaoAtual.replace(/\*/g, '×').replace(/\//g, '÷');
       }
     }
@@ -468,7 +465,6 @@
     function calcularResultadoFinal() {
       try {
         if (!expressaoAtual) return;
-        // Tratar porcentagem simples se houver
         let expressaoTratada = expressaoAtual.replace(/%/g, '/100');
         let resultado = eval(expressaoTratada);
         if (isNaN(resultado) || !isFinite(resultado)) {
@@ -684,7 +680,7 @@
         let msgs = [];
 
         if (snapshot.empty) {
-          listaMensagens.innerHTML = '<p style="text-align: center; color: #7f8c8d; margin-top: 60px;">Nenhuma mensagem ainda. Inicie a conversa!</p>';
+          listaMensagens.innerHTML = '<p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhuma mensagem ainda. Mandem mensagem daqui!</p>';
           return;
         }
 
