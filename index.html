@@ -71,6 +71,8 @@
     .btn-sair { background-color: #e74c3c; margin-top: 15px; }
     .btn-limpar-tudo { background-color: #e67e22; margin-top: 10px; }
     .btn-limpar-tudo:hover { background-color: #d35400; }
+    .btn-camera { background-color: #e67e22; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-camera:hover { background-color: #d35400; }
 
     .historico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .item-transacao { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
@@ -134,12 +136,46 @@
     .mensagem-item strong { display: block; font-size: 0.8rem; color: #555; margin-bottom: 2px; }
     .mensagem-item p { font-size: 0.95rem; color: #333; }
     .mensagem-item small { display: block; font-size: 0.7rem; color: #888; margin-top: 3px; }
+
+    /* Modal / Overlay da Câmera OCR */
+    #modal-camera {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #modal-camera video {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 8px;
+      border: 2px solid #fff;
+    }
+    .acoes-camera {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 400px;
+    }
+    #status-ocr {
+      color: white;
+      margin-top: 10px;
+      font-size: 1rem;
+      text-align: center;
+    }
   </style>
 
   <!-- Firebase Scripts Compat -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+  <!-- Tesseract.js para leitura OCR de preços -->
+  <script src="https://unpkg.com/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
 </head>
 <body>
 
@@ -188,6 +224,10 @@
     <form id="form-transacao">
       <h2>Novo Gasto</h2>
       
+      <button type="button" class="btn-camera" onclick="abrirCameraOCR()">
+        📷 Escanear Preço com a Câmera
+      </button>
+
       <div class="form-group">
         <label for="quem">Autor do Lançamento</label>
         <select id="quem" disabled required>
@@ -240,8 +280,20 @@
     <button type="button" class="btn-sair" onclick="sair()">🔒 Sair / Trocar Usuário</button>
   </div>
 
+  <!-- MODAL DA CÂMERA OCR -->
+  <div id="modal-camera">
+    <video id="video-preview" autoplay playsinline></video>
+    <div id="status-ocr">Aponte para o preço e clique em Capturar</div>
+    <div class="acoes-camera">
+      <button type="button" onclick="capturarELevarPreço()" style="background-color: #27ae60;">📸 Capturar Preço</button>
+      <button type="button" onclick="fecharCameraOCR()" style="background-color: #e74c3c;">❌ Cancelar</button>
+    </div>
+  </div>
+  <canvas id="canvas-ocr" style="display:none;"></canvas>
+
   <script>
     let VALOR_POSITIVO_BASE = 500.00;
+    let streamCamera = null;
 
     const SENHAS = {
       Gabriel: "7890",
@@ -503,7 +555,6 @@
       }
     }
 
-    // Função exclusiva do Gabriel para limpar todos os registros do banco de dados
     async function limparTudoDoMes() {
       const usuarioLogado = localStorage.getItem('financas_usuario');
       if (usuarioLogado !== 'Gabriel' || !dbGlobal) return;
@@ -529,6 +580,90 @@
         alert("✅ Tudo limpo com sucesso! O mês foi reiniciado.");
       } catch (erro) {
         alert("Erro ao limpar dados: " + erro.message);
+      }
+    }
+
+    // FUNÇÕES DA CÂMERA E OCR PARA LEITURA DE PREÇO
+    async function abrirCameraOCR() {
+      const modal = document.getElementById('modal-camera');
+      const video = document.getElementById('video-preview');
+      document.getElementById('status-ocr').textContent = "Aponte para o preço e clique em Capturar";
+      modal.style.display = 'flex';
+
+      try {
+        streamCamera = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } }
+        });
+        video.srcObject = streamCamera;
+      } catch (err) {
+        alert("Erro ao acessar a câmera: " + err.message);
+        fecharCameraOCR();
+      }
+    }
+
+    function fecharCameraOCR() {
+      const modal = document.getElementById('modal-camera');
+      modal.style.display = 'none';
+      if (streamCamera) {
+        streamCamera.getTracks().forEach(track => track.stop());
+        streamCamera = null;
+      }
+    }
+
+    async function capturarELevarPreço() {
+      const video = document.getElementById('video-preview');
+      const canvas = document.getElementById('canvas-ocr');
+      const status = document.getElementById('status-ocr');
+
+      if (!video.videoWidth) {
+        alert("Aguarde a câmera iniciar completamente.");
+        return;
+      }
+
+      status.textContent = "🔍 Lendo o preço na imagem...";
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      fecharCameraOCR();
+
+      try {
+        const result = await Tesseract.recognize(canvas, 'por', {
+          logger: m => console.log(m)
+        });
+
+        const textoLido = result.data.text;
+        console.log("Texto OCR:", textoLido);
+
+        // Expressão regular para achar valores em formato monetário (ex: 15,90 ou 15.90 ou 90)
+        const numerosEncontrados = textoLido.match(/\d+[\.,]\d{2}|\d+/g);
+
+        if (numerosEncontrados && numerosEncontrados.length > 0) {
+          // Pega o primeiro valor numérico válido detectado na etiqueta
+          let valorBruto = numerosEncontrados[0].replace(',', '.');
+          let valorNumerico = parseFloat(valorBruto);
+
+          // Se vier um número inteiro sem ponto (ex: 50 virar 0.50), ajusta se necessário ou usa direto
+          if (valorBruto.indexOf('.') === -1 && valorBruto.length > 2) {
+            valorNumerico = parseFloat(valorBruto.slice(0, -2) + '.' + valorBruto.slice(-2));
+          }
+
+          if (!isNaN(valorNumerico)) {
+            document.getElementById('valor').value = valorNumerico.toFixed(2);
+            if (!document.getElementById('descricao').value) {
+              document.getElementById('descricao').value = "Produto do Mercado (Escaneado)";
+            }
+            alert(`✅ Preço identificado com sucesso: R$ ${valorNumerico.toFixed(2).replace('.', ',')}`);
+          } else {
+            alert("Não foi possível converter o número lido. Digite manualmente ou tente outra foto.");
+          }
+        } else {
+          alert("Nenhum preço claro foi encontrado na imagem. Tente focar mais de perto na etiqueta.");
+        }
+      } catch (err) {
+        alert("Erro ao processar o reconhecimento de texto: " + err.message);
       }
     }
 
