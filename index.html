@@ -170,59 +170,79 @@
       padding-top: 8px;
     }
 
-    /* CHAT INTEGRADO COM ÁUDIO (BOTÃO COMPACTO) */
+    /* CHAT ESTILO WHATSAPP */
     .secao-chat-integrado {
       margin-top: 20px;
       border-top: 2px dashed #dcdde1;
       padding-top: 15px;
     }
     .chat-mensagens {
-      height: 180px;
+      height: 220px;
       overflow-y: auto;
       border: 1px solid #dcdde1;
-      border-radius: 6px;
-      padding: 10px;
+      border-radius: 8px;
+      padding: 12px;
       margin-bottom: 12px;
-      background: #fafafa;
+      background: #efeae2; /* Fundo clássico estilo WhatsApp Web */
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
     .mensagem-item {
-      margin-bottom: 8px;
       padding: 8px 12px;
       border-radius: 8px;
-      max-width: 85%;
+      max-width: 80%;
       word-wrap: break-word;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
     .mensagem-gabriel {
-      background: #e8f4fd;
+      background: #d9fdd3; /* Verde estilo WhatsApp para mensagens próprias */
       margin-left: auto;
-      text-align: right;
-      border-bottom-right-radius: 2px;
+      border-top-right-radius: 0;
     }
     .mensagem-juliana {
-      background: #e1f5fe;
+      background: #ffffff; /* Branco para o outro usuário */
       margin-right: auto;
-      text-align: left;
-      border-bottom-left-radius: 2px;
+      border-top-left-radius: 0;
     }
-    .mensagem-item strong { display: block; font-size: 0.75rem; color: #555; margin-bottom: 2px; }
-    .mensagem-item p { font-size: 0.9rem; color: #333; }
-    .mensagem-item small { display: block; font-size: 0.65rem; color: #888; margin-top: 2px; }
+    .mensagem-item strong { display: block; font-size: 0.75rem; color: #075e54; margin-bottom: 2px; }
+    .mensagem-item p { font-size: 0.9rem; color: #111; }
+    .mensagem-item small { display: block; font-size: 0.65rem; color: #667781; text-align: right; margin-top: 2px; }
     
+    /* Player de Áudio Estilizado */
+    audio {
+      width: 200px;
+      height: 32px;
+      filter: sepia(20%) hue-rotate(50deg) saturate(150%);
+    }
+
+    /* Linha de Envio Estilo WhatsApp (Input + Áudio Compacto + Botão de Envio Pequeno) */
     .container-envio-chat {
       display: flex;
       gap: 6px;
-      margin-bottom: 8px;
       align-items: center;
+      background: #fff;
+      padding: 6px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+    }
+    .container-envio-chat input {
+      border: none;
+      outline: none;
+      padding: 8px 12px;
+      font-size: 0.95rem;
+      flex: 1;
+      background: transparent;
     }
     /* Botão de áudio compacto e redondo */
     .btn-audio {
-      background-color: #e67e22;
-      color: white;
+      background-color: #f0f2f5;
+      color: #54656f;
       border: none;
       border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      min-width: 44px;
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
       font-size: 1.1rem;
       cursor: pointer;
       display: flex;
@@ -230,8 +250,10 @@
       justify-content: center;
       transition: background 0.2s;
     }
+    .btn-audio:hover { background-color: #e9edef; }
     .btn-audio.gravando {
-      background-color: #c0392b;
+      background-color: #ea0038;
+      color: white;
       animation: pulse 1.2s infinite;
     }
     @keyframes pulse {
@@ -239,6 +261,24 @@
       50% { opacity: 0.6; }
       100% { opacity: 1; }
     }
+
+    /* Botão de Enviar Pequeno com Setinha para Cima */
+    .btn-enviar-chat {
+      background-color: #00a884; /* Verde WhatsApp */
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .btn-enviar-chat:hover { background-color: #008f6f; }
 
     .historico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .item-transacao { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
@@ -354,7 +394,7 @@
 
       <div class="botoes-calc">
         <button type="button" class="btn-adicionar-item" onclick="adicionarItemCalculadora()">➕ Somar Preço</button>
-        <button type="button" class="btn-limpar-calc" onclick="zerarCalculadora()">🗑️️ Zerar</button>
+        <button type="button" class="btn-limpar-calc" onclick="zerarCalculadora()">🗑️ Zerar</button>
       </div>
 
       <div id="lista-itens-calculadora" class="lista-itens-calc">
@@ -363,19 +403,18 @@
 
       <button type="button" onclick="enviarCalculadoraParaGasto()" style="background-color: #3f51b5; margin-top: 12px;">📥 Enviar Total para Novo Gasto</button>
 
-      <!-- CHAT INTEGRADO COM BOTÃO DE ÁUDIO COMPACTO -->
+      <!-- CHAT INTEGRADO COM ESTILO WHATSAPP -->
       <div class="secao-chat-integrado">
         <h3 style="font-size: 1rem; color: #2c3e50; margin-bottom: 8px; text-align: left;">💬 Chat do Mercado & Áudio</h3>
         <div id="lista-mensagens" class="chat-mensagens">
           <p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhuma mensagem ainda. Mande texto ou áudio!</p>
         </div>
         
-        <div id="form-chat" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
-          <div class="container-envio-chat">
-            <input type="text" id="input-mensagem" placeholder="Digite sua mensagem..." style="padding: 10px; font-size: 0.9rem; flex: 1;">
-            <button type="button" id="btn-gravar-audio" class="btn-audio" onclick="alternarGravacaoAudio()" title="Gravar Áudio">🎙️</button>
-          </div>
-          <button type="button" onclick="enviarMensagemTexto()" style="padding: 10px; font-size: 0.9rem;">Enviar Mensagem</button>
+        <!-- Caixa de Entrada Estilo WhatsApp -->
+        <div class="container-envio-chat">
+          <button type="button" id="btn-gravar-audio" class="btn-audio" onclick="alternarGravacaoAudio()" title="Gravar Áudio">🎙️</button>
+          <input type="text" id="input-mensagem" placeholder="Digite uma mensagem...">
+          <button type="button" class="btn-enviar-chat" onclick="enviarMensagemTexto()" title="Enviar">⬆️</button>
         </div>
       </div>
     </div>
@@ -616,7 +655,6 @@
       const listaTransacoes = document.getElementById('lista-transacoes');
       const displayValorPositivoEl = document.getElementById('display-valor-positivo');
       const saldoRestanteFinalEl = document.getElementById('saldo-restante-final');
-      
       const listaMensagens = document.getElementById('lista-mensagens');
 
       formGabriel.addEventListener('submit', (e) => {
@@ -727,7 +765,7 @@
 
           let conteudoHtml = '';
           if (m.tipo === 'audio' && m.urlAudio) {
-            conteudoHtml = `<audio controls style="max-width: 100%; height: 36px; margin-top: 4px;"><source src="${m.urlAudio}" type="audio/webm"></audio>`;
+            conteudoHtml = `<audio controls><source src="${m.urlAudio}" type="audio/webm"></audio>`;
           } else {
             conteudoHtml = `<p>${m.texto || ''}</p>`;
           }
@@ -762,7 +800,7 @@
       }
     }
 
-    // FUNÇÃO DE ENVIO DE MENSAGEM DO CHAT
+    // FUNÇÃO DE ENVIO DE MENSAGEM DE TEXTO
     async function enviarMensagemTexto() {
       const inputMensagem = document.getElementById('input-mensagem');
       const usuarioLogado = localStorage.getItem('financas_usuario');
@@ -785,7 +823,7 @@
       }
     }
 
-    // Permitir enviar com a tecla Enter no input do chat
+    // Permitir enviar com a tecla Enter
     document.addEventListener('DOMContentLoaded', () => {
       const inputMsg = document.getElementById('input-mensagem');
       if (inputMsg) {
