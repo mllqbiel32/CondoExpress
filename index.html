@@ -175,7 +175,7 @@
       filter: sepia(20%) hue-rotate(50deg) saturate(150%);
     }
 
-    /* BARRA DE INPUT ESTILO WHATSAPP (MICROFONE + INPUT + ENVIAR) */
+    /* BARRA DE INPUT ESTILO WHATSAPP */
     .container-envio-chat {
       display: flex;
       gap: 8px;
@@ -194,7 +194,7 @@
       background: transparent;
     }
 
-    /* BOTÃO DE MICROFONE REDONDO ESTILO WHATSAPP */
+    /* BOTÃO DE MICROFONE REDONDO */
     .btn-audio {
       background-color: transparent;
       color: #54656f;
@@ -224,7 +224,6 @@
       100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234, 0, 56, 0); }
     }
 
-    /* Indicador visual de ondas de voz animadas ao gravar */
     .indicador-gravacao-container {
       display: none;
       align-items: center;
@@ -241,7 +240,6 @@
     }
     @keyframes piscar { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-    /* Ondas sonoras animadas tipo WhatsApp */
     .ondas-voz {
       display: flex;
       align-items: center;
@@ -266,7 +264,6 @@
       100% { transform: scaleY(1.2); }
     }
 
-    /* BOTÃO DE ENVIAR PEQUENO (APENAS SETINHA AZUL/VERDE) */
     .btn-enviar-chat {
       background-color: #00a884;
       color: white;
@@ -415,12 +412,10 @@
         <div class="container-envio-chat">
           <button type="button" id="btn-gravar-audio" class="btn-audio" onclick="alternarGravacaoAudio()" title="Gravar Áudio">🎙️</button>
           
-          <!-- Input normal de texto -->
           <input type="text" id="input-mensagem" placeholder="Digite uma mensagem...">
 
-          <!-- Indicador visual de voz gravando (substitui o input temporariamente ao gravar) -->
           <div id="indicador-gravacao" class="indicador-gravacao-container">
-            <span class="texto-gravando">Gravando...</span>
+            <span class="texto-gravando">Gravando áudio...</span>
             <div class="ondas-voz">
               <span></span><span></span><span></span><span></span><span></span>
             </div>
@@ -484,7 +479,6 @@
 
     let dbGlobal = null;
     let storageGlobal = null;
-    let messagingGlobal = null;
 
     let mediaRecorder = null;
     let audioChunks = [];
@@ -685,7 +679,7 @@
         let htmlMsg = '';
         msgs.forEach((m) => {
           const ehMeu = m.quem === usuarioLogado;
-          const conteudo = m.tipo === 'audio' ? `<audio controls><source src="${m.urlAudio}" type="audio/webm"></audio>` : `<p>${m.texto || ''}</p>`;
+          const conteudo = m.tipo === 'audio' ? `<audio controls preload="auto"><source src="${m.urlAudio}" type="audio/webm"></audio>` : `<p>${m.texto || ''}</p>`;
           htmlMsg += `
             <div class="mensagem-item ${ehMeu ? 'mensagem-gabriel' : 'mensagem-juliana'}">
               <strong>${m.quem}</strong>
@@ -729,7 +723,7 @@
       if (e.key === 'Enter') { e.preventDefault(); enviarMensagemTexto(); }
     });
 
-    // GRAVAÇÃO DE ÁUDIO ESTILO WHATSAPP
+    // GRAVAÇÃO DE ÁUDIO CORRIGIDA E ROBUSTA
     async function alternarGravacaoAudio() {
       const btnGravar = document.getElementById('btn-gravar-audio');
       const inputMsg = document.getElementById('input-mensagem');
@@ -738,12 +732,24 @@
       if (!gravandoAudio) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          mediaRecorder = new MediaRecorder(stream);
+          
+          // Testa formato compatível com o navegador do celular
+          let options = { mimeType: 'audio/webm' };
+          if (!MediaRecorder.isTypeSupported('audio/webm')) {
+            options = { mimeType: 'audio/mp4' };
+          }
+
+          mediaRecorder = new MediaRecorder(stream, options);
           audioChunks = [];
 
-          mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+          mediaRecorder.ondataavailable = e => {
+            if (e.data && e.data.size > 0) {
+              audioChunks.push(e.data);
+            }
+          };
+
           mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
             await enviarAudioParaFirebase(audioBlob);
             stream.getTracks().forEach(t => t.stop());
           };
@@ -751,14 +757,21 @@
           mediaRecorder.start();
           gravandoAudio = true;
           btnGravar.classList.add('gravando');
-          btnGravar.textContent = "⏹️";
+          btnGravar.textContent = "⏹️️";
           inputMsg.style.display = 'none';
           indicadorGravacao.classList.add('ativo');
         } catch (err) {
-          alert("Erro ao acessar microfone: " + err.message);
+          alert("Erro ao acessar o microfone. Verifique as permissões do navegador: " + err.message);
+          gravandoAudio = false;
+          btnGravar.classList.remove('gravando');
+          btnGravar.textContent = "🎙️";
+          inputMsg.style.display = 'block';
+          indicadorGravacao.classList.remove('ativo');
         }
       } else {
-        if (mediaRecorder) mediaRecorder.stop();
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+        }
         gravandoAudio = false;
         btnGravar.classList.remove('gravando');
         btnGravar.textContent = "🎙️";
@@ -768,7 +781,11 @@
     }
 
     async function enviarAudioParaFirebase(audioBlob) {
-      if (!storageGlobal || !dbGlobal) return;
+      if (!storageGlobal || !dbGlobal) {
+        alert("Firebase não inicializado.");
+        return;
+      }
+      
       const usuarioLogado = localStorage.getItem('financas_usuario');
       const nomeArquivo = `audios/${Date.now()}_${usuarioLogado}.webm`;
       const storageRef = storageGlobal.ref().child(nomeArquivo);
@@ -784,7 +801,9 @@
           timestamp: Date.now(),
           horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         });
-      } catch (erro) { alert("Erro ao enviar áudio: " + erro.message); }
+      } catch (erro) {
+        alert("Erro ao enviar o áudio para o servidor: " + erro.message);
+      }
     }
 
     async function limparTudoDoMes() {
