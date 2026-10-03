@@ -85,6 +85,11 @@
       font-size: 1.8rem;
       font-weight: bold;
       margin-bottom: 10px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .visor-calc.ultrapassado {
+      background: #c0392b !important;
+      color: #ffffff !important;
     }
     .visor-subtotal {
       background: #ecf0f1;
@@ -258,7 +263,7 @@
   <div id="conteudo-principal">
     <h1>💰 Finanças do Casal</h1>
 
-    <!-- 1. CALCULADORA & CHAT (AGORA NO TOPO) -->
+    <!-- 1. CALCULADORA & CHAT (NO TOPO) -->
     <div class="card-calculadora">
       <h2>🛒 Calculadora & Chat</h2>
       <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 10px;">Some seus itens e mande recados pelos corredores do mercado!</p>
@@ -463,6 +468,13 @@
         if (!expressaoAtual) return;
         let valor = eval(expressaoAtual.replace(/%/g, '/100'));
         if (isNaN(valor) || valor <= 0) return;
+
+        // VALIDAÇÃO DE LIMITE DO SALDO BASE
+        if ((somaTotalCalculadora + valor) > VALOR_POSITIVO_BASE) {
+          alert(`🚫 Não é possível somar! O valor ultrapassa o Saldo Positivo Base de R$ ${VALOR_POSITIVO_BASE.toFixed(2)}.`);
+          return;
+        }
+
         somaTotalCalculadora += valor;
         itensCalculadoraLista.push(valor);
         expressaoAtual = "";
@@ -481,10 +493,22 @@
       const visor = document.getElementById('visor-calculadora');
       const listaEl = document.getElementById('lista-itens-calculadora');
       visor.textContent = `R$ ${somaTotalCalculadora.toFixed(2).replace('.', ',')}`;
+      
       listaEl.innerHTML = itensCalculadoraLista.length === 0 ? 'Nenhum item somado ainda.' : 'Itens: ' + itensCalculadoraLista.map(v => `R$ ${v.toFixed(2).replace('.', ',')}`).join(' + ');
+
+      // SE ULTRAPASSAR O LIMITE, MUDA A COR DO VISOR PARA VERMELHO
+      if (somaTotalCalculadora > VALOR_POSITIVO_BASE) {
+        visor.classList.add('ultrapassado');
+      } else {
+        visor.classList.remove('ultrapassado');
+      }
     }
     function enviarCalculadoraParaGasto() {
       if (somaTotalCalculadora <= 0) { alert("Calculadora vazia!"); return; }
+      if (somaTotalCalculadora > VALOR_POSITIVO_BASE) {
+        alert("🚫 O total acumulado excede o Saldo Positivo Base!");
+        return;
+      }
       document.getElementById('valor').value = somaTotalCalculadora.toFixed(2);
       if (!document.getElementById('descricao').value) document.getElementById('descricao').value = "Compras do Mercado";
       window.scrollTo({ top: document.getElementById('form-transacao').offsetTop, behavior: 'smooth' });
@@ -522,6 +546,7 @@
         if (!isNaN(novoValor) && novoValor > 0) {
           VALOR_POSITIVO_BASE = novoValor;
           atualizarInterfaceFinanceira(totalGastosAtual);
+          atualizarVisorCalculadora(); // Atualiza cores se necessário
           alert("✅ Saldo base atualizado!");
         }
       });
@@ -607,7 +632,6 @@
       }
     }
 
-    // ENVIO DE TEXTO CORRIGIDO
     async function enviarMensagemTexto() {
       const inputMensagem = document.getElementById('input-mensagem');
       const usuarioLogado = localStorage.getItem('financas_usuario');
@@ -629,7 +653,7 @@
           horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         });
         inputMensagem.value = '';
-        inputMensagem.focus();
+        input_mensagem_foco = document.getElementById('input-mensagem').focus();
       } catch (erro) {
         alert("Erro ao enviar mensagem: " + erro.message);
         console.error(erro);
