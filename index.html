@@ -354,7 +354,7 @@
 
       <div class="botoes-calc">
         <button type="button" class="btn-adicionar-item" onclick="adicionarItemCalculadora()">➕ Somar Preço</button>
-        <button type="button" class="btn-limpar-calc" onclick="zerarCalculadora()">🗑️ Zerar</button>
+        <button type="button" class="btn-limpar-calc" onclick="zerarCalculadora()">🗑️️ Zerar</button>
       </div>
 
       <div id="lista-itens-calculadora" class="lista-itens-calc">
@@ -370,13 +370,13 @@
           <p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhuma mensagem ainda. Mande texto ou áudio!</p>
         </div>
         
-        <form id="form-chat" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
+        <div id="form-chat" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
           <div class="container-envio-chat">
             <input type="text" id="input-mensagem" placeholder="Digite sua mensagem..." style="padding: 10px; font-size: 0.9rem; flex: 1;">
             <button type="button" id="btn-gravar-audio" class="btn-audio" onclick="alternarGravacaoAudio()" title="Gravar Áudio">🎙️</button>
           </div>
-          <button type="submit" style="padding: 10px; font-size: 0.9rem;">Enviar Mensagem</button>
-        </form>
+          <button type="button" onclick="enviarMensagemTexto()" style="padding: 10px; font-size: 0.9rem;">Enviar Mensagem</button>
+        </div>
       </div>
     </div>
 
@@ -617,8 +617,6 @@
       const displayValorPositivoEl = document.getElementById('display-valor-positivo');
       const saldoRestanteFinalEl = document.getElementById('saldo-restante-final');
       
-      const formChat = document.getElementById('form-chat');
-      const inputMensagem = document.getElementById('input-mensagem');
       const listaMensagens = document.getElementById('lista-mensagens');
 
       formGabriel.addEventListener('submit', (e) => {
@@ -661,28 +659,6 @@
           zerarCalculadora();
         } catch (erro) {
           alert("Erro ao salvar lançamento: " + erro.message);
-        }
-      });
-
-      formChat.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const usuarioLogado = localStorage.getItem('financas_usuario');
-        const texto = inputMensagem.value.trim();
-
-        if (!texto) return;
-
-        try {
-          await dbGlobal.collection('mensagens_chat').add({
-            quem: usuarioLogado,
-            tipo: 'texto',
-            texto: texto,
-            timestamp: Date.now(),
-            horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-          });
-
-          inputMensagem.value = '';
-        } catch (erro) {
-          alert("Erro ao enviar mensagem: " + erro.message);
         }
       });
 
@@ -785,6 +761,42 @@
         }
       }
     }
+
+    // FUNÇÃO DE ENVIO DE MENSAGEM DO CHAT
+    async function enviarMensagemTexto() {
+      const inputMensagem = document.getElementById('input-mensagem');
+      const usuarioLogado = localStorage.getItem('financas_usuario');
+      const texto = inputMensagem.value.trim();
+
+      if (!texto || !dbGlobal) return;
+
+      try {
+        await dbGlobal.collection('mensagens_chat').add({
+          quem: usuarioLogado,
+          tipo: 'texto',
+          texto: texto,
+          timestamp: Date.now(),
+          horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        });
+
+        inputMensagem.value = '';
+      } catch (erro) {
+        alert("Erro ao enviar mensagem: " + erro.message);
+      }
+    }
+
+    // Permitir enviar com a tecla Enter no input do chat
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputMsg = document.getElementById('input-mensagem');
+      if (inputMsg) {
+        inputMsg.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            enviarMensagemTexto();
+          }
+        });
+      }
+    });
 
     // GRAVAÇÃO DE ÁUDIO
     async function alternarGravacaoAudio() {
