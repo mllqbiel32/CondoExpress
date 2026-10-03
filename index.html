@@ -72,7 +72,7 @@
     .btn-limpar-tudo { background-color: #e67e22; margin-top: 10px; }
     .btn-limpar-tudo:hover { background-color: #d35400; }
 
-    /* Bloco da Calculadora de Soma de Compras */
+    /* Bloco da Calculadora de Soma de Compras com Teclado Integrado */
     .card-calculadora {
       background: #ffffff;
       padding: 20px;
@@ -89,8 +89,57 @@
       text-align: right;
       font-size: 1.8rem;
       font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .visor-subtotal {
+      background: #ecf0f1;
+      color: #34495e;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-align: right;
+      font-size: 1.1rem;
+      font-weight: bold;
       margin-bottom: 15px;
     }
+
+    /* Teclado Numérico Customizado */
+    .teclado-numerico {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+    .btn-teclado {
+      background-color: #ecf0f1;
+      color: #2c3e50;
+      font-size: 1.3rem;
+      padding: 14px 0;
+      border-radius: 6px;
+      border: 1px solid #bdc3c7;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .btn-teclado:active {
+      background-color: #bdc3c7;
+    }
+    .btn-acao-calc {
+      background-color: #3498db;
+      color: white;
+      border: none;
+    }
+    .btn-acao-calc:hover {
+      background-color: #2980b9;
+    }
+    .btn-apagar {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+    }
+    .btn-apagar:hover {
+      background-color: #c0392b;
+    }
+
     .botoes-calc {
       display: flex;
       gap: 10px;
@@ -102,10 +151,10 @@
       background-color: #219653;
     }
     .btn-limpar-calc {
-      background-color: #e74c3c;
+      background-color: #e67e22;
     }
     .btn-limpar-calc:hover {
-      background-color: #c0392b;
+      background-color: #d35400;
     }
     .lista-itens-calc {
       max-height: 120px;
@@ -226,18 +275,39 @@
         </div>
         <button type="submit" style="background-color: #27ae60;">Atualizar Valor Positivo</button>
       </form>
-      <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoMes()">🔄 Limpar Tudo e Recomeçar o Mês</button>
+      <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoMes()">🔄 Limpar Tudo e Recomeçar o Mes</button>
     </div>
 
-    <!-- CALCULADORA DE SOMA DE COMPRAS -->
+    <!-- CALCULADORA DE SOMA DE COMPRAS COM TECLADO INTEGRADO -->
     <div class="card-calculadora">
       <h2>🧮 Calculadora de Compras</h2>
-      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 10px;">Digite o valor de cada produto e clique em somar</p>
+      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 10px;">Digite o preço usando os botões abaixo e clique em Somar</p>
       
+      <!-- Visor do item atual sendo digitado -->
+      <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 2px;">Valor do produto atual:</div>
+      <div id="visor-item-atual" class="visor-subtotal">R$ 0,00</div>
+
+      <!-- Visor do total acumulado -->
+      <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 2px;">Total acumulado da compra:</div>
       <div id="visor-calculadora" class="visor-calc">R$ 0,00</div>
       
-      <div class="form-group" style="margin-bottom: 10px;">
-        <input type="number" id="input-item-calc" step="0.01" placeholder="Digite o preço (ex: 10.50)" style="font-size: 1.1rem; text-align: center;">
+      <!-- TECLADO NUMÉRICO INTEGRADO -->
+      <div class="teclado-numerico">
+        <button type="button" class="btn-teclado" onclick="digitarNumero('7')">7</button>
+        <button type="button" class="btn-teclado" onclick="digitarNumero('8')">8</button>
+        <button type="button" class="btn-teclado" onclick="digitarNumero('9')">9</button>
+        
+        <button type="button" class="btn-teclado" onclick="digitarNumero('4')">4</button>
+        <button type="button" class="btn-teclado" onclick="digitarNumero('5')">5</button>
+        <button type="button" class="btn-teclado" onclick="digitarNumero('6')">6</button>
+        
+        <button type="button" class="btn-teclado" onclick="digitarNumero('1')">1</button>
+        <button type="button" class="btn-teclado" onclick="digitarNumero('2')">2</button>
+        <button type="button" class="btn-teclado" onclick="digitarNumero('3')">3</button>
+        
+        <button type="button" class="btn-teclado" onclick="digitarNumero('0')">0</button>
+        <button type="button" class="btn-teclado" onclick="digitarNumero('.')">.</button>
+        <button type="button" class="btn-teclado btn-apagar" onclick="apagarDigito()">⌫</button>
       </div>
 
       <div class="botoes-calc">
@@ -312,6 +382,7 @@
     let VALOR_POSITIVO_BASE = 500.00;
     let somaTotalCalculadora = 0;
     let itensCalculadoraLista = [];
+    let textoDigitadoAtual = "";
 
     const SENHAS = {
       Gabriel: "7890",
@@ -366,27 +437,57 @@
       location.reload();
     }
 
+    // FUNÇÕES DO TECLADO NUMÉRICO INTEGRADO
+    function digitarNumero(num) {
+      // Evitar colocar mais de um ponto decimal
+      if (num === '.' && textoDigitadoAtual.includes('.')) return;
+      
+      // Se começar com ponto, coloca "0."
+      if (num === '.' && textoDigitadoAtual === '') {
+        textoDigitadoAtual = '0.';
+      } else {
+        textoDigitadoAtual += num;
+      }
+      atualizarVisorItemAtual();
+    }
+
+    function apagarDigito() {
+      textoDigitadoAtual = textoDigitadoAtual.slice(0, -1);
+      atualizarVisorItemAtual();
+    }
+
+    function atualizarVisorItemAtual() {
+      const visorItem = document.getElementById('visor-item-atual');
+      if (textoDigitadoAtual === '') {
+        visorItem.textContent = 'R$ 0,00';
+      } else {
+        // Exibir formato amigável
+        visorItem.textContent = `R$ ${textoDigitadoAtual.replace('.', ',')}`;
+      }
+    }
+
     // FUNÇÕES DA CALCULADORA DE COMPRAS
     function adicionarItemCalculadora() {
-      const inputItem = document.getElementById('input-item-calc');
-      const valor = parseFloat(inputItem.value);
+      const valor = parseFloat(textoDigitadoAtual);
 
       if (isNaN(valor) || valor <= 0) {
-        alert("Digite um valor válido para somar.");
+        alert("Digite um valor válido usando o teclado numérico.");
         return;
       }
 
       somaTotalCalculadora += valor;
       itensCalculadoraLista.push(valor);
 
+      textoDigitadoAtual = ""; // Limpa para o próximo produto
+      atualizarVisorItemAtual();
       atualizarVisorCalculadora();
-      inputItem.value = '';
-      inputItem.focus();
     }
 
     function zerarCalculadora() {
       somaTotalCalculadora = 0;
       itensCalculadoraLista = [];
+      textoDigitadoAtual = "";
+      atualizarVisorItemAtual();
       atualizarVisorCalculadora();
     }
 
@@ -654,7 +755,6 @@
       }
     }
 
-    // REGISTRO CORRETO DO SERVICE WORKER PARA LIBERAR A INSTALAÇÃO DO PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
