@@ -24,6 +24,10 @@
       margin: 10px 0;
       text-align: center;
       font-size: 1.1rem;
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
     #tela-login input {
       letter-spacing: 3px;
@@ -415,15 +419,19 @@
   </div>
 
   <script>
-    let VALOR_POSITIVO_BASE = 500.00;
-    let somaTotalCalculadora = 0;
-    let itensCalculadoraLista = [];
-    let expressaoAtual = "";
-
+    // -------------------------------------------------------------
+    // SENHAS FIXAS DEFINIDAS
+    // Gabriel = 7890  |  Juliana = 2468
+    // -------------------------------------------------------------
     const SENHAS = {
       Gabriel: "7890",
       Juliana: "2468"
     };
+
+    let VALOR_POSITIVO_BASE = 500.00;
+    let somaTotalCalculadora = 0;
+    let itensCalculadoraLista = [];
+    let expressaoAtual = "";
 
     let totalGastosAtual = 0;
     let dbGlobal = null;
@@ -437,8 +445,10 @@
 
     if (localStorage.getItem('financas_autenticado') === 'true') {
       const usuarioLogado = localStorage.getItem('financas_usuario');
-      if (usuarioLogado) {
+      if (usuarioLogado && SENHAS[usuarioLogado]) {
         exibirApp(usuarioLogado);
+      } else {
+        localStorage.clear();
       }
     }
 
@@ -474,8 +484,7 @@
     }
 
     function sair() {
-      localStorage.removeItem('financas_autenticado');
-      localStorage.removeItem('financas_usuario');
+      localStorage.clear();
       location.reload();
     }
 
@@ -793,7 +802,6 @@
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
             await enviarAudioParaFirebase(audioBlob);
             
-            // Desligar o stream do microfone
             stream.getTracks().forEach(track => track.stop());
           };
 
@@ -868,7 +876,7 @@
         snapshotFinancas.forEach((doc) => {
           batchFinancas.delete(doc.ref);
         });
-        await batchFinancell = await batchFinancas.commit();
+        await batchFinancas.commit();
 
         const snapshotChat = await dbGlobal.collection('mensagens_chat').get();
         const batchChat = dbGlobal.batch();
