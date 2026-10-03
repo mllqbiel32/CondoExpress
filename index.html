@@ -607,12 +607,18 @@
       }
     }
 
-    // ENVIO DE TEXTO
+    // ENVIO DE TEXTO CORRIGIDO
     async function enviarMensagemTexto() {
       const inputMensagem = document.getElementById('input-mensagem');
       const usuarioLogado = localStorage.getItem('financas_usuario');
       const texto = inputMensagem.value.trim();
-      if (!texto || !dbGlobal) return;
+      
+      if (!texto) return;
+      
+      if (!dbGlobal) {
+        alert("Erro: O banco de dados não foi inicializado. Faça login novamente.");
+        return;
+      }
 
       try {
         await dbGlobal.collection('mensagens_chat').add({
@@ -623,11 +629,18 @@
           horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         });
         inputMensagem.value = '';
-      } catch (erro) { alert("Erro ao enviar mensagem: " + erro.message); }
+        inputMensagem.focus();
+      } catch (erro) {
+        alert("Erro ao enviar mensagem: " + erro.message);
+        console.error(erro);
+      }
     }
 
     document.getElementById('input-mensagem').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); enviarMensagemTexto(); }
+      if (e.key === 'Enter') { 
+        e.preventDefault(); 
+        enviarMensagemTexto(); 
+      }
     });
 
     async function limparTudoDoMes() {
