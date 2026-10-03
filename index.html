@@ -76,7 +76,7 @@
     .btn-limpar-tudo { background-color: #e67e22; margin-top: 10px; }
     .btn-limpar-tudo:hover { background-color: #d35400; }
 
-    /* Bloco da Calculadora Integrada com Chat e Áudio */
+    /* Bloco da Calculadora Integrada com Chat e Áudio (No Topo agora) */
     .card-calculadora {
       background: #ffffff;
       padding: 20px;
@@ -170,7 +170,7 @@
       padding-top: 8px;
     }
 
-    /* CHAT INTEGRADO COM ÁUDIO */
+    /* CHAT INTEGRADO COM ÁUDIO (BOTÃO COMPACTO) */
     .secao-chat-integrado {
       margin-top: 20px;
       border-top: 2px dashed #dcdde1;
@@ -212,14 +212,18 @@
       display: flex;
       gap: 6px;
       margin-bottom: 8px;
+      align-items: center;
     }
+    /* Botão de áudio compacto e redondo */
     .btn-audio {
       background-color: #e67e22;
       color: white;
       border: none;
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-weight: bold;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      font-size: 1.1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -309,7 +313,7 @@
       <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoMes()">🔄 Limpar Tudo e Recomeçar o Mês</button>
     </div>
 
-    <!-- CALCULADORA DE COMPRAS + CHAT COM ÁUDIO INTEGRADOS -->
+    <!-- 2. NO TOPO AGORA: CALCULADORA DE COMPRAS + CHAT COM ÁUDIO -->
     <div class="card-calculadora">
       <h2>🛒 Calculadora & Chat por Áudio</h2>
       <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 10px;">Some seus itens e mande áudios ou textos pelos corredores do mercado!</p>
@@ -359,7 +363,7 @@
 
       <button type="button" onclick="enviarCalculadoraParaGasto()" style="background-color: #3f51b5; margin-top: 12px;">📥 Enviar Total para Novo Gasto</button>
 
-      <!-- CHAT INTEGRADO COM SUPORTE A TEXTO E ÁUDIO -->
+      <!-- CHAT INTEGRADO COM BOTÃO DE ÁUDIO COMPACTO -->
       <div class="secao-chat-integrado">
         <h3 style="font-size: 1rem; color: #2c3e50; margin-bottom: 8px; text-align: left;">💬 Chat do Mercado & Áudio</h3>
         <div id="lista-mensagens" class="chat-mensagens">
@@ -376,7 +380,7 @@
       </div>
     </div>
 
-    <!-- 2. MEIO: OS GASTOS (REGISTRO DE LANÇAMENTOS) -->
+    <!-- 3. MAIS ABAIXO: REGISTRO DE NOVO GASTO -->
     <form id="form-transacao">
       <h2>Novo Gasto</h2>
       
@@ -401,7 +405,7 @@
       <button type="submit">Adicionar Gasto</button>
     </form>
 
-    <!-- 3. FIM: O QUE FOI GASTO (HISTÓRICO) -->
+    <!-- 4. MAIS ABAIXO: HISTÓRICO DE GASTOS -->
     <div class="historico">
       <h2>Histórico de Gastos</h2>
       <div id="lista-transacoes">
@@ -409,7 +413,7 @@
       </div>
     </div>
 
-    <!-- 4. FIM: SALDO QUE SOBROU -->
+    <!-- 5. MAIS ABAIXO: SALDO QUE SOBROU -->
     <div class="card-saldo-final">
       <h3>Saldo que Sobrou:</h3>
       <span id="saldo-restante-final">R$ 500,00</span>
