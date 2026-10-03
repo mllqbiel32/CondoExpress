@@ -71,8 +71,51 @@
     .btn-sair { background-color: #e74c3c; margin-top: 15px; }
     .btn-limpar-tudo { background-color: #e67e22; margin-top: 10px; }
     .btn-limpar-tudo:hover { background-color: #d35400; }
-    .btn-camera { background-color: #e67e22; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-camera:hover { background-color: #d35400; }
+
+    /* Bloco da Calculadora de Soma de Compras */
+    .card-calculadora {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      border: 2px solid #3f51b5;
+    }
+    .visor-calc {
+      background: #2c3e50;
+      color: #2ecc71;
+      padding: 15px;
+      border-radius: 6px;
+      text-align: right;
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .botoes-calc {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-adicionar-item {
+      background-color: #27ae60;
+    }
+    .btn-adicionar-item:hover {
+      background-color: #219653;
+    }
+    .btn-limpar-calc {
+      background-color: #e74c3c;
+    }
+    .btn-limpar-calc:hover {
+      background-color: #c0392b;
+    }
+    .lista-itens-calc {
+      max-height: 120px;
+      overflow-y: auto;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #555;
+      border-top: 1px solid #eee;
+      padding-top: 8px;
+    }
 
     .historico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .item-transacao { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
@@ -136,46 +179,12 @@
     .mensagem-item strong { display: block; font-size: 0.8rem; color: #555; margin-bottom: 2px; }
     .mensagem-item p { font-size: 0.95rem; color: #333; }
     .mensagem-item small { display: block; font-size: 0.7rem; color: #888; margin-top: 3px; }
-
-    /* Modal / Overlay da Câmera OCR */
-    #modal-camera {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9);
-      z-index: 9999;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    #modal-camera video {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 8px;
-      border: 2px solid #fff;
-    }
-    .acoes-camera {
-      margin-top: 15px;
-      display: flex;
-      gap: 10px;
-      width: 100%;
-      max-width: 400px;
-    }
-    #status-ocr {
-      color: white;
-      margin-top: 10px;
-      font-size: 1rem;
-      text-align: center;
-    }
   </style>
 
   <!-- Firebase Scripts Compat -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
-  <!-- Tesseract.js para leitura OCR de preços -->
-  <script src="https://unpkg.com/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
 </head>
 <body>
 
@@ -220,14 +229,33 @@
       <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoMes()">🔄 Limpar Tudo e Recomeçar o Mês</button>
     </div>
 
+    <!-- CALCULADORA DE SOMA DE COMPRAS -->
+    <div class="card-calculadora">
+      <h2>🧮 Calculadora de Compras</h2>
+      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 10px;">Digite o valor de cada produto e clique em somar</p>
+      
+      <div id="visor-calculadora" class="visor-calc">R$ 0,00</div>
+      
+      <div class="form-group" style="margin-bottom: 10px;">
+        <input type="number" id="input-item-calc" step="0.01" placeholder="Digite o preço (ex: 10.50)" style="font-size: 1.1rem; text-align: center;">
+      </div>
+
+      <div class="botoes-calc">
+        <button type="button" class="btn-adicionar-item" onclick="adicionarItemCalculadora()">➕ Somar Preço</button>
+        <button type="button" class="btn-limpar-calc" onclick="zerarCalculadora()">🗑️ Zerar</button>
+      </div>
+
+      <div id="lista-itens-calculadora" class="lista-itens-calc">
+        Nenhum item somado ainda.
+      </div>
+
+      <button type="button" onclick="enviarCalculadoraParaGasto()" style="background-color: #3f51b5; margin-top: 12px;">📥 Enviar Total para Novo Gasto</button>
+    </div>
+
     <!-- 2. MEIO: OS GASTOS (REGISTRO DE LANÇAMENTOS) -->
     <form id="form-transacao">
       <h2>Novo Gasto</h2>
       
-      <button type="button" class="btn-camera" onclick="abrirCameraOCR()">
-        📷 Escanear Preço com a Câmera
-      </button>
-
       <div class="form-group">
         <label for="quem">Autor do Lançamento</label>
         <select id="quem" disabled required>
@@ -238,7 +266,7 @@
 
       <div class="form-group">
         <label for="descricao">Descrição do Gasto</label>
-        <input type="text" id="descricao" placeholder="Ex: Mercado, Lanche, Uber" required>
+        <input type="text" id="descricao" placeholder="Ex: Supermercado, Lanche, Uber" required>
       </div>
 
       <div class="form-group">
@@ -280,20 +308,10 @@
     <button type="button" class="btn-sair" onclick="sair()">🔒 Sair / Trocar Usuário</button>
   </div>
 
-  <!-- MODAL DA CÂMERA OCR -->
-  <div id="modal-camera">
-    <video id="video-preview" autoplay playsinline></video>
-    <div id="status-ocr">Aponte para o preço e clique em Capturar</div>
-    <div class="acoes-camera">
-      <button type="button" onclick="capturarELevarPreço()" style="background-color: #27ae60;">📸 Capturar Preço</button>
-      <button type="button" onclick="fecharCameraOCR()" style="background-color: #e74c3c;">❌ Cancelar</button>
-    </div>
-  </div>
-  <canvas id="canvas-ocr" style="display:none;"></canvas>
-
   <script>
     let VALOR_POSITIVO_BASE = 500.00;
-    let streamCamera = null;
+    let somaTotalCalculadora = 0;
+    let itensCalculadoraLista = [];
 
     const SENHAS = {
       Gabriel: "7890",
@@ -346,6 +364,58 @@
       localStorage.removeItem('financas_autenticado');
       localStorage.removeItem('financas_usuario');
       location.reload();
+    }
+
+    // FUNÇÕES DA CALCULADORA DE COMPRAS
+    function adicionarItemCalculadora() {
+      const inputItem = document.getElementById('input-item-calc');
+      const valor = parseFloat(inputItem.value);
+
+      if (isNaN(valor) || valor <= 0) {
+        alert("Digite um valor válido para somar.");
+        return;
+      }
+
+      somaTotalCalculadora += valor;
+      itensCalculadoraLista.push(valor);
+
+      atualizarVisorCalculadora();
+      inputItem.value = '';
+      inputItem.focus();
+    }
+
+    function zerarCalculadora() {
+      somaTotalCalculadora = 0;
+      itensCalculadoraLista = [];
+      atualizarVisorCalculadora();
+    }
+
+    function atualizarVisorCalculadora() {
+      const visor = document.getElementById('visor-calculadora');
+      const listaEl = document.getElementById('lista-itens-calculadora');
+
+      visor.textContent = `R$ ${somaTotalCalculadora.toFixed(2).replace('.', ',')}`;
+
+      if (itensCalculadoraLista.length === 0) {
+        listaEl.innerHTML = 'Nenhum item somado ainda.';
+      } else {
+        listaEl.innerHTML = 'Itens somados: ' + itensCalculadoraLista.map(v => `R$ ${v.toFixed(2).replace('.', ',')}`).join(' + ');
+      }
+    }
+
+    function enviarCalculadoraParaGasto() {
+      if (somaTotalCalculadora <= 0) {
+        alert("A calculadora está vazia!");
+        return;
+      }
+
+      document.getElementById('valor').value = somaTotalCalculadora.toFixed(2);
+      if (!document.getElementById('descricao').value) {
+        document.getElementById('descricao').value = "Compras do Mercado";
+      }
+
+      alert("✅ Total enviado para o campo 'Novo Gasto' com sucesso!");
+      window.scrollTo({ top: document.getElementById('form-transacao').offsetTop, behavior: 'smooth' });
     }
 
     const firebaseConfig = {
@@ -419,6 +489,7 @@
 
           document.getElementById('descricao').value = '';
           document.getElementById('valor').value = '';
+          zerarCalculadora();
         } catch (erro) {
           alert("Erro ao salvar lançamento: " + erro.message);
         }
@@ -580,90 +651,6 @@
         alert("✅ Tudo limpo com sucesso! O mês foi reiniciado.");
       } catch (erro) {
         alert("Erro ao limpar dados: " + erro.message);
-      }
-    }
-
-    // FUNÇÕES DA CÂMERA E OCR PARA LEITURA DE PREÇO
-    async function abrirCameraOCR() {
-      const modal = document.getElementById('modal-camera');
-      const video = document.getElementById('video-preview');
-      document.getElementById('status-ocr').textContent = "Aponte para o preço e clique em Capturar";
-      modal.style.display = 'flex';
-
-      try {
-        streamCamera = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' } }
-        });
-        video.srcObject = streamCamera;
-      } catch (err) {
-        alert("Erro ao acessar a câmera: " + err.message);
-        fecharCameraOCR();
-      }
-    }
-
-    function fecharCameraOCR() {
-      const modal = document.getElementById('modal-camera');
-      modal.style.display = 'none';
-      if (streamCamera) {
-        streamCamera.getTracks().forEach(track => track.stop());
-        streamCamera = null;
-      }
-    }
-
-    async function capturarELevarPreço() {
-      const video = document.getElementById('video-preview');
-      const canvas = document.getElementById('canvas-ocr');
-      const status = document.getElementById('status-ocr');
-
-      if (!video.videoWidth) {
-        alert("Aguarde a câmera iniciar completamente.");
-        return;
-      }
-
-      status.textContent = "🔍 Lendo o preço na imagem...";
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      fecharCameraOCR();
-
-      try {
-        const result = await Tesseract.recognize(canvas, 'por', {
-          logger: m => console.log(m)
-        });
-
-        const textoLido = result.data.text;
-        console.log("Texto OCR:", textoLido);
-
-        // Expressão regular para achar valores em formato monetário (ex: 15,90 ou 15.90 ou 90)
-        const numerosEncontrados = textoLido.match(/\d+[\.,]\d{2}|\d+/g);
-
-        if (numerosEncontrados && numerosEncontrados.length > 0) {
-          // Pega o primeiro valor numérico válido detectado na etiqueta
-          let valorBruto = numerosEncontrados[0].replace(',', '.');
-          let valorNumerico = parseFloat(valorBruto);
-
-          // Se vier um número inteiro sem ponto (ex: 50 virar 0.50), ajusta se necessário ou usa direto
-          if (valorBruto.indexOf('.') === -1 && valorBruto.length > 2) {
-            valorNumerico = parseFloat(valorBruto.slice(0, -2) + '.' + valorBruto.slice(-2));
-          }
-
-          if (!isNaN(valorNumerico)) {
-            document.getElementById('valor').value = valorNumerico.toFixed(2);
-            if (!document.getElementById('descricao').value) {
-              document.getElementById('descricao').value = "Produto do Mercado (Escaneado)";
-            }
-            alert(`✅ Preço identificado com sucesso: R$ ${valorNumerico.toFixed(2).replace('.', ',')}`);
-          } else {
-            alert("Não foi possível converter o número lido. Digite manualmente ou tente outra foto.");
-          }
-        } else {
-          alert("Nenhum preço claro foi encontrado na imagem. Tente focar mais de perto na etiqueta.");
-        }
-      } catch (err) {
-        alert("Erro ao processar o reconhecimento de texto: " + err.message);
       }
     }
 
