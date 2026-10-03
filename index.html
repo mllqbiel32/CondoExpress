@@ -172,7 +172,6 @@
     audio {
       width: 190px;
       height: 32px;
-      filter: sepia(20%) hue-rotate(50deg) saturate(150%);
     }
 
     /* BARRA DE INPUT ESTILO WHATSAPP */
@@ -212,7 +211,7 @@
     }
     .btn-audio:hover { background-color: #f0f2f5; }
 
-    /* ESTADO GRAVANDO: VERMELHO COM PULSAÇÃO E ONDAS SONORAS */
+    /* ESTADO GRAVANDO */
     .btn-audio.gravando {
       background-color: #ea0038;
       color: white;
@@ -679,7 +678,9 @@
         let htmlMsg = '';
         msgs.forEach((m) => {
           const ehMeu = m.quem === usuarioLogado;
-          const conteudo = m.tipo === 'audio' ? `<audio controls preload="auto"><source src="${m.urlAudio}" type="audio/webm"></audio>` : `<p>${m.texto || ''}</p>`;
+          const conteudo = m.tipo === 'audio' 
+            ? `<audio controls preload="metadata"><source src="${m.urlAudio}" type="${m.mimeType || 'audio/webm'}">Seu navegador não suporta áudio.</audio>` 
+            : `<p>${m.texto || ''}</p>`;
           htmlMsg += `
             <div class="mensagem-item ${ehMeu ? 'mensagem-gabriel' : 'mensagem-juliana'}">
               <strong>${m.quem}</strong>
@@ -723,7 +724,7 @@
       if (e.key === 'Enter') { e.preventDefault(); enviarMensagemTexto(); }
     });
 
-    // GRAVAÇÃO DE ÁUDIO CORRIGIDA E ROBUSTA
+    // SISTEMA DE GRAVAÇÃO DE ÁUDIO ROBUSTO PARA CELULAR
     async function alternarGravacaoAudio() {
       const btnGravar = document.getElementById('btn-gravar-audio');
       const inputMsg = document.getElementById('input-mensagem');
@@ -731,15 +732,22 @@
 
       if (!gravandoAudio) {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          
-          // Testa formato compatível com o navegador do celular
-          let options = { mimeType: 'audio/webm' };
-          if (!MediaRecorder.isTypeSupported('audio/webm')) {
-            options = { mimeType: 'audio/mp4' };
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("Seu navegador não suporta gravação de áudio por microfone.");
+            return;
           }
 
-          mediaRecorder = new MediaRecorder(stream, options);
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          
+          // Detecta formato compatível com o dispositivo
+          let mimeTypeUsado = 'audio/webm';
+          if (MediaRecorder.isTypeSupported('audio/mp4')) {
+            mimeTypeUsado = 'audio/mp4';
+          } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+            mimeTypeUsado = 'audio/webm;codecs=opus';
+          }
+
+          mediaRecorder = new MediaRecorder(stream, { mimeType: mimeTypeUsado });
           audioChunks = [];
 
           mediaRecorder.ondataavailable = e => {
@@ -749,15 +757,19 @@
           };
 
           mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-            await enviarAudioParaFirebase(audioBlob);
+            const audioBlob = new Blob(audioChunks, { type: mimeTypeUsado });
+            if (audioBlob.size > 0) {
+              await enviarAudioParaFirebase(audioBlob, mimeTypeUsado);
+            } else {
+              alert("O áudio gravado ficou vazio. Tente novamente.");
+            }
             stream.getTracks().forEach(t => t.stop());
           };
 
           mediaRecorder.start();
           gravandoAudio = true;
           btnGravar.classList.add('gravando');
-          btnGravar.textContent = "⏹️️";
+          btnGravar.textContent = "⏹";
           inputMsg.style.display = 'none';
           indicadorGravacao.classList.add('ativo');
         } catch (err) {
@@ -780,14 +792,15 @@
       }
     }
 
-    async function enviarAudioParaFirebase(audioBlob) {
+    async function enviarAudioParaFirebase(audioBlob, mimeType) {
       if (!storageGlobal || !dbGlobal) {
         alert("Firebase não inicializado.");
         return;
       }
       
       const usuarioLogado = localStorage.getItem('financas_usuario');
-      const nomeArquivo = `audios/${Date.now()}_${usuarioLogado}.webm`;
+      const extensao = mimeType.includes('mp4') ? 'mp4' : 'webm';
+      const nomeArquivo = `audios/${Date.now()}_${usuarioLogado}.${extensao}`;
       const storageRef = storageGlobal.ref().child(nomeArquivo);
 
       try {
@@ -798,6 +811,7 @@
           quem: usuarioLogado,
           tipo: 'audio',
           urlAudio: downloadURL,
+          mimeType: mimeType,
           timestamp: Date.now(),
           horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         });
