@@ -85,11 +85,6 @@
       font-size: 1.8rem;
       font-weight: bold;
       margin-bottom: 10px;
-      transition: background 0.3s, color 0.3s;
-    }
-    .visor-calc.ultrapassado {
-      background: #c0392b !important;
-      color: #ffffff !important;
     }
     .visor-subtotal {
       background: #ecf0f1;
@@ -174,7 +169,7 @@
     .mensagem-item p { font-size: 0.9rem; color: #111; }
     .mensagem-item small { display: block; font-size: 0.65rem; color: #667781; text-align: right; margin-top: 2px; }
 
-    /* BARRA DE INPUT DO CHAT */
+    /* BARRA DE INPUT DO CHAT (APENAS TEXTO E SETINHA) */
     .container-envio-chat {
       display: flex;
       gap: 8px;
@@ -263,7 +258,26 @@
   <div id="conteudo-principal">
     <h1>💰 Finanças do Casal</h1>
 
-    <!-- 1. CALCULADORA & CHAT (NO TOPO) -->
+    <!-- 1. TOPO: SALDO POSITIVO -->
+    <div class="card-saldo-positivo">
+      <h3>💵 Saldo Positivo Base (Sua Verba)</h3>
+      <div id="display-valor-positivo" class="valor-destaque">R$ 500,00</div>
+      <p>Valor base definido para o mês</p>
+    </div>
+
+    <!-- ÁREA EXCLUSIVA DO GABRIEL -->
+    <div id="painel-gabriel" class="painel-exclusivo-gabriel">
+      <form id="form-exclusivo-gabriel" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
+        <div class="form-group">
+          <label for="novo-limite-input">Alterar Saldo Positivo Base (R$)</label>
+          <input type="number" id="novo-limite-input" step="0.01" value="500.00" required>
+        </div>
+        <button type="submit" style="background-color: #27ae60;">Atualizar Valor Positivo</button>
+      </form>
+      <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoMes()">🔄 Limpar Tudo e Recomeçar o Mês</button>
+    </div>
+
+    <!-- 2. CALCULADORA & CHAT -->
     <div class="card-calculadora">
       <h2>🛒 Calculadora & Chat</h2>
       <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 10px;">Some seus itens e mande recados pelos corredores do mercado!</p>
@@ -318,31 +332,12 @@
           <p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhuma mensagem ainda. Mande um texto!</p>
         </div>
         
-        <!-- BARRA DE ENVIO -->
+        <!-- BARRA DE ENVIO (APENAS TEXTO E SETINHA) -->
         <div class="container-envio-chat">
           <input type="text" id="input-mensagem" placeholder="Digite uma mensagem...">
           <button type="button" class="btn-enviar-chat" onclick="enviarMensagemTexto()" title="Enviar">⬆️</button>
         </div>
       </div>
-    </div>
-
-    <!-- 2. SALDO POSITIVO -->
-    <div class="card-saldo-positivo">
-      <h3>💵 Saldo Positivo Base (Sua Verba)</h3>
-      <div id="display-valor-positivo" class="valor-destaque">R$ 500,00</div>
-      <p>Valor base definido para o mês</p>
-    </div>
-
-    <!-- ÁREA EXCLUSIVA DO GABRIEL -->
-    <div id="painel-gabriel" class="painel-exclusivo-gabriel">
-      <form id="form-exclusivo-gabriel" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
-        <div class="form-group">
-          <label for="novo-limite-input">Alterar Saldo Positivo Base (R$)</label>
-          <input type="number" id="novo-limite-input" step="0.01" value="500.00" required>
-        </div>
-        <button type="submit" style="background-color: #27ae60;">Atualizar Valor Positivo</button>
-      </form>
-      <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoMes()">🔄 Limpar Tudo e Recomeçar o Mês</button>
     </div>
 
     <!-- 3. NOVO GASTO -->
@@ -468,13 +463,6 @@
         if (!expressaoAtual) return;
         let valor = eval(expressaoAtual.replace(/%/g, '/100'));
         if (isNaN(valor) || valor <= 0) return;
-
-        // VALIDAÇÃO DE LIMITE DO SALDO BASE
-        if ((somaTotalCalculadora + valor) > VALOR_POSITIVO_BASE) {
-          alert(`🚫 Não é possível somar! O valor ultrapassa o Saldo Positivo Base de R$ ${VALOR_POSITIVO_BASE.toFixed(2)}.`);
-          return;
-        }
-
         somaTotalCalculadora += valor;
         itensCalculadoraLista.push(valor);
         expressaoAtual = "";
@@ -493,22 +481,10 @@
       const visor = document.getElementById('visor-calculadora');
       const listaEl = document.getElementById('lista-itens-calculadora');
       visor.textContent = `R$ ${somaTotalCalculadora.toFixed(2).replace('.', ',')}`;
-      
       listaEl.innerHTML = itensCalculadoraLista.length === 0 ? 'Nenhum item somado ainda.' : 'Itens: ' + itensCalculadoraLista.map(v => `R$ ${v.toFixed(2).replace('.', ',')}`).join(' + ');
-
-      // SE ULTRAPASSAR O LIMITE, MUDA A COR DO VISOR PARA VERMELHO
-      if (somaTotalCalculadora > VALOR_POSITIVO_BASE) {
-        visor.classList.add('ultrapassado');
-      } else {
-        visor.classList.remove('ultrapassado');
-      }
     }
     function enviarCalculadoraParaGasto() {
       if (somaTotalCalculadora <= 0) { alert("Calculadora vazia!"); return; }
-      if (somaTotalCalculadora > VALOR_POSITIVO_BASE) {
-        alert("🚫 O total acumulado excede o Saldo Positivo Base!");
-        return;
-      }
       document.getElementById('valor').value = somaTotalCalculadora.toFixed(2);
       if (!document.getElementById('descricao').value) document.getElementById('descricao').value = "Compras do Mercado";
       window.scrollTo({ top: document.getElementById('form-transacao').offsetTop, behavior: 'smooth' });
@@ -546,7 +522,6 @@
         if (!isNaN(novoValor) && novoValor > 0) {
           VALOR_POSITIVO_BASE = novoValor;
           atualizarInterfaceFinanceira(totalGastosAtual);
-          atualizarVisorCalculadora(); // Atualiza cores se necessário
           alert("✅ Saldo base atualizado!");
         }
       });
@@ -632,6 +607,7 @@
       }
     }
 
+    // ENVIO DE TEXTO CORRIGIDO
     async function enviarMensagemTexto() {
       const inputMensagem = document.getElementById('input-mensagem');
       const usuarioLogado = localStorage.getItem('financas_usuario');
@@ -653,7 +629,7 @@
           horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         });
         inputMensagem.value = '';
-        input_mensagem_foco = document.getElementById('input-mensagem').focus();
+        inputMensagem.focus();
       } catch (erro) {
         alert("Erro ao enviar mensagem: " + erro.message);
         console.error(erro);
