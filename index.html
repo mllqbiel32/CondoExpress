@@ -210,8 +210,27 @@
     .item-transacao:last-child { border-bottom: none; }
     .detalhes-transacao strong { display: block; font-size: 1rem; }
     .detalhes-transacao small { color: #7f8c8d; font-size: 0.8rem; }
+    
+    .lado-direito-transacao {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
     .valor-transacao { font-weight: bold; }
     .valor-saida { color: #c0392b; }
+    .btn-deletar-gasto {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      width: auto;
+    }
+    .btn-deletar-gasto:hover {
+      background-color: #c0392b;
+    }
 
     .card-saldo-final {
       background: #2c3e50;
@@ -316,7 +335,7 @@
 
       <div class="botoes-calc">
         <button type="button" class="btn-adicionar-item" onclick="adicionarItemCalculadora()">➕ Somar Preço</button>
-        <button type="button" class="btn-limpar-calc" onclick="zerarCalculadora()">🗑️ Zerar</button>
+        <button type="button" class="btn-limpar-calc" onclick="zerarCalculadora()">🗑️️ Zerar</button>
       </div>
 
       <div id="lista-itens-calculadora" class="lista-itens-calc">
@@ -577,7 +596,10 @@
                 <strong>${item.descricao}</strong>
                 <small>Por: <b>${item.quem}</b> em ${item.data}</small>
               </div>
-              <div class="valor-transacao valor-saida">- R$ ${item.valor.toFixed(2).replace('.', ',')}</div>
+              <div class="lado-direito-transacao">
+                <div class="valor-transacao valor-saida">- R$ ${item.valor.toFixed(2).replace('.', ',')}</div>
+                <button type="button" class="btn-deletar-gasto" onclick="deletarGasto('${item.id}')">🗑️ Apagar</button>
+              </div>
             </div>
           `;
         });
@@ -617,6 +639,18 @@
         displayValorPositivoEl.textContent = `R$ ${VALOR_POSITIVO_BASE.toFixed(2).replace('.', ',')}`;
         saldoRestanteFinalEl.textContent = `R$ ${restante.toFixed(2).replace('.', ',')}`;
         saldoRestanteFinalEl.style.color = restante < 0 ? '#e74c3c' : '#2ecc71';
+      }
+    }
+
+    // FUNÇÃO PARA DELETAR UM GASTO ESPECÍFICO
+    async function deletarGasto(id) {
+      if (!dbGlobal) return;
+      if (!confirm("Deseja realmente apagar este gasto?")) return;
+
+      try {
+        await dbGlobal.collection('financas').doc(id).delete();
+      } catch (erro) {
+        alert("Erro ao apagar o gasto: " + erro.message);
       }
     }
 
