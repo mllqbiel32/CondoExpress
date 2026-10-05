@@ -169,7 +169,7 @@
     .mensagem-item p { font-size: 0.9rem; color: #111; }
     .mensagem-item small { display: block; font-size: 0.65rem; color: #667781; text-align: right; margin-top: 2px; }
 
-    /* BARRA DE INPUT DO CHAT (APENAS TEXTO E SETINHA) */
+    /* BARRA DE INPUT DO CHAT */
     .container-envio-chat {
       display: flex;
       gap: 8px;
@@ -335,7 +335,7 @@
 
       <div class="botoes-calc">
         <button type="button" class="btn-adicionar-item" onclick="adicionarItemCalculadora()">➕ Somar Preço</button>
-        <button type="button" class="btn-limpar-calc" onclick="zerarCalculadora()">🗑️️ Zerar</button>
+        <button type="button" class="btn-limpar-calc" onclick="zerarCalculadora()">🗑 Zerar</button>
       </div>
 
       <div id="lista-itens-calculadora" class="lista-itens-calc">
@@ -351,7 +351,7 @@
           <p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhuma mensagem ainda. Mande um texto!</p>
         </div>
         
-        <!-- BARRA DE ENVIO (APENAS TEXTO E SETINHA) -->
+        <!-- BARRA DE ENVIO -->
         <div class="container-envio-chat">
           <input type="text" id="input-mensagem" placeholder="Digite uma mensagem...">
           <button type="button" class="btn-enviar-chat" onclick="enviarMensagemTexto()" title="Enviar">⬆️</button>
@@ -642,7 +642,6 @@
       }
     }
 
-    // FUNÇÃO PARA DELETAR UM GASTO ESPECÍFICO
     async function deletarGasto(id) {
       if (!dbGlobal) return;
       if (!confirm("Deseja realmente apagar este gasto?")) return;
@@ -654,7 +653,6 @@
       }
     }
 
-    // ENVIO DE TEXTO CORRIGIDO
     async function enviarMensagemTexto() {
       const inputMensagem = document.getElementById('input-mensagem');
       const usuarioLogado = localStorage.getItem('financas_usuario');
