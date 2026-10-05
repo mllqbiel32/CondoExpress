@@ -505,8 +505,16 @@
       if (firebaseIniciado) return;
       firebaseIniciado = true;
 
-      firebase.initializeApp(firebaseConfig);
-      dbGlobal = firebase.firestore();
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        dbGlobal = firebase.firestore();
+      } catch (err) {
+        console.error("Erro ao inicializar Firebase:", err);
+        alert("Erro ao conectar com o banco de dados. Verifique sua internet ou chaves do Firebase.");
+        return;
+      }
 
       const form = document.getElementById('form-transacao');
       const formGabriel = document.getElementById('form-exclusivo-gabriel');
@@ -575,7 +583,10 @@
         });
         listaTransacoes.innerHTML = html || '<p style="text-align: center; color: #7f8c8d;">Nenhum gasto.</p>';
         totalGastosAtual = somaGastos;
-        atualizarInterfaceFinanceira(totalGastos);
+        atualizarInterfaceFinanceira(totalGastosAtual);
+      }, (error) => {
+        console.error("Erro no listener de finanças:", error);
+        listaTransacoes.innerHTML = '<p style="text-align: center; color: #e74c3c;">Erro ao carregar dados do Firebase.</p>';
       });
 
       dbGlobal.collection('mensagens_chat').onSnapshot((snapshot) => {
@@ -597,6 +608,8 @@
         });
         listaMensagens.innerHTML = htmlMsg || '<p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhuma mensagem ainda.</p>';
         listaMensagens.scrollTop = listaMensagens.scrollHeight;
+      }, (error) => {
+        console.error("Erro no chat:", error);
       });
 
       function atualizarInterfaceFinanceira(totalGastos) {
