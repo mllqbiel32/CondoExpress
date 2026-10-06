@@ -205,19 +205,39 @@
     }
     .btn-enviar-chat:hover { background-color: #008f6f; }
 
-    .historico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .historico, .historico-arquivado { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .item-transacao { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
     .item-transacao:last-child { border-bottom: none; }
     .detalhes-transacao strong { display: block; font-size: 1rem; }
     .detalhes-transacao small { color: #7f8c8d; font-size: 0.8rem; }
     
+    .item-pago .detalhes-transacao strong,
+    .item-pago .detalhes-transacao small,
+    .item-pago .valor-transacao {
+      text-decoration: line-through;
+      color: #95a5a6 !important;
+    }
+
     .lado-direito-transacao {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
     }
     .valor-transacao { font-weight: bold; }
     .valor-saida { color: #c0392b; }
+    
+    .btn-pagar-gasto {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      width: auto;
+    }
+    .btn-pagar-gasto:hover { background-color: #219653; }
+
     .btn-deletar-gasto {
       background-color: #e74c3c;
       color: white;
@@ -228,9 +248,25 @@
       cursor: pointer;
       width: auto;
     }
-    .btn-deletar-gasto:hover {
-      background-color: #c0392b;
+    .btn-deletar-gasto:hover { background-color: #c0392b; }
+
+    /* Bloco por data no histórico arquivado */
+    .bloco-data-historico {
+      margin-bottom: 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
     }
+    .data-cabecalho {
+      background: #f8f9fa;
+      padding: 10px 15px;
+      font-weight: bold;
+      color: #2c3e50;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+    }
+    .itens-data-lista { padding: 0 15px; }
 
     .card-saldo-final {
       background: #2c3e50;
@@ -392,7 +428,22 @@
       </div>
     </div>
 
-    <!-- 5. SALDO FINAL -->
+    <!-- 5. HISTÓRICO ARQUIVADO / PESQUISA POR DATA -->
+    <div class="historico-arquivado">
+      <h2>📅 Histórico Arquivado por Data</h2>
+      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 12px;">Consulte tudo o que já foi pago anteriormente organizado por dia:</p>
+      
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label for="filtra-data">Filtrar por Data específica:</label>
+        <input type="text" id="filtra-data" placeholder="Ex: 06/10/2026" oninput="filtrarHistoricoArquivado()">
+      </div>
+
+      <div id="lista-historico-arquivado">
+        <p style="text-align: center; color: #7f8c8d;">Nenhum histórico arquivado.</p>
+      </div>
+    </div>
+
+    <!-- 6. SALDO FINAL -->
     <div class="card-saldo-final">
       <h3>Saldo que Sobrou:</h3>
       <span id="saldo-restante-final">R$ 500,00</span>
@@ -408,7 +459,8 @@
     let somaTotalCalculadora = 0;
     let itensCalculadoraLista = [];
     let expressaoAtual = "";
-    let totalGastosAtual = 0;
+    let totalGastosPagosAtual = 0;
+    let historicoGeralCache = [];
 
     let dbGlobal = null;
 
@@ -548,7 +600,7 @@
         const novoValor = parseFloat(document.getElementById('novo-limite-input').value);
         if (!isNaN(novoValor) && novoValor > 0) {
           VALOR_POSITIVO_BASE = novoValor;
-          atualizarInterfaceFinanceira(totalGastosAtual);
+          atualizarInterfaceFinanceira(totalGastosPagosAtual);
           alert("✅ Saldo base atualizado!");
         }
       });
@@ -559,16 +611,12 @@
         const descricao = document.getElementById('descricao').value;
         const valor = parseFloat(document.getElementById('valor').value);
 
-        if ((totalGastosAtual + valor) > VALOR_POSITIVO_BASE) {
-          alert(`🚫 Gasto excede o saldo base de R$ ${VALOR_POSITIVO_BASE.toFixed(2)}!`);
-          return;
-        }
-
         try {
           await dbGlobal.collection('financas').add({
             quem: usuarioLogado,
             descricao: descricao,
             valor: valor,
+            pago: false,
             timestamp: Date.now(),
             data: new Date().toLocaleDateString('pt-BR')
           });
@@ -580,35 +628,54 @@
 
       dbGlobal.collection('financas').onSnapshot((snapshot) => {
         let items = [];
-        let somaGastos = 0;
+        let somaPagos = 500; // Será recalculado com base no VALOR_POSITIVO_BASE
+        
+        let totalCalculadoPagos = 0;
         snapshot.forEach((doc) => {
           const item = doc.data();
           items.push({ id: doc.id, ...item });
-          somaGastos += item.valor;
+          if (item.pago === true) {
+            totalCalculadoPagos += item.valor;
+          }
         });
         items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         let html = '';
         items.forEach((item) => {
+          const classePago = item.pago ? 'item-pago' : '';
           html += `
-            <div class="item-transacao">
+            <div class="item-transacao ${classePago}" id="transacao-${item.id}">
               <div class="detalhes-transacao">
                 <strong>${item.descricao}</strong>
-                <small>Por: <b>${item.quem}</b> em ${item.data}</small>
+                <small>Por: <b>${item.quem}</b> em ${item.data} ${item.pago ? '✅ (Pago)' : ''}</small>
               </div>
               <div class="lado-direito-transacao">
                 <div class="valor-transacao valor-saida">- R$ ${item.valor.toFixed(2).replace('.', ',')}</div>
+                <button type="button" class="btn-pagar-gasto" onclick="alternarPago('${item.id}', ${!item.pago})">${item.pago ? 'Desfazer' : 'Já Pago'}</button>
                 <button type="button" class="btn-deletar-gasto" onclick="deletarGasto('${item.id}')">🗑️ Apagar</button>
               </div>
             </div>
           `;
         });
         listaTransacoes.innerHTML = html || '<p style="text-align: center; color: #7f8c8d;">Nenhum gasto.</p>';
-        totalGastosAtual = somaGastos;
-        atualizarInterfaceFinanceira(totalGastosAtual);
+        totalGastosPagosAtual = totalCalculadoPagos;
+        atualizarInterfaceFinanceira(totalGastosPagosAtual);
       }, (error) => {
         console.error("Erro no listener de finanças:", error);
         listaTransacoes.innerHTML = '<p style="text-align: center; color: #e74c3c;">Erro ao carregar dados do Firebase.</p>';
+      });
+
+      // Carregar histórico arquivado permanente
+      dbGlobal.collection('historico_arquivado').onSnapshot((snapshot) => {
+        let items = [];
+        snapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() });
+        });
+        items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        historicoGeralCache = items;
+        renderizarHistoricoArquivado(historicoGeralCache);
+      }, (error) => {
+        console.error("Erro no histórico arquivado:", error);
       });
 
       dbGlobal.collection('mensagens_chat').onSnapshot((snapshot) => {
@@ -634,12 +701,90 @@
         console.error("Erro no chat:", error);
       });
 
-      function atualizarInterfaceFinanceira(totalGastos) {
-        const restante = VALOR_POSITIVO_BASE - totalGastos;
+      function atualizarInterfaceFinanceira(totalGastosPagos) {
+        const restante = VALOR_POSITIVO_BASE - totalGastosPagos;
         displayValorPositivoEl.textContent = `R$ ${VALOR_POSITIVO_BASE.toFixed(2).replace('.', ',')}`;
         saldoRestanteFinalEl.textContent = `R$ ${restante.toFixed(2).replace('.', ',')}`;
         saldoRestanteFinalEl.style.color = restante < 0 ? '#e74c3c' : '#2ecc71';
       }
+    }
+
+    async function alternarPago(id, statusPago) {
+      if (!dbGlobal) return;
+      try {
+        const ref = dbGlobal.collection('financas').doc(id);
+        const docSnap = await ref.get();
+        if (!docSnap.exists) return;
+        const dados = docSnap.data();
+
+        // Atualiza status no documento atual
+        await ref.update({ pago: statusPago });
+
+        // Se marcou como pago, salva também no histórico arquivado permanente
+        if (statusPago) {
+          await dbGlobal.collection('historico_arquivado').add({
+            quem: dados.quem,
+            descricao: dados.descricao,
+            valor: dados.valor,
+            data: dados.data,
+            timestamp: dados.timestamp || Date.now()
+          });
+        }
+      } catch (e) {
+        alert("Erro ao atualizar status: " + e.message);
+      }
+    }
+
+    function renderizarHistoricoArquivado(lista) {
+      const container = document.getElementById('lista-historico-arquivado');
+      if (!lista || lista.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Nenhum histórico arquivado.</p>';
+        return;
+      }
+
+      // Agrupar por data
+      let grupos = {};
+      lista.forEach(item => {
+        const d = item.data || 'Sem Data';
+        if (!grupos[d]) grupos[d] = [];
+        grupos[d].push(item);
+      });
+
+      let html = '';
+      for (let data in grupos) {
+        let somaDia = grupos[data].reduce((acc, curr) => acc + curr.valor, 0);
+        html += `
+          <div class="bloco-data-historico">
+            <div class="data-cabecalho">
+              <span>📅 Data: ${data}</span>
+              <span style="color: #c0392b;">Total: R$ ${somaDia.toFixed(2).replace('.', ',')}</span>
+            </div>
+            <div class="itens-data-lista">
+        `;
+        grupos[data].forEach(item => {
+          html += `
+            <div class="item-transacao">
+              <div class="detalhes-transacao">
+                <strong>${item.descricao}</strong>
+                <small>Por: <b>${item.quem}</b></small>
+              </div>
+              <div class="valor-transacao valor-saida">- R$ ${item.valor.toFixed(2).replace('.', ',')}</div>
+            </div>
+          `;
+        });
+        html += `</div></div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function filtrarHistoricoArquivado() {
+      const termo = document.getElementById('filtra-data').value.trim();
+      if (!termo) {
+        renderizarHistoricoArquivado(historicoGeralCache);
+        return;
+      }
+      const filtrado = historicoGeralCache.filter(item => item.data.includes(termo));
+      renderizarHistoricoArquivado(filtrado);
     }
 
     async function deletarGasto(id) {
@@ -690,7 +835,7 @@
 
     async function limparTudoDoMes() {
       if (localStorage.getItem('financas_usuario') !== 'Gabriel' || !dbGlobal) return;
-      if (!confirm("⚠ Deseja apagar tudo e recomeçar o mês?")) return;
+      if (!confirm("⚠ Deseja apagar tudo do mês atual e recomeçar? (O histórico arquivado permanecerá seguro)")) return;
 
       try {
         const b1 = dbGlobal.batch();
