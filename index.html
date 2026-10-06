@@ -221,7 +221,7 @@
     .lado-direito-transacao {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     .valor-transacao { font-weight: bold; }
     .valor-saida { color: #c0392b; }
@@ -428,14 +428,17 @@
       </div>
     </div>
 
-    <!-- 5. HISTÓRICO ARQUIVADO / PESQUISA POR DATA -->
+    <!-- 5. HISTÓRICO ARQUIVADO / PESQUISA POR CALENDÁRIO -->
     <div class="historico-arquivado">
-      <h2>📅 Histórico Arquivado por Data</h2>
-      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 12px;">Consulte tudo o que já foi pago anteriormente organizado por dia:</p>
+      <h2>📅 Histórico Arquivado</h2>
+      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 12px;">Selecione o dia para consultar os pagamentos realizados:</p>
       
       <div class="form-group" style="margin-bottom: 15px;">
-        <label for="filtra-data">Filtrar por Data específica:</label>
-        <input type="text" id="filtra-data" placeholder="Ex: 06/10/2026" oninput="filtrarHistoricoArquivado()">
+        <label for="filtra-data">Escolher Data:</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="date" id="filtra-data" onchange="filtrarHistoricoArquivado()" style="flex: 1;">
+          <button type="button" onclick="limparFiltroData()" style="width: auto; padding: 0 15px; background-color: #7f8c8d;" title="Ver Todos">🔄 Todos</button>
+        </div>
       </div>
 
       <div id="lista-historico-arquivado">
@@ -618,7 +621,8 @@
             valor: valor,
             pago: false,
             timestamp: Date.now(),
-            data: new Date().toLocaleDateString('pt-BR')
+            data: new Date().toLocaleDateString('pt-BR'),
+            dataIso: new Date().toISOString().split('T')[0] // yyyy-mm-dd para o calendário
           });
           document.getElementById('descricao').value = '';
           document.getElementById('valor').value = '';
@@ -628,8 +632,6 @@
 
       dbGlobal.collection('financas').onSnapshot((snapshot) => {
         let items = [];
-        let somaPagos = 500; // Será recalculado com base no VALOR_POSITIVO_BASE
-        
         let totalCalculadoPagos = 0;
         snapshot.forEach((doc) => {
           const item = doc.data();
@@ -652,7 +654,7 @@
               <div class="lado-direito-transacao">
                 <div class="valor-transacao valor-saida">- R$ ${item.valor.toFixed(2).replace('.', ',')}</div>
                 <button type="button" class="btn-pagar-gasto" onclick="alternarPago('${item.id}', ${!item.pago})">${item.pago ? 'Desfazer' : 'Já Pago'}</button>
-                <button type="button" class="btn-deletar-gasto" onclick="deletarGasto('${item.id}')">🗑️ Apagar</button>
+                <button type="button" class="btn-deletar-gasto" onclick="deletarGasto('${item.id}')">🗑️</button>
               </div>
             </div>
           `;
@@ -717,16 +719,15 @@
         if (!docSnap.exists) return;
         const dados = docSnap.data();
 
-        // Atualiza status no documento atual
         await ref.update({ pago: statusPago });
 
-        // Se marcou como pago, salva também no histórico arquivado permanente
         if (statusPago) {
           await dbGlobal.collection('historico_arquivado').add({
             quem: dados.quem,
             descricao: dados.descricao,
             valor: dados.valor,
             data: dados.data,
+            dataIso: dados.dataIso || new Date().toISOString().split('T')[0],
             timestamp: dados.timestamp || Date.now()
           });
         }
@@ -742,7 +743,6 @@
         return;
       }
 
-      // Agrupar por data
       let grupos = {};
       lista.forEach(item => {
         const d = item.data || 'Sem Data';
@@ -756,7 +756,7 @@
         html += `
           <div class="bloco-data-historico">
             <div class="data-cabecalho">
-              <span>📅 Data: ${data}</span>
+              <span>📅 ${data}</span>
               <span style="color: #c0392b;">Total: R$ ${somaDia.toFixed(2).replace('.', ',')}</span>
             </div>
             <div class="itens-data-lista">
@@ -778,13 +778,22 @@
     }
 
     function filtrarHistoricoArquivado() {
-      const termo = document.getElementById('filtra-data').value.trim();
-      if (!termo) {
+      const dataSelecionada = document.getElementById('filtra-data').value; // Formato yyyy-mm-dd
+      if (!dataSelecionada) {
         renderizarHistoricoArquivado(historicoGeralCache);
         return;
       }
-      const filtrado = historicoGeralCache.filter(item => item.data.includes(termo));
+      // Converte yyyy-mm-dd para dd/mm/yyyy para comparar com o banco
+      const partes = dataSelecionada.split('-');
+      const dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+      const filtrado = historicoGeralCache.filter(item => item.data === dataFormatada);
       renderizarHistoricoArquivado(filtrado);
+    }
+
+    function limparFiltroData() {
+      document.getElementById('filtra-data').value = '';
+      renderizarHistoricoArquivado(historicoGeralCache);
     }
 
     async function deletarGasto(id) {
