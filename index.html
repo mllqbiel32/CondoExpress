@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finanças do Casal</title>
+  <title>CondoExpress - Controle de Portaria</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#3f51b5">
   <style>
@@ -34,21 +34,21 @@
 
     #conteudo-principal { display: none; }
 
-    /* Saldo Positivo Topo */
-    .card-saldo-positivo {
-      background: linear-gradient(135deg, #27ae60, #2ecc71);
+    /* Painel de Status no Topo */
+    .card-status-topo {
+      background: linear-gradient(135deg, #2980b9, #3498db);
       color: white;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+      box-shadow: 0 4px 10px rgba(41, 128, 185, 0.3);
       text-align: center;
       margin-bottom: 20px;
     }
-    .card-saldo-positivo h3 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; opacity: 0.9; }
-    .card-saldo-positivo .valor-destaque { font-size: 2rem; font-weight: bold; }
-    .card-saldo-positivo p { font-size: 0.85rem; margin-top: 5px; opacity: 0.8; }
+    .card-status-topo h3 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; opacity: 0.9; }
+    .card-status-topo .valor-destaque { font-size: 1.8rem; font-weight: bold; }
+    .card-status-topo p { font-size: 0.85rem; margin-top: 5px; opacity: 0.8; }
 
-    .painel-exclusivo-gabriel {
+    .painel-exclusivo-adm {
       background: white;
       padding: 15px 20px;
       border-radius: 10px;
@@ -60,81 +60,21 @@
     form { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
-    input, select, button { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
+    input, select, textarea, button { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
+    textarea { resize: vertical; height: 80px; }
     button { background-color: #3f51b5; color: white; border: none; font-weight: bold; cursor: pointer; transition: background 0.2s; }
     button:hover { background-color: #303f9f; }
     .btn-sair { background-color: #e74c3c; margin-top: 15px; }
     .btn-limpar-tudo { background-color: #e67e22; margin-top: 10px; }
     .btn-limpar-tudo:hover { background-color: #d35400; }
 
-    /* Calculadora */
-    .card-calculadora {
-      background: #ffffff;
+    /* CHAT ESTILO WHATSAPP */
+    .secao-chat-integrado {
+      background: white;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       margin-bottom: 20px;
-      border: 2px solid #3f51b5;
-    }
-    .visor-calc {
-      background: #2c3e50;
-      color: #2ecc71;
-      padding: 15px;
-      border-radius: 6px;
-      text-align: right;
-      font-size: 1.8rem;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .visor-subtotal {
-      background: #ecf0f1;
-      color: #34495e;
-      padding: 8px 12px;
-      border-radius: 6px;
-      text-align: right;
-      font-size: 1.1rem;
-      font-weight: bold;
-      margin-bottom: 15px;
-    }
-
-    .teclado-numerico {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 15px;
-    }
-    .btn-teclado {
-      background-color: #ecf0f1;
-      color: #2c3e50;
-      font-size: 1.2rem;
-      padding: 14px 0;
-      border-radius: 6px;
-      border: 1px solid #bdc3c7;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .btn-teclado:active { background-color: #bdc3c7; }
-    .btn-operacao { background-color: #3498db; color: white; border: none; }
-    .btn-apagar { background-color: #e74c3c; color: white; border: none; }
-
-    .botoes-calc { display: flex; gap: 10px; }
-    .btn-adicionar-item { background-color: #27ae60; }
-    .btn-limpar-calc { background-color: #e67e22; }
-    .lista-itens-calc {
-      max-height: 120px;
-      overflow-y: auto;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: #555;
-      border-top: 1px solid #eee;
-      padding-top: 8px;
-    }
-
-    /* CHAT ESTILO WHATSAPP */
-    .secao-chat-integrado {
-      margin-top: 20px;
-      border-top: 2px dashed #dcdde1;
-      padding-top: 15px;
     }
     .chat-mensagens {
       height: 240px;
@@ -155,12 +95,12 @@
       word-wrap: break-word;
       box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
-    .mensagem-gabriel {
+    .mensagem-porteiro {
       background: #d9fdd3;
       margin-left: auto;
       border-top-right-radius: 0;
     }
-    .mensagem-juliana {
+    .mensagem-morador {
       background: #ffffff;
       margin-right: auto;
       border-top-left-radius: 0;
@@ -169,7 +109,6 @@
     .mensagem-item p { font-size: 0.9rem; color: #111; }
     .mensagem-item small { display: block; font-size: 0.65rem; color: #667781; text-align: right; margin-top: 2px; }
 
-    /* BARRA DE INPUT DO CHAT */
     .container-envio-chat {
       display: flex;
       gap: 8px;
@@ -208,13 +147,11 @@
     .historico, .historico-arquivado { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .item-transacao { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
     .item-transacao:last-child { border-bottom: none; }
-    .detalhes-transacao strong { display: block; font-size: 1rem; }
-    .detalhes-transacao small { color: #7f8c8d; font-size: 0.8rem; }
+    .detalhes-transacao strong { display: block; font-size: 1rem; color: #2c3e50; }
+    .detalhes-transacao small { color: #7f8c8d; font-size: 0.8rem; display: block; margin-top: 3px; }
     
-    .item-pago .detalhes-transacao strong,
-    .item-pago .detalhes-transacao small,
-    .item-pago .valor-transacao {
-      text-decoration: line-through;
+    .item-saida .detalhes-transacao strong,
+    .item-saida .detalhes-transacao small {
       color: #95a5a6 !important;
     }
 
@@ -223,10 +160,8 @@
       align-items: center;
       gap: 6px;
     }
-    .valor-transacao { font-weight: bold; }
-    .valor-saida { color: #c0392b; }
     
-    .btn-pagar-gasto {
+    .btn-acao-gasto {
       background-color: #27ae60;
       color: white;
       border: none;
@@ -236,7 +171,7 @@
       cursor: pointer;
       width: auto;
     }
-    .btn-pagar-gasto:hover { background-color: #219653; }
+    .btn-acao-gasto:hover { background-color: #219653; }
 
     .btn-deletar-gasto {
       background-color: #e74c3c;
@@ -250,7 +185,6 @@
     }
     .btn-deletar-gasto:hover { background-color: #c0392b; }
 
-    /* Bloco por data no histórico arquivado */
     .bloco-data-historico {
       margin-bottom: 15px;
       border: 1px solid #e0e0e0;
@@ -267,20 +201,6 @@
       justify-content: space-between;
     }
     .itens-data-lista { padding: 0 15px; }
-
-    .card-saldo-final {
-      background: #2c3e50;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .card-saldo-final h3 { font-size: 1rem; }
-    .card-saldo-final span { font-size: 1.3rem; font-weight: bold; color: #2ecc71; }
   </style>
 
   <!-- Firebase Scripts Compat -->
@@ -293,136 +213,90 @@
 
   <!-- TELA DE LOGIN -->
   <div id="tela-login">
-    <h1>🔒 Acesso Restrito</h1>
-    <p style="color: #7f8c8d; margin-top: 5px;">Selecione quem está acessando e digite a senha</p>
+    <h1>🏢 CondoExpress</h1>
+    <p style="color: #7f8c8d; margin-top: 5px;">Acesso ao Sistema de Portaria</p>
     <form id="form-login" onsubmit="validarSenha(event)">
       <div class="form-group" style="margin-top: 15px;">
-        <label for="usuario-login" style="text-align: left;">Quem está entrando?</label>
+        <label for="usuario-login" style="text-align: left;">Selecione o Perfil</label>
         <select id="usuario-login" required>
-          <option value="Gabriel">Gabriel</option>
-          <option value="Juliana">Juliana</option>
+          <option value="Porteiro">Porteiro (Plantão)</option>
+          <option value="Administração">Administração / Síndico</option>
         </select>
       </div>
-      <input type="password" id="input-senha" placeholder="Digite sua senha" required>
-      <button type="submit">Entrar</button>
-      <p id="msg-erro" class="erro-senha">❌ Senha incorreta para o usuário selecionado!</p>
+      <input type="password" id="input-senha" placeholder="Digite a senha" required>
+      <button type="submit">Entrar no Sistema</button>
+      <p id="msg-erro" class="erro-senha">❌ Senha incorreta!</p>
     </form>
   </div>
 
   <!-- CONTEÚDO DO APLICATIVO -->
   <div id="conteudo-principal">
-    <h1>💰 Finanças do Casal</h1>
+    <h1>🏢 Controle de Portaria</h1>
 
-    <!-- 1. TOPO: SALDO POSITIVO -->
-    <div class="card-saldo-positivo">
-      <h3>💵 Saldo Positivo Base (Sua Verba)</h3>
-      <div id="display-valor-positivo" class="valor-destaque">R$ 500,00</div>
-      <p>Valor base definido para o mês</p>
+    <!-- 1. TOPO: STATUS -->
+    <div class="card-status-topo">
+      <h3>🚨 Portaria Operacional</h3>
+      <div id="display-status-geral" class="valor-destaque">Sistema Ativo</div>
+      <p>Registro de Acessos, Encomendas e Ocorrências</p>
     </div>
 
-    <!-- ÁREA EXCLUSIVA DO GABRIEL -->
-    <div id="painel-gabriel" class="painel-exclusivo-gabriel">
-      <form id="form-exclusivo-gabriel" style="background: transparent; box-shadow: none; padding: 0; margin-bottom: 0;">
-        <div class="form-group">
-          <label for="novo-limite-input">Alterar Saldo Positivo Base (R$)</label>
-          <input type="number" id="novo-limite-input" step="0.01" value="500.00" required>
-        </div>
-        <button type="submit" style="background-color: #27ae60;">Atualizar Valor Positivo</button>
-      </form>
-      <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoMes()">🔄 Limpar Tudo e Recomeçar o Mês</button>
+    <!-- ÁREA EXCLUSIVA DA ADMINISTRAÇÃO -->
+    <div id="painel-adm" class="painel-exclusivo-adm">
+      <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoDia()">🔄 Limpar Cadastros Ativos do Dia</button>
     </div>
 
-    <!-- 2. CALCULADORA & CHAT -->
-    <div class="card-calculadora">
-      <h2>🛒 Calculadora & Chat</h2>
-      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 10px;">Some seus itens e mande recados pelos corredores do mercado!</p>
-      
-      <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 2px;">Operação atual:</div>
-      <div id="visor-item-atual" class="visor-subtotal">0</div>
-
-      <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 2px;">Total acumulado da compra:</div>
-      <div id="visor-calculadora" class="visor-calc">R$ 0,00</div>
-      
-      <!-- TECLADO NUMÉRICO -->
-      <div class="teclado-numerico">
-        <button type="button" class="btn-teclado btn-operacao" onclick="digitarNumero('/')">÷</button>
-        <button type="button" class="btn-teclado btn-operacao" onclick="digitarNumero('*')">×</button>
-        <button type="button" class="btn-teclado btn-operacao" onclick="digitarNumero('-')">-</button>
-        <button type="button" class="btn-teclado btn-operacao" onclick="digitarNumero('+')">+</button>
-
-        <button type="button" class="btn-teclado" onclick="digitarNumero('7')">7</button>
-        <button type="button" class="btn-teclado" onclick="digitarNumero('8')">8</button>
-        <button type="button" class="btn-teclado" onclick="digitarNumero('9')">9</button>
-        <button type="button" class="btn-teclado btn-operacao" onclick="digitarNumero('%')">%</button>
-        
-        <button type="button" class="btn-teclado" onclick="digitarNumero('4')">4</button>
-        <button type="button" class="btn-teclado" onclick="digitarNumero('5')">5</button>
-        <button type="button" class="btn-teclado" onclick="digitarNumero('6')">6</button>
-        <button type="button" class="btn-teclado btn-apagar" onclick="apagarDigito()">⌫</button>
-        
-        <button type="button" class="btn-teclado" onclick="digitarNumero('1')">1</button>
-        <button type="button" class="btn-teclado" onclick="digitarNumero('2')">2</button>
-        <button type="button" class="btn-teclado" onclick="digitarNumero('3')">3</button>
-        <button type="button" class="btn-teclado btn-operacao" onclick="calcularResultadoFinal()" style="grid-row: span 2; background-color: #2980b9;">=</button>
-
-        <button type="button" class="btn-teclado" onclick="digitarNumero('0')" style="grid-column: span 2;">0</button>
-        <button type="button" class="btn-teclado" onclick="digitarNumero('.')">.</button>
-      </div>
-
-      <div class="botoes-calc">
-        <button type="button" class="btn-adicionar-item" onclick="adicionarItemCalculadora()">➕ Somar Preço</button>
-        <button type="button" class="btn-limpar-calc" onclick="zerarCalculadora()">🗑 Zerar</button>
-      </div>
-
-      <div id="lista-itens-calculadora" class="lista-itens-calc">
-        Nenhum item somado ainda.
-      </div>
-
-      <button type="button" onclick="enviarCalculadoraParaGasto()" style="background-color: #3f51b5; margin-top: 12px;">📥 Enviar Total para Novo Gasto</button>
-
-      <!-- CHAT INTEGRADO -->
-      <div class="secao-chat-integrado">
-        <h3 style="font-size: 1rem; color: #2c3e50; margin-bottom: 8px; text-align: left;">💬 Chat do Mercado</h3>
-        <div id="lista-mensagens" class="chat-mensagens">
-          <p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhuma mensagem ainda. Mande um texto!</p>
-        </div>
-        
-        <!-- BARRA DE ENVIO -->
-        <div class="container-envio-chat">
-          <input type="text" id="input-mensagem" placeholder="Digite uma mensagem...">
-          <button type="button" class="btn-enviar-chat" onclick="enviarMensagemTexto()" title="Enviar">⬆️</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. NOVO GASTO -->
+    <!-- 2. NOVO CADASTRO DE ACESSO / ENCOMENDA -->
     <form id="form-transacao">
-      <h2>Novo Gasto</h2>
+      <h2>Novo Registro de Portaria</h2>
       
       <div class="form-group">
-        <label for="quem">Autor do Lançamento</label>
+        <label for="quem">Registrado por</label>
         <select id="quem" disabled required>
-          <option value="Gabriel">Gabriel</option>
-          <option value="Juliana">Juliana</option>
+          <option value="Porteiro">Porteiro</option>
+          <option value="Administração">Administração</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="descricao">Descrição do Gasto</label>
-        <input type="text" id="descricao" placeholder="Ex: Supermercado, Lanche, Uber" required>
+        <label for="tipo-registro">Tipo de Movimento</label>
+        <select id="tipo-registro" required>
+          <option value="Visitante">Visitante / Convidado</option>
+          <option value="Prestador">Prestador de Serviço</option>
+          <option value="Encomenda">Encomenda / Correios</option>
+          <option value="Ocorrência">Ocorrência Geral</option>
+        </select>
       </div>
 
       <div class="form-group">
-        <label for="valor">Valor do Gasto (R$)</label>
-        <input type="number" id="valor" step="0.01" placeholder="0,00" required>
+        <label for="descricao">Nome / Descrição (Ex: João (Entregador Amazon) - Bloco B Ap 204)</label>
+        <input type="text" id="descricao" placeholder="Nome da pessoa ou detalhe da encomenda" required>
       </div>
 
-      <button type="submit">Adicionar Gasto</button>
+      <div class="form-group">
+        <label for="valor">Placa do Veículo / Documento (Opcional)</label>
+        <input type="text" id="valor" placeholder="Ex: ABC-1234 ou RG/CPF">
+      </div>
+
+      <button type="submit">Cadastrar na Portaria</button>
     </form>
 
-    <!-- 4. HISTÓRICO -->
+    <!-- 3. CHAT INTEGRADO COM MORADORES -->
+    <div class="secao-chat-integrado">
+      <h3 style="font-size: 1rem; color: #2c3e50; margin-bottom: 8px; text-align: left;">💬 Comunicados & Avisos da Portaria</h3>
+      <div id="lista-mensagens" class="chat-mensagens">
+        <p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhum aviso enviado ainda.</p>
+      </div>
+      
+      <!-- BARRA DE ENVIO -->
+      <div class="container-envio-chat">
+        <input type="text" id="input-mensagem" placeholder="Digite um aviso para os moradores...">
+        <button type="button" class="btn-enviar-chat" onclick="enviarMensagemTexto()" title="Enviar">⬆️</button>
+      </div>
+    </div>
+
+    <!-- 4. HISTÓRICO ATIVO DO DIA -->
     <div class="historico">
-      <h2>Histórico de Gastos</h2>
+      <h2>📋 Registros Ativos do Dia</h2>
       <div id="lista-transacoes">
         <p style="text-align: center; color: #7f8c8d;">Carregando dados...</p>
       </div>
@@ -430,8 +304,8 @@
 
     <!-- 5. HISTÓRICO ARQUIVADO / PESQUISA POR CALENDÁRIO -->
     <div class="historico-arquivado">
-      <h2>📅 Histórico Arquivado</h2>
-      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 12px;">Selecione o dia para consultar os pagamentos realizados:</p>
+      <h2>📅 Livro de Ocorrências / Arquivo</h2>
+      <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 12px;">Selecione o dia para consultar os registros passados:</p>
       
       <div class="form-group" style="margin-bottom: 15px;">
         <label for="filtra-data">Escolher Data:</label>
@@ -446,29 +320,17 @@
       </div>
     </div>
 
-    <!-- 6. SALDO FINAL -->
-    <div class="card-saldo-final">
-      <h3>Saldo que Sobrou:</h3>
-      <span id="saldo-restante-final">R$ 500,00</span>
-    </div>
-
-    <button type="button" class="btn-sair" onclick="sair()">🔒 Sair / Trocar Usuário</button>
+    <button type="button" class="btn-sair" onclick="sair()">🔒 Sair / Trocar Perfil</button>
   </div>
 
   <script>
-    const SENHAS = { Gabriel: "7890", Juliana: "2468" };
+    const SENHAS = { Porteiro: "1234", Administração: "admin" };
 
-    let VALOR_POSITIVO_BASE = 500.00;
-    let somaTotalCalculadora = 0;
-    let itensCalculadoraLista = [];
-    let expressaoAtual = "";
-    let totalGastosPagosAtual = 0;
     let historicoGeralCache = [];
-
     let dbGlobal = null;
 
-    if (localStorage.getItem('financas_autenticado') === 'true') {
-      const usuarioLogado = localStorage.getItem('financas_usuario');
+    if (localStorage.getItem('condo_autenticado') === 'true') {
+      const usuarioLogado = localStorage.getItem('condo_usuario');
       if (usuarioLogado && SENHAS[usuarioLogado]) {
         exibirApp(usuarioLogado);
       } else {
@@ -483,8 +345,8 @@
       const msgErro = document.getElementById('msg-erro');
 
       if (SENHAS[usuarioSelecionado] && senhaDigitada === SENHAS[usuarioSelecionado]) {
-        localStorage.setItem('financas_autenticado', 'true');
-        localStorage.setItem('financas_usuario', usuarioSelecionado);
+        localStorage.setItem('condo_autenticado', 'true');
+        localStorage.setItem('condo_usuario', usuarioSelecionado);
         msgErro.style.display = 'none';
         exibirApp(usuarioSelecionado);
       } else {
@@ -497,10 +359,10 @@
       document.getElementById('conteudo-principal').style.display = 'block';
       document.getElementById('quem').value = usuario;
 
-      if (usuario === 'Gabriel') {
-        document.getElementById('painel-gabriel').style.display = 'block';
+      if (usuario === 'Administração') {
+        document.getElementById('painel-adm').style.display = 'block';
       } else {
-        document.getElementById('painel-gabriel').style.display = 'none';
+        document.getElementById('painel-adm').style.display = 'none';
       }
       iniciarFirebase();
     }
@@ -508,60 +370,6 @@
     function sair() {
       localStorage.clear();
       location.reload();
-    }
-
-    // CALCULADORA
-    function digitarNumero(valor) {
-      expressaoAtual += valor;
-      atualizarVisorItemAtual();
-    }
-    function apagarDigito() {
-      expressaoAtual = expressaoAtual.slice(0, -1);
-      atualizarVisorItemAtual();
-    }
-    function atualizarVisorItemAtual() {
-      const visorItem = document.getElementById('visor-item-atual');
-      visorItem.textContent = expressaoAtual === '' ? '0' : expressaoAtual.replace(/\*/g, '×').replace(/\//g, '÷');
-    }
-    function calcularResultadoFinal() {
-      try {
-        if (!expressaoAtual) return;
-        let resultado = eval(expressaoAtual.replace(/%/g, '/100'));
-        if (isNaN(resultado) || !isFinite(resultado)) return;
-        expressaoAtual = Number(resultado.toFixed(2)).toString();
-        atualizarVisorItemAtual();
-      } catch (err) { alert("Expressão inválida"); }
-    }
-    function adicionarItemCalculadora() {
-      try {
-        if (!expressaoAtual) return;
-        let valor = eval(expressaoAtual.replace(/%/g, '/100'));
-        if (isNaN(valor) || valor <= 0) return;
-        somaTotalCalculadora += valor;
-        itensCalculadoraLista.push(valor);
-        expressaoAtual = "";
-        atualizarVisorItemAtual();
-        atualizarVisorCalculadora();
-      } catch (err) { alert("Erro ao processar"); }
-    }
-    function zerarCalculadora() {
-      somaTotalCalculadora = 0;
-      itensCalculadoraLista = [];
-      expressaoAtual = "";
-      atualizarVisorItemAtual();
-      atualizarVisorCalculadora();
-    }
-    function atualizarVisorCalculadora() {
-      const visor = document.getElementById('visor-calculadora');
-      const listaEl = document.getElementById('lista-itens-calculadora');
-      visor.textContent = `R$ ${somaTotalCalculadora.toFixed(2).replace('.', ',')}`;
-      listaEl.innerHTML = itensCalculadoraLista.length === 0 ? 'Nenhum item somado ainda.' : 'Itens: ' + itensCalculadoraLista.map(v => `R$ ${v.toFixed(2).replace('.', ',')}`).join(' + ');
-    }
-    function enviarCalculadoraParaGasto() {
-      if (somaTotalCalculadora <= 0) { alert("Calculadora vazia!"); return; }
-      document.getElementById('valor').value = somaTotalCalculadora.toFixed(2);
-      if (!document.getElementById('descricao').value) document.getElementById('descricao').value = "Compras do Mercado";
-      window.scrollTo({ top: document.getElementById('form-transacao').offsetTop, behavior: 'smooth' });
     }
 
     const firebaseConfig = {
@@ -586,89 +394,70 @@
         dbGlobal = firebase.firestore();
       } catch (err) {
         console.error("Erro ao inicializar Firebase:", err);
-        alert("Erro ao conectar com o banco de dados. Verifique sua internet ou chaves do Firebase.");
+        alert("Erro ao conectar com o banco de dados.");
         return;
       }
 
       const form = document.getElementById('form-transacao');
-      const formGabriel = document.getElementById('form-exclusivo-gabriel');
       const listaTransacoes = document.getElementById('lista-transacoes');
-      const displayValorPositivoEl = document.getElementById('display-valor-positivo');
-      const saldoRestanteFinalEl = document.getElementById('saldo-restante-final');
       const listaMensagens = document.getElementById('lista-mensagens');
-
-      formGabriel.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (localStorage.getItem('financas_usuario') !== 'Gabriel') return;
-        const novoValor = parseFloat(document.getElementById('novo-limite-input').value);
-        if (!isNaN(novoValor) && novoValor > 0) {
-          VALOR_POSITIVO_BASE = novoValor;
-          atualizarInterfaceFinanceira(totalGastosPagosAtual);
-          alert("✅ Saldo base atualizado!");
-        }
-      });
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const usuarioLogado = localStorage.getItem('financas_usuario');
+        const usuarioLogado = localStorage.getItem('condo_usuario');
+        const tipoRegistro = document.getElementById('tipo-registro').value;
         const descricao = document.getElementById('descricao').value;
-        const valor = parseFloat(document.getElementById('valor').value);
+        const valor = document.getElementById('valor').value || 'Não informado';
 
         try {
-          await dbGlobal.collection('financas').add({
+          await dbGlobal.collection('portaria_registros').add({
             quem: usuarioLogado,
+            tipo: tipoRegistro,
             descricao: descricao,
-            valor: valor,
-            pago: false,
+            detalhes: valor,
+            concluido: false,
             timestamp: Date.now(),
             data: new Date().toLocaleDateString('pt-BR'),
-            dataIso: new Date().toISOString().split('T')[0] // yyyy-mm-dd para o calendário
+            dataIso: new Date().toISOString().split('T')[0],
+            horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
           });
           document.getElementById('descricao').value = '';
           document.getElementById('valor').value = '';
-          zerarCalculadora();
         } catch (erro) { alert("Erro ao salvar: " + erro.message); }
       });
 
-      dbGlobal.collection('financas').onSnapshot((snapshot) => {
+      dbGlobal.collection('portaria_registros').onSnapshot((snapshot) => {
         let items = [];
-        let totalCalculadoPagos = 0;
         snapshot.forEach((doc) => {
           const item = doc.data();
           items.push({ id: doc.id, ...item });
-          if (item.pago === true) {
-            totalCalculadoPagos += item.valor;
-          }
         });
         items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         let html = '';
         items.forEach((item) => {
-          const classePago = item.pago ? 'item-pago' : '';
+          const classeConcluido = item.concluido ? 'item-saida' : '';
           html += `
-            <div class="item-transacao ${classePago}" id="transacao-${item.id}">
+            <div class="item-transacao ${classeConcluido}" id="transacao-${item.id}">
               <div class="detalhes-transacao">
-                <strong>${item.descricao}</strong>
-                <small>Por: <b>${item.quem}</b> em ${item.data} ${item.pago ? '✅ (Pago)' : ''}</small>
+                <strong>[${item.tipo}] ${item.descricao}</strong>
+                <small>Doc/Placa: ${item.detalhes} | Horário: ${item.horario || '--:--'} (${item.data})</small>
+                <small>Registrado por: <b>${item.quem}</b> ${item.concluido ? '✅ (Finalizado/Saída)' : '⏳ (No Condomínio)'}</small>
               </div>
               <div class="lado-direito-transacao">
-                <div class="valor-transacao valor-saida">- R$ ${item.valor.toFixed(2).replace('.', ',')}</div>
-                <button type="button" class="btn-pagar-gasto" onclick="alternarPago('${item.id}', ${!item.pago})">${item.pago ? 'Desfazer' : 'Já Pago'}</button>
-                <button type="button" class="btn-deletar-gasto" onclick="deletarGasto('${item.id}')">🗑️</button>
+                <button type="button" class="btn-acao-gasto" onclick="alternarConcluido('${item.id}', ${!item.concluido})">${item.concluido ? 'Reativar' : 'Dar Saída'}</button>
+                <button type="button" class="btn-deletar-gasto" onclick="deletarRegistro('${item.id}')">🗑️</button>
               </div>
             </div>
           `;
         });
-        listaTransacoes.innerHTML = html || '<p style="text-align: center; color: #7f8c8d;">Nenhum gasto.</p>';
-        totalGastosPagosAtual = totalCalculadoPagos;
-        atualizarInterfaceFinanceira(totalGastosPagosAtual);
+        listaTransacoes.innerHTML = html || '<p style="text-align: center; color: #7f8c8d;">Nenhum registro ativo no momento.</p>';
       }, (error) => {
-        console.error("Erro no listener de finanças:", error);
-        listaTransacoes.innerHTML = '<p style="text-align: center; color: #e74c3c;">Erro ao carregar dados do Firebase.</p>';
+        console.error("Erro no listener:", error);
+        listaTransacoes.innerHTML = '<p style="text-align: center; color: #e74c3c;">Erro ao carregar dados.</p>';
       });
 
-      // Carregar histórico arquivado permanente
-      dbGlobal.collection('historico_arquivado').onSnapshot((snapshot) => {
+      dbGlobal.collection('historico_portaria_arquivado').onSnapshot((snapshot) => {
         let items = [];
         snapshot.forEach((doc) => {
           items.push({ id: doc.id, ...doc.data() });
@@ -685,49 +474,44 @@
         snapshot.forEach((doc) => { msgs.push({ id: doc.id, ...doc.data() }); });
         msgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
-        const usuarioLogado = localStorage.getItem('financas_usuario');
+        const usuarioLogado = localStorage.getItem('condo_usuario');
         let htmlMsg = '';
         msgs.forEach((m) => {
           const ehMeu = m.quem === usuarioLogado;
           htmlMsg += `
-            <div class="mensagem-item ${ehMeu ? 'mensagem-gabriel' : 'mensagem-juliana'}">
+            <div class="mensagem-item ${ehMeu ? 'mensagem-porteiro' : 'mensagem-morador'}">
               <strong>${m.quem}</strong>
               <p>${m.texto || ''}</p>
               <small>${m.horario || ''}</small>
             </div>
           `;
         });
-        listaMensagens.innerHTML = htmlMsg || '<p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhuma mensagem ainda.</p>';
+        listaMensagens.innerHTML = htmlMsg || '<p style="text-align: center; color: #7f8c8d; margin-top: 50px; font-size: 0.85rem;">Nenhum aviso ainda.</p>';
         listaMensagens.scrollTop = listaMensagens.scrollHeight;
       }, (error) => {
         console.error("Erro no chat:", error);
       });
-
-      function atualizarInterfaceFinanceira(totalGastosPagos) {
-        const restante = VALOR_POSITIVO_BASE - totalGastosPagos;
-        displayValorPositivoEl.textContent = `R$ ${VALOR_POSITIVO_BASE.toFixed(2).replace('.', ',')}`;
-        saldoRestanteFinalEl.textContent = `R$ ${restante.toFixed(2).replace('.', ',')}`;
-        saldoRestanteFinalEl.style.color = restante < 0 ? '#e74c3c' : '#2ecc71';
-      }
     }
 
-    async function alternarPago(id, statusPago) {
+    async function alternarConcluido(id, statusConcluido) {
       if (!dbGlobal) return;
       try {
-        const ref = dbGlobal.collection('financas').doc(id);
+        const ref = dbGlobal.collection('portaria_registros').doc(id);
         const docSnap = await ref.get();
         if (!docSnap.exists) return;
         const dados = docSnap.data();
 
-        await ref.update({ pago: statusPago });
+        await ref.update({ concluido: statusConcluido });
 
-        if (statusPago) {
-          await dbGlobal.collection('historico_arquivado').add({
+        if (statusConcluido) {
+          await dbGlobal.collection('historico_portaria_arquivado').add({
             quem: dados.quem,
+            tipo: dados.tipo,
             descricao: dados.descricao,
-            valor: dados.valor,
+            detalhes: dados.detalhes,
             data: dados.data,
             dataIso: dados.dataIso || new Date().toISOString().split('T')[0],
+            horario: dados.horario,
             timestamp: dados.timestamp || Date.now()
           });
         }
@@ -752,12 +536,11 @@
 
       let html = '';
       for (let data in grupos) {
-        let somaDia = grupos[data].reduce((acc, curr) => acc + curr.valor, 0);
         html += `
           <div class="bloco-data-historico">
             <div class="data-cabecalho">
               <span>📅 ${data}</span>
-              <span style="color: #c0392b;">Total: R$ ${somaDia.toFixed(2).replace('.', ',')}</span>
+              <span>Total Registros: ${grupos[data].length}</span>
             </div>
             <div class="itens-data-lista">
         `;
@@ -765,10 +548,9 @@
           html += `
             <div class="item-transacao">
               <div class="detalhes-transacao">
-                <strong>${item.descricao}</strong>
-                <small>Por: <b>${item.quem}</b></small>
+                <strong>[${item.tipo}] ${item.descricao}</strong>
+                <small>Doc/Placa: ${item.detalhes} | Horário: ${item.horario || '--:--'}</small>
               </div>
-              <div class="valor-transacao valor-saida">- R$ ${item.valor.toFixed(2).replace('.', ',')}</div>
             </div>
           `;
         });
@@ -778,12 +560,11 @@
     }
 
     function filtrarHistoricoArquivado() {
-      const dataSelecionada = document.getElementById('filtra-data').value; // Formato yyyy-mm-dd
+      const dataSelecionada = document.getElementById('filtra-data').value;
       if (!dataSelecionada) {
         renderizarHistoricoArquivado(historicoGeralCache);
         return;
       }
-      // Converte yyyy-mm-dd para dd/mm/yyyy para comparar com o banco
       const partes = dataSelecionada.split('-');
       const dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
 
@@ -796,29 +577,24 @@
       renderizarHistoricoArquivado(historicoGeralCache);
     }
 
-    async function deletarGasto(id) {
+    async function deletarRegistro(id) {
       if (!dbGlobal) return;
-      if (!confirm("Deseja realmente apagar este gasto?")) return;
+      if (!confirm("Deseja realmente apagar este registro?")) return;
 
       try {
-        await dbGlobal.collection('financas').doc(id).delete();
+        await dbGlobal.collection('portaria_registros').doc(id).delete();
       } catch (erro) {
-        alert("Erro ao apagar o gasto: " + erro.message);
+        alert("Erro ao apagar: " + erro.message);
       }
     }
 
     async function enviarMensagemTexto() {
       const inputMensagem = document.getElementById('input-mensagem');
-      const usuarioLogado = localStorage.getItem('financas_usuario');
+      const usuarioLogado = localStorage.getItem('condo_usuario');
       const texto = inputMensagem.value.trim();
       
       if (!texto) return;
       
-      if (!dbGlobal) {
-        alert("Erro: O banco de dados não foi inicializado. Faça login novamente.");
-        return;
-      }
-
       try {
         await dbGlobal.collection('mensagens_chat').add({
           quem: usuarioLogado,
@@ -830,8 +606,7 @@
         inputMensagem.value = '';
         inputMensagem.focus();
       } catch (erro) {
-        alert("Erro ao enviar mensagem: " + erro.message);
-        console.error(erro);
+        alert("Erro ao enviar aviso: " + erro.message);
       }
     }
 
@@ -842,20 +617,15 @@
       }
     });
 
-    async function limparTudoDoMes() {
-      if (localStorage.getItem('financas_usuario') !== 'Gabriel' || !dbGlobal) return;
-      if (!confirm("⚠ Deseja apagar tudo do mês atual e recomeçar? (O histórico arquivado permanecerá seguro)")) return;
+    async function limparTudoDoDia() {
+      if (localStorage.getItem('condo_usuario') !== 'Administração' || !dbGlobal) return;
+      if (!confirm("⚠ Deseja limpar os registros ativos do dia?")) return;
 
       try {
-        const b1 = dbGlobal.batch();
-        (await dbGlobal.collection('financas').get()).forEach(d => b1.delete(d.ref));
-        await b1.commit();
-
-        const b2 = dbGlobal.batch();
-        (await dbGlobal.collection('mensagens_chat').get()).forEach(d => b2.delete(d.ref));
-        await b2.commit();
-
-        alert("✅ Mês reiniciado com sucesso!");
+        const batch = dbGlobal.batch();
+        (await dbGlobal.collection('portaria_registros').get()).forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        alert("✅ Registros do dia limpos com sucesso!");
       } catch (e) { alert("Erro: " + e.message); }
     }
   </script>
