@@ -245,7 +245,7 @@
       <button type="button" class="btn-limpar-tudo" onclick="limparTudoDoDia()">🔄 Limpar Cadastros Ativos do Dia</button>
     </div>
 
-    <!-- 2. NOVO CADASTRO DE ACESSO / ENCOMENDA -->
+    <!-- 2. NOVO CADASTRO DE ACESSO -->
     <form id="form-transacao">
       <h2>Novo Registro de Portaria</h2>
       
@@ -268,13 +268,18 @@
       </div>
 
       <div class="form-group">
-        <label for="descricao">Nome / Descrição (Ex: João (Entregador Amazon) - Bloco B Ap 204)</label>
-        <input type="text" id="descricao" placeholder="Nome da pessoa ou detalhe da encomenda" required>
+        <label for="descricao">Nome / Destino (Ex: João - Bloco B Ap 204)</label>
+        <input type="text" id="descricao" placeholder="Nome da pessoa ou morador destino" required>
       </div>
 
       <div class="form-group">
-        <label for="valor">Placa do Veículo / Documento (Opcional)</label>
-        <input type="text" id="valor" placeholder="Ex: ABC-1234 ou RG/CPF">
+        <label for="placa-veiculo">Placa do Veículo (Opcional)</label>
+        <input type="text" id="placa-veiculo" placeholder="Ex: ABC-1234">
+      </div>
+
+      <div class="form-group">
+        <label for="rg-documento">RG / CPF do Visitante (Opcional)</label>
+        <input type="text" id="rg-documento" placeholder="Ex: 12.345.678-9">
       </div>
 
       <button type="submit">Cadastrar na Portaria</button>
@@ -407,14 +412,16 @@
         const usuarioLogado = localStorage.getItem('condo_usuario');
         const tipoRegistro = document.getElementById('tipo-registro').value;
         const descricao = document.getElementById('descricao').value;
-        const valor = document.getElementById('valor').value || 'Não informado';
+        const placa = document.getElementById('placa-veiculo').value.trim() || 'Não informada';
+        const rg = document.getElementById('rg-documento').value.trim() || 'Não informado';
 
         try {
           await dbGlobal.collection('portaria_registros').add({
             quem: usuarioLogado,
             tipo: tipoRegistro,
             descricao: descricao,
-            detalhes: valor,
+            placa: placa,
+            rg: rg,
             concluido: false,
             timestamp: Date.now(),
             data: new Date().toLocaleDateString('pt-BR'),
@@ -422,7 +429,8 @@
             horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
           });
           document.getElementById('descricao').value = '';
-          document.getElementById('valor').value = '';
+          document.getElementById('placa-veiculo').value = '';
+          document.getElementById('rg-documento').value = '';
         } catch (erro) { alert("Erro ao salvar: " + erro.message); }
       });
 
@@ -441,8 +449,8 @@
             <div class="item-transacao ${classeConcluido}" id="transacao-${item.id}">
               <div class="detalhes-transacao">
                 <strong>[${item.tipo}] ${item.descricao}</strong>
-                <small>Doc/Placa: ${item.detalhes} | Horário: ${item.horario || '--:--'} (${item.data})</small>
-                <small>Registrado por: <b>${item.quem}</b> ${item.concluido ? '✅ (Finalizado/Saída)' : '⏳ (No Condomínio)'}</small>
+                <small>🚗 Placa: ${item.placa} | 🆔 RG/CPF: ${item.rg}</small>
+                <small>🕒 Horário: ${item.horario || '--:--'} (${item.data}) | Por: <b>${item.quem}</b> ${item.concluido ? '✅ (Saída)' : '⏳ (No Local)'}</small>
               </div>
               <div class="lado-direito-transacao">
                 <button type="button" class="btn-acao-gasto" onclick="alternarConcluido('${item.id}', ${!item.concluido})">${item.concluido ? 'Reativar' : 'Dar Saída'}</button>
@@ -508,7 +516,8 @@
             quem: dados.quem,
             tipo: dados.tipo,
             descricao: dados.descricao,
-            detalhes: dados.detalhes,
+            placa: dados.placa,
+            rg: dados.rg,
             data: dados.data,
             dataIso: dados.dataIso || new Date().toISOString().split('T')[0],
             horario: dados.horario,
@@ -549,7 +558,7 @@
             <div class="item-transacao">
               <div class="detalhes-transacao">
                 <strong>[${item.tipo}] ${item.descricao}</strong>
-                <small>Doc/Placa: ${item.detalhes} | Horário: ${item.horario || '--:--'}</small>
+                <small>🚗 Placa: ${item.placa} | 🆔 RG/CPF: ${item.rg} | Horário: ${item.horario || '--:--'}</small>
               </div>
             </div>
           `;
